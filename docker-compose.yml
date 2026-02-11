@@ -1,0 +1,11 @@
+services:
+  onec-mcp-toolkit-proxy:
+    build: .
+    ports:
+      - "6003:6003"
+    environment:
+      - PORT=6003
+      - TIMEOUT=180 # Timeout for waiting 1C response    
+      - ALLOW_DANGEROUS_WITH_APPROVAL=true  # Включить режим подтверждения опасных операций
+      - RESPONSE_FORMAT=toon  # Формат ответов: toon (по умолчанию) или json
+    restart: unless-stopped

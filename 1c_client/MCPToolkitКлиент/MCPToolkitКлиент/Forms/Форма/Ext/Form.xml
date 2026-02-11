@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<AutoCommandBar name="ФормаКоманднаяПанель" id="-1"/>
+	<ChildItems>
+		<UsualGroup name="ГруппаПодключение" id="1">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Подключение к серверу</v8:content>
+				</v8:item>
+			</Title>
+			<Group>Vertical</Group>
+			<Representation>NormalSeparation</Representation>
+			<ExtendedTooltip name="ГруппаПодключениеРасширеннаяПодсказка" id="2"/>
+			<ChildItems>
+				<InputField name="АдресСервераПоле" id="3">
+					<DataPath>АдресСервера</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Адрес сервера</v8:content>
+						</v8:item>
+					</Title>
+					<Width>50</Width>
+					<ExtendedTooltip name="АдресСервераПолеРасширеннаяПодсказка" id="4"/>
+				</InputField>
+				<UsualGroup name="ГруппаКанал" id="32">
+					<Title>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Идентификатор канала</v8:content>
+						</v8:item>
+					</Title>
+					<Group>AlwaysHorizontal</Group>
+					<Representation>None</Representation>
+					<ExtendedTooltip name="ГруппаКаналРасширеннаяПодсказка" id="33"/>
+					<ChildItems>
+						<InputField name="ИдентификаторКаналаПоле" id="34">
+							<DataPath>ИдентификаторКанала</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Channel ID</v8:content>
+								</v8:item>
+							</Title>
+							<Width>40</Width>
+							<ExtendedTooltip name="ИдентификаторКаналаПолеРасширеннаяПодсказка" id="35">
+								<Title>
+									<v8:item>
+										<v8:lang>ru</v8:lang>
+										<v8:content>Идентификатор канала для изоляции команд между разными клиентами</v8:content>
+									</v8:item>
+								</Title>
+							</ExtendedTooltip>
+							<ContextMenu name="ИдентификаторКаналаПолеКонтекстноеМеню" id="36"/>
+						</InputField>
+						<Button name="КнопкаСгенерироватьКанал" id="37">
+							<Type>UsualButton</Type>
+							<Title>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Сгенерировать</v8:content>
+								</v8:item>
+							</Title>
+							<CommandName>Form.Command.СгенерироватьИдентификаторКанала</CommandName>
+							<ExtendedTooltip name="КнопкаСгенерироватьКаналРасширеннаяПодсказка" id="38"/>
+						</Button>
+					</ChildItems>
+				</UsualGroup>
+				<UsualGroup name="ГруппаАвтоРазрешение" id="24">
+					<Title>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Автоматически разрешать операции</v8:content>
+						</v8:item>
+					</Title>
+					<Group>Vertical</Group>
+					<Representation>None</Representation>
+					<ExtendedTooltip name="ГруппаАвтоРазрешениеРасширеннаяПодсказка" id="25"/>
+					<ChildItems>
+						<CheckBoxField name="ФлагАвтоЗаписать" id="26">
+							<DataPath>АвтоРазрешитьЗаписать</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Записать</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="ФлагАвтоЗаписатьРасширеннаяПодсказка" id="27"/>
+						</CheckBoxField>
+						<CheckBoxField name="ФлагАвтоПривилегированныйРежим" id="28">
+							<DataPath>АвтоРазрешитьПривилегированныйРежим</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>УстановитьПривилегированныйРежим</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="ФлагАвтоПривилегированныйРежимРасширеннаяПодсказка" id="29"/>
+						</CheckBoxField>
+					</ChildItems>
+				</UsualGroup>
+				<UsualGroup name="ГруппаКнопки" id="5">
+					<Group>AlwaysHorizontal</Group>
+					<Representation>None</Representation>
+					<ExtendedTooltip name="ГруппаКнопкиРасширеннаяПодсказка" id="6"/>
+					<ChildItems>
+						<Button name="КнопкаПодключиться" id="7">
+							<Type>UsualButton</Type>
+							<CommandName>Form.Command.Подключиться</CommandName>
+							<ExtendedTooltip name="КнопкаПодключитьсяРасширеннаяПодсказка" id="8"/>
+						</Button>
+						<Button name="КнопкаОтключиться" id="9">
+							<Type>UsualButton</Type>
+							<CommandName>Form.Command.Отключиться</CommandName>
+							<ExtendedTooltip name="КнопкаОтключитьсяРасширеннаяПодсказка" id="10"/>
+						</Button>
+					</ChildItems>
+				</UsualGroup>
+			</ChildItems>
+		</UsualGroup>
+		<LabelDecoration name="ПустаяНадпись" id="21">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content> </v8:content>
+				</v8:item>
+			</Title>
+			<Visible>false</Visible>
+			<ContextMenu name="ПустаяНадписьКонтекстноеМеню" id="22"/>
+			<ExtendedTooltip name="ПустаяНадписьРасширеннаяПодсказка" id="23"/>
+		</LabelDecoration>
+		<UsualGroup name="ГруппаСтатус" id="11">
+			<Group>Horizontal</Group>
+			<Grouping>Horizontal</Grouping>
+			<Representation>NormalSeparation</Representation>
+			<ShowTitle>false</ShowTitle>
+			<ExtendedTooltip name="ГруппаСтатусРасширеннаяПодсказка" id="12"/>
+			<ChildItems>
+				<Decoration name="ИндикаторПодключения" id="13">
+					<Type>Label</Type>
+					<Title>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>●</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="ИндикаторПодключенияРасширеннаяПодсказка" id="14"/>
+				</Decoration>
+				<InputField name="СтатусПоле" id="15">
+					<DataPath>Статус</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Статус</v8:content>
+						</v8:item>
+					</Title>
+					<ReadOnly>true</ReadOnly>
+					<Width>40</Width>
+					<ExtendedTooltip name="СтатусПолеРасширеннаяПодсказка" id="16"/>
+				</InputField>
+			</ChildItems>
+		</UsualGroup>
+		<UsualGroup name="ГруппаЛог" id="17">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Журнал событий</v8:content>
+				</v8:item>
+			</Title>
+			<Group>Vertical</Group>
+			<Representation>NormalSeparation</Representation>
+			<ExtendedTooltip name="ГруппаЛогРасширеннаяПодсказка" id="18"/>
+			<ChildItems>
+				<InputField name="ЛогПоле" id="19">
+					<DataPath>Лог</DataPath>
+					<TitleLocation>None</TitleLocation>
+					<ReadOnly>true</ReadOnly>
+					<MultiLine>true</MultiLine>
+					<Height>10</Height>
+					<Width>80</Width>
+					<ExtendedTooltip name="ЛогПолеРасширеннаяПодсказка" id="20"/>
+				</InputField>
+				<Button name="КнопкаОчиститьЖурнал" id="30">
+					<Type>UsualButton</Type>
+					<CommandName>Form.Command.ОчиститьЖурнал</CommandName>
+					<ExtendedTooltip name="КнопкаОчиститьЖурналРасширеннаяПодсказка" id="31"/>
+				</Button>
+			</ChildItems>
+		</UsualGroup>
+	</ChildItems>
+	<Attributes>
+		<Attribute name="Объект" id="1">
+			<Type>
+				<v8:Type>cfg:ExternalDataProcessorObject.MCPToolkitКлиент</v8:Type>
+			</Type>
+			<MainAttribute>true</MainAttribute>
+		</Attribute>
+		<Attribute name="АдресСервера" id="2">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="Статус" id="3">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>100</v8:Length>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="Подключено" id="4">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="Лог" id="5">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="АвтоРазрешитьЗаписать" id="6">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="АвтоРазрешитьПривилегированныйРежим" id="7">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="ИдентификаторКанала" id="8">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+	</Attributes>
+	<Commands>
+		<Command name="Подключиться" id="1">
+			<Action>Подключиться</Action>
+		</Command>
+		<Command name="Отключиться" id="2">
+			<Action>Отключиться</Action>
+		</Command>
+		<Command name="ОчиститьЖурнал" id="3">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Очистить журнал</v8:content>
+				</v8:item>
+			</Title>
+			<Action>ОчиститьЖурнал</Action>
+		</Command>
+		<Command name="СгенерироватьИдентификаторКанала" id="4">
+			<Action>СгенерироватьИдентификаторКанала</Action>
+		</Command>
+	</Commands>
+	<Events>
+		<Event name="ПриСозданииНаСервере">ПриСозданииНаСервере</Event>
+		<Event name="ПриОткрытии">ПриОткрытии</Event>
+		<Event name="ПриЗакрытии">ПриЗакрытии</Event>
+	</Events>
+</Form>

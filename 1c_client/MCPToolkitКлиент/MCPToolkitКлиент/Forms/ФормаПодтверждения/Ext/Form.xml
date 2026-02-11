@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<AutoCommandBar name="ФормаКоманднаяПанель" id="-1"/>
+	<ChildItems>
+		<LabelDecoration name="ДекорацияПредупреждение" id="1">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Код содержит потенциально опасные операции!</v8:content>
+				</v8:item>
+			</Title>
+			<ContextMenu name="ДекорацияПредупреждениеКонтекстноеМеню" id="2"/>
+			<ExtendedTooltip name="ДекорацияПредупреждениеРасширеннаяПодсказка" id="3"/>
+		</LabelDecoration>
+		<LabelDecoration name="ПустаяНадпись1" id="4">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content> </v8:content>
+				</v8:item>
+			</Title>
+			<ContextMenu name="ПустаяНадпись1КонтекстноеМеню" id="5"/>
+			<ExtendedTooltip name="ПустаяНадпись1РасширеннаяПодсказка" id="6"/>
+		</LabelDecoration>
+		<LabelDecoration name="ДекорацияОпасныеСлова" id="7">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Найденные опасные ключевые слова:</v8:content>
+				</v8:item>
+			</Title>
+			<ContextMenu name="ДекорацияОпасныеСловаКонтекстноеМеню" id="8"/>
+			<ExtendedTooltip name="ДекорацияОпасныеСловаРасширеннаяПодсказка" id="9"/>
+		</LabelDecoration>
+		<InputField name="ПолеОпасныеСлова" id="10">
+			<DataPath>ОпасныеСлова</DataPath>
+			<TitleLocation>None</TitleLocation>
+			<ReadOnly>true</ReadOnly>
+			<Width>60</Width>
+			<ExtendedTooltip name="ПолеОпасныеСловаРасширеннаяПодсказка" id="11"/>
+		</InputField>
+		<LabelDecoration name="ПустаяНадпись2" id="12">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content> </v8:content>
+				</v8:item>
+			</Title>
+			<ContextMenu name="ПустаяНадпись2КонтекстноеМеню" id="13"/>
+			<ExtendedTooltip name="ПустаяНадпись2РасширеннаяПодсказка" id="14"/>
+		</LabelDecoration>
+		<LabelDecoration name="ДекорацияКод" id="15">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Код для выполнения:</v8:content>
+				</v8:item>
+			</Title>
+			<ContextMenu name="ДекорацияКодКонтекстноеМеню" id="16"/>
+			<ExtendedTooltip name="ДекорацияКодРасширеннаяПодсказка" id="17"/>
+		</LabelDecoration>
+		<InputField name="ПолеКод" id="18">
+			<DataPath>Код</DataPath>
+			<TitleLocation>None</TitleLocation>
+			<ReadOnly>true</ReadOnly>
+			<MultiLine>true</MultiLine>
+			<Height>10</Height>
+			<Width>60</Width>
+			<ExtendedTooltip name="ПолеКодРасширеннаяПодсказка" id="19"/>
+		</InputField>
+		<LabelDecoration name="ПустаяНадпись3" id="20">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content> </v8:content>
+				</v8:item>
+			</Title>
+			<ContextMenu name="ПустаяНадпись3КонтекстноеМеню" id="21"/>
+			<ExtendedTooltip name="ПустаяНадпись3РасширеннаяПодсказка" id="22"/>
+		</LabelDecoration>
+		<UsualGroup name="ГруппаКнопки" id="23">
+			<Group>AlwaysHorizontal</Group>
+			<Representation>None</Representation>
+			<ExtendedTooltip name="ГруппаКнопкиРасширеннаяПодсказка" id="24"/>
+			<ChildItems>
+				<Button name="КнопкаРазрешить" id="25">
+					<Type>UsualButton</Type>
+					<CommandName>Form.Command.Разрешить</CommandName>
+					<ExtendedTooltip name="КнопкаРазрешитьРасширеннаяПодсказка" id="26"/>
+				</Button>
+				<Button name="КнопкаОтклонить" id="27">
+					<Type>UsualButton</Type>
+					<CommandName>Form.Command.Отклонить</CommandName>
+					<ExtendedTooltip name="КнопкаОтклонитьРасширеннаяПодсказка" id="28"/>
+				</Button>
+			</ChildItems>
+		</UsualGroup>
+	</ChildItems>
+	<Attributes>
+		<Attribute name="ОпасныеСлова" id="1">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="Код" id="2">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+	</Attributes>
+	<Commands>
+		<Command name="Разрешить" id="1">
+			<Action>Разрешить</Action>
+		</Command>
+		<Command name="Отклонить" id="2">
+			<Action>Отклонить</Action>
+		</Command>
+	</Commands>
+	<Events>
+		<Event name="ПриСозданииНаСервере">ПриСозданииНаСервере</Event>
+	</Events>
+</Form>
