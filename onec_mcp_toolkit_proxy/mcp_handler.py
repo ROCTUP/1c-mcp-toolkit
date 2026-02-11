@@ -19,6 +19,7 @@ import unicodedata
 from typing import Any, Dict, List, Optional, Union
 
 from mcp.server.fastmcp import FastMCP, Context
+from mcp.server.transport_security import TransportSecuritySettings
 from pydantic import ValidationError
 
 from .command_queue import channel_command_queue
@@ -217,7 +218,10 @@ mcp = FastMCP(
 
     The server acts as a proxy between AI agents and 1C:Enterprise,
     forwarding commands to a connected 1C processing client.
-    """
+    """,
+    # Internal network deployment: disable DNS rebinding protection / Host header allowlist.
+    # Otherwise MCP SDK will reject non-localhost Host headers with 421.
+    transport_security=TransportSecuritySettings(enable_dns_rebinding_protection=False),
 )
 
 
