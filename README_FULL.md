@@ -9,6 +9,10 @@
 - Не требует публикации на сервере 1С
 - Не использует COM-соединение
 - Совместимость с 1С:Предприятие 8.2.13+ и 8.3.25
+- Поддержка MCP-протокола и REST API
+- Автоопределение кодировки (CP1251/CP866) для Windows-клиентов
+- Поддержка TOON формата для оптимизации токенов (экономия 30-60%)
+- Изоляция каналов для работы нескольких клиентов
 - Поддержка развёртывания в Docker
 
 ### Архитектура
@@ -19,9 +23,14 @@
 │  (Kiro, Claude) │         /mcp                │                 │
 └─────────────────┘                             │   Python Proxy  │
                                                 │     Server      │
+┌─────────────────┐     REST API                │                 │
+│  HTTP Клиент    │ ◄─────────────────────────► │   (FastAPI +    │
+│                 │         /api/*              │    MCP SDK)     │
+└─────────────────┘                             │                 │
+                                                │                 │
 ┌─────────────────┐     HTTP Long Polling       │                 │
-│  1С Обработка   │ ◄─────────────────────────► │   (FastAPI +    │
-│ (Внешняя .epf)  │    /1c/poll, /1c/result     │    MCP SDK)     │
+│  1С Обработка   │ ◄─────────────────────────► │                 │
+│ (Внешняя .epf)  │    /1c/poll, /1c/result     │                 │
 └─────────────────┘                             └─────────────────┘
         │                                               │
         ▼                                               │
@@ -30,6 +39,12 @@
 │ (8.2.13/8.3.25) │                             │   Container   │
 └─────────────────┘                             └───────────────┘
 ```
+
+**Интерфейсы:**
+- **MCP HTTP Streamable** (`/mcp`) - основной протокол для AI-агентов (Kiro, Claude)
+- **REST API** (`/api/*`) - альтернативный HTTP API для любых клиентов (8 эндпоинтов)
+- **HTTP Long Polling** (`/1c/poll`, `/1c/result`) - канал связи с внешней обработкой 1С
+- **Health Check** (`/health`) - мониторинг состояния сервера
 
 ### Изоляция каналов (Channel Isolation)
 
@@ -166,7 +181,7 @@ python -m onec_mcp_toolkit_proxy
 
 ### MCP-инструменты
 
-Прокси предоставляет четыре MCP-инструмента для взаимодействия с 1С:Предприятие:
+Прокси предоставляет восемь MCP-инструментов для взаимодействия с 1С:Предприятие:
 
 #### 1. execute_query
 
@@ -177,7 +192,7 @@ python -m onec_mcp_toolkit_proxy
 |----------|-----|--------------|--------------|----------|
 | `query` | string | Да | - | Текст запроса на языке 1С |
 | `params` | object | Нет | null | Параметры запроса |
-| `limit` | integer | Нет | 1000 | Максимальное количество строк (1-100000) |
+| `limit` | integer | Нет | 100 | Максимальное количество строк (1-1000) |
 | `include_schema` | boolean | Нет | false | Включить схему типов колонок в ответ |
 
 **Примеры:**
@@ -844,6 +859,7 @@ python -m onec_mcp_toolkit_proxy
 - Поиск всех документов конкретного контрагента или товара
 - Отслеживание потоков данных через регистры
 
+**См. также:** [docs/find_references_to_object_usage.md](docs/find_references_to_object_usage.md) для детальной документации.
 
 
 
@@ -1043,9 +1059,10 @@ python -m onec_mcp_toolkit_proxy
 | `/api/execute_code` | POST | Выполнить код 1С | Инструмент `execute_code` |
 | `/api/get_metadata` | GET/POST | Получить метаданные | Инструмент `get_metadata` |
 | `/api/get_event_log` | POST | Получить журнал регистрации | Инструмент `get_event_log` |
-| `/api/get_object_by_link` | POST | Получить объект по ссылке | Н/Д |
+| `/api/get_object_by_link` | POST | Получить объект по ссылке | Инструмент `get_object_by_link` |
 | `/api/get_link_of_object` | POST | Сгенерировать ссылку на объект | Инструмент `get_link_of_object` |
 | `/api/find_references_to_object` | POST | Найти ссылки на объект | Инструмент `find_references_to_object` |
+| `/api/get_access_rights` | POST | Получить права доступа | Инструмент `get_access_rights` |
 
 #### Формат ответов REST API
 
@@ -1198,22 +1215,76 @@ curl -X POST "http://localhost:6003/api/execute_query?channel=dev-environment" \
 
 ### API-эндпоинты
 
-| Эндпоинт | Метод | Описание |
-|----------|-------|----------|
-| `/mcp` | POST/GET/DELETE | Streamable HTTP и legacy SSE (GET с `Accept: text/event-stream`) |
-| `/mcp/message` | POST | Endpoint сообщений legacy SSE (возвращается в событии `endpoint`) |
-| `/api/*` | Различные | REST API эндпоинты (см. раздел REST API выше) |
-| `/1c/poll` | GET | Long polling для обработки 1С |
-| `/1c/result` | POST | Получение результатов выполнения от 1С |
-| `/health` | GET | Health check для Docker/мониторинга |
+| Эндпоинт | Метод | Описание | Поддержка каналов |
+|----------|-------|----------|-------------------|
+| `/mcp` | POST/GET/DELETE | MCP HTTP Streamable и legacy SSE транспорт | ✅ Да (`?channel=<id>`) |
+| `/mcp/message` | POST | Endpoint сообщений legacy SSE | ✅ Да (из scope) |
+| `/api/execute_query` | POST | REST: Выполнить запрос 1С | ✅ Да (`?channel=<id>`) |
+| `/api/execute_code` | POST | REST: Выполнить код 1С | ✅ Да (`?channel=<id>`) |
+| `/api/get_metadata` | GET/POST | REST: Получить метаданные | ✅ Да (`?channel=<id>`) |
+| `/api/get_event_log` | POST | REST: Получить журнал регистрации | ✅ Да (`?channel=<id>`) |
+| `/api/get_object_by_link` | POST | REST: Получить объект по ссылке | ✅ Да (`?channel=<id>`) |
+| `/api/get_link_of_object` | POST | REST: Сгенерировать ссылку на объект | ✅ Да (`?channel=<id>`) |
+| `/api/find_references_to_object` | POST | REST: Найти ссылки на объект | ✅ Да (`?channel=<id>`) |
+| `/api/get_access_rights` | POST | REST: Получить права доступа | ✅ Да (`?channel=<id>`) |
+| `/1c/poll` | GET | Long polling для получения команд от прокси | ✅ Да (`?channel=<id>`) |
+| `/1c/result` | POST | Отправка результатов выполнения в прокси | ✅ Да (`?channel=<id>`) |
+| `/health` | GET | Проверка состояния сервера и статистика | ❌ Нет |
 
-#### Ответ Health Check
+#### Health Check Endpoint
+
+**Эндпоинт:** `GET /health`
+
+**Описание:** Возвращает состояние сервера и статистику для мониторинга.
+
+**Пример ответа:**
 
 ```json
 {
   "status": "healthy",
-  "pending_commands": 0,
+  "pending_commands": 5,
+  "pending_channels_count": 2,
+  "active_channels_count": 3,
+  "active_sessions_count": 4,
   "mcp_endpoint": "/mcp"
+}
+```
+
+**Поля ответа:**
+
+| Поле | Тип | Описание |
+|------|-----|----------|
+| `status` | string | Статус сервера (всегда "healthy") |
+| `pending_commands` | integer | Общее количество команд в очереди (по всем каналам) |
+| `pending_channels_count` | integer | Количество каналов с ожидающими командами |
+| `active_channels_count` | integer | Количество активных каналов |
+| `active_sessions_count` | integer | Количество активных MCP-сессий |
+| `mcp_endpoint` | string | Путь к MCP эндпоинту |
+
+**Детальная статистика по каналам:**
+
+Для получения детальной статистики по каждому каналу (только для отладки в доверенном окружении) установите переменную окружения:
+```bash
+HEALTH_INCLUDE_CHANNEL_DETAILS=true
+```
+
+Тогда ответ будет включать дополнительные поля:
+```json
+{
+  "status": "healthy",
+  "pending_commands": 5,
+  "pending_channels_count": 2,
+  "active_channels_count": 3,
+  "active_sessions_count": 4,
+  "mcp_endpoint": "/mcp",
+  "pending_commands_by_channel": {
+    "default": 3,
+    "dev-environment": 2
+  },
+  "active_sessions_by_channel": {
+    "default": 2,
+    "dev-environment": 2
+  }
 }
 ```
 
@@ -1222,13 +1293,14 @@ curl -X POST "http://localhost:6003/api/execute_query?channel=dev-environment" \
 | Переменная | По умолчанию | Описание |
 |------------|--------------|----------|
 | `PORT` | `6003` | HTTP-порт прокси-сервера |
-| `TIMEOUT` | `60` | Таймаут ожидания ответа от 1С (секунды) |
-| `POLL_TIMEOUT` | `TIMEOUT` | Таймаут long polling для `/1c/poll` (меньше — чтобы не блокировать 1С) |
+| `TIMEOUT` | `180` | Таймаут ожидания ответа от 1С (секунды) |
+| `POLL_TIMEOUT` | `0` | Таймаут long polling для `/1c/poll` (0 = не блокировать 1С) |
 | `LOG_LEVEL` | `INFO` | Уровень логирования (DEBUG, INFO, WARNING, ERROR) |
 | `DEBUG` | `false` | Режим отладки (авто-перезагрузка для разработки) |
 | `DANGEROUS_KEYWORDS` | См. ниже | Список запрещённых ключевых слов через запятую |
 | `ALLOW_DANGEROUS_WITH_APPROVAL` | `false` | Режим подтверждения опасных операций (пользователь может разрешить/отклонить в 1С) |
-| `RESPONSE_FORMAT` | `json` | Формат ответов инструментов: `json` (по умолчанию) или `toon` (компактный формат) |
+| `RESPONSE_FORMAT` | `toon` | Формат ответов инструментов: `toon` (по умолчанию, компактный формат) или `json` (максимальная совместимость) |
+| `ENABLE_ENCODING_AUTO_DETECTION` | `true` | Автоопределение кодировки для не-UTF-8 запросов (помогает Windows-клиентам с CP1251/CP866) |
 
 **Настройка RESPONSE_FORMAT:**
 - `toon` (по умолчанию): Формат TOON (Token-Oriented Object Notation), экономия 30-60% токенов для LLM-контекстов
@@ -1265,8 +1337,8 @@ services:
       - "6003:6003"
     environment:
       - PORT=6003
-      - TIMEOUT=120
-      - POLL_TIMEOUT=2
+      - TIMEOUT=180
+      - POLL_TIMEOUT=0
       - LOG_LEVEL=DEBUG
       - DEBUG=false
       - DANGEROUS_KEYWORDS=Удалить,Delete,УдалитьФайлы,DeleteFiles
@@ -1277,8 +1349,10 @@ services:
 
 ### Настройка клиента 1С
 
+Подробные инструкции по настройке внешней обработки 1С см. в [1c_client/README.md](1c_client/README.md).
+
 **Быстрая настройка:**
-1. Откройте внешнюю обработку `MCPToolkitКлиент.epf` в 1С:Предприятие
+1. Откройте внешнюю обработку `build/MCP_Toolkit_Клиент.epf` в 1С:Предприятие
 2. Введите адрес прокси-сервера (например, `http://localhost:6003`)
 3. Нажмите "Подключиться"
 4. Статус изменится на "Подключено" при успешном соединении
