@@ -624,7 +624,7 @@ async def get_metadata_handler(request: Request) -> JSONResponse:
         "name_mask": "номенклат",  // optional
         "limit": 100,  // optional, default 100
         "offset": 0,  // optional, default 0 (list mode only)
-        "sections": ["properties", "forms"]  // optional, details-only (works with filter)
+        "sections": ["properties", "forms", "commands", "layouts", "predefined", "movements", "characteristics"]  // optional, details-only (works with filter)
     }
     
     GET examples:

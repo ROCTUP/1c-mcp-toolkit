@@ -100,6 +100,44 @@ class McpUnifiedApp:
         method = scope.get("method", "").upper()
         headers = _extract_headers(scope)
 
+        # Safe raw-body logging for MCP requests in DEBUG mode.
+        # We do not pre-read or replay the body. Instead, we wrap `receive`
+        # and log payload chunks as they are consumed by downstream handlers.
+        if settings.log_level.upper() == "DEBUG" and method in ("POST", "DELETE"):
+            body_parts: list[bytes] = []
+            body_logged = False
+            original_receive = receive
+
+            async def logging_receive():
+                nonlocal body_logged
+                message = await original_receive()
+
+                if message.get("type") == "http.request":
+                    body_chunk = message.get("body", b"")
+                    if body_chunk:
+                        body_parts.append(body_chunk)
+
+                    if not message.get("more_body", False) and not body_logged:
+                        body_logged = True
+                        raw_bytes = b"".join(body_parts)
+                        try:
+                            raw_text = raw_bytes.decode("utf-8")
+                            logger.info(
+                                "MCP Raw Request Body (%d bytes): %s",
+                                len(raw_bytes),
+                                raw_text,
+                            )
+                        except UnicodeDecodeError:
+                            logger.info(
+                                "MCP Raw Request Body (%d bytes, non-UTF-8): %r",
+                                len(raw_bytes),
+                                raw_bytes,
+                            )
+
+                return message
+
+            receive = logging_receive
+
         if method == "GET" and _wants_sse(headers):
             if _is_streamable_get(headers):
                 logger.info("Routing to Streamable HTTP GET (new)")

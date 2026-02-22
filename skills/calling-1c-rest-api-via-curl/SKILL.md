@@ -83,17 +83,24 @@ curl -sS --noproxy $BASE_HOST "$BASE_URL/api/execute_query?channel=dev" $J -d '{
 
 ### 1. get_metadata — `GET/POST /api/get_metadata`
 
-Explore database structure. Three modes:
+Explore database structure. Four modes:
 
 | Mode | Params | Returns |
 |------|--------|---------|
 | **Summary** | none | Root types with counts + configuration info |
 | **List** | `meta_type` and/or `name_mask` | Array of `{ПолноеИмя, Синоним}` with pagination |
-| **Detail** | `filter` | Full object structure (attributes, dimensions, tabular sections) |
+| **Detail** | `filter` = full object name | Full object structure (attributes, dimensions, tabular sections) |
+| **Collection element** | `filter` = full path to element | Single element info (e.g., `Справочник.Контрагенты.Реквизит.ИНН`) |
 
-Key params: `filter`, `meta_type` (string or array, `"*"` for all types), `name_mask`, `sections` (requires filter): `properties`/`forms`/`commands`/`layouts`/`predefined`, `limit` (default 100, max 1000), `offset`, `extension_name`.
+Key params: `filter`, `meta_type` (string or array, `"*"` for all types), `name_mask`, `sections` (requires filter): `properties`/`forms`/`commands`/`layouts`/`predefined`/`movements`/`characteristics` (`movements` only for `Документ`), `limit` (default 100, max 1000), `offset`, `extension_name`.
 
-Set --data-urlencode for each param in URL except channel
+Request rules:
+- **GET**: parameters come from the URL query string; request body is ignored
+- **POST**: parameters come from the JSON body; query string is ignored **except** `?channel=<id>`
+
+Notes:
+- For **GET**, use `--data-urlencode` for each parameter (except `channel`). To list extensions via GET, pass an explicit empty value: `--data-urlencode "extension_name="`.
+- For `extension_name="MyExtension"` (specific extension, not `""`), responses include a top-level `extension` field in all modes (summary/list/details).
 
 ```sh
 # Summary
@@ -107,6 +114,10 @@ curl -sS -G --noproxy $BASE_HOST "$BASE_URL/api/get_metadata?channel=$CHANNEL" \
 # Detail with sections (POST mode)
 curl -sS --noproxy $BASE_HOST "$BASE_URL/api/get_metadata?channel=$CHANNEL" $J \
   -d '{"filter":"Справочник.Номенклатура","sections":["properties"]}'
+
+# Collection element filter (Mode 3a)
+curl -sS --noproxy $BASE_HOST "$BASE_URL/api/get_metadata?channel=$CHANNEL" $J \
+  -d '{"filter":"Справочник.Контрагенты.Реквизит.ИНН","sections":["properties"]}'
 ```
 
 ---

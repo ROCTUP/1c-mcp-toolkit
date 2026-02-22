@@ -14,21 +14,25 @@ Complete parameter tables, curl examples, and response structures for all 8 REST
 
 ## 1. get_metadata — `GET/POST /api/get_metadata`
 
-Explore database structure. Three operating modes depending on parameters.
+Explore database structure. Summary/list/details modes depend on parameters; the configuration scope is controlled via `extension_name`.
+
+Request rules:
+- **GET**: parameters come from the URL query string; the request body is ignored
+- **POST**: parameters come from the JSON body; the query string is ignored **except** `?channel=<id>`
 
 ### Parameters
 
 | Parameter | Type | Default | Constraints | Description |
 |-----------|------|---------|-------------|-------------|
-| `filter` | string | null | — | Exact object name for detailed structure (e.g., `Справочник.Номенклатура`) |
+| `filter` | string | null | — | Exact object name for detailed structure (e.g., `Справочник.Номенклатура`) or full path to a collection element (e.g., `Справочник.Контрагенты.Реквизит.ИНН`) |
 | `meta_type` | string or string[] | null | Use `"*"` for all types | Root metadata type(s): Справочник, Документ, РегистрСведений, РегистрНакопления, РегистрБухгалтерии, РегистрРасчета, ПланВидовХарактеристик, ПланСчетов, ПланВидовРасчета, ПланОбмена, БизнесПроцесс, Задача, Константа, Перечисление, Отчет, Обработка, РегламентноеЗадание, ПараметрыСеанса |
 | `name_mask` | string | null | — | Case-insensitive search in name/synonym |
 | `limit` | integer | 100 | 1–1000 | Max objects in list mode |
 | `offset` | integer | 0 | 0–1000000 | Pagination offset in list mode |
-| `sections` | string[] | null | Requires `filter` | Detail sections: `properties`, `forms`, `commands`, `layouts`, `predefined` |
+| `sections` | string[] | null | Requires `filter` | Detail sections: `properties`, `forms`, `commands`, `layouts`, `predefined`, `movements`, `characteristics`. Note: `movements` only applies to `Документ` objects — silently ignored for other types |
 | `extension_name` | string | null | No whitespace-only | `null`=main config, `""`=list extensions, `"Name"`=extension objects |
 
-### Mode 1: Summary (no params or only extension_name)
+### Mode 1: Summary (no filter/meta_type/name_mask)
 
 ```sh
 # Root type counts
@@ -51,6 +55,10 @@ Response:
   ]
 }
 ```
+
+Notes:
+- If you call summary **inside a specific extension** (`extension_name="MyExtension"` and no `filter/meta_type/name_mask`), the response includes the same `data` (root type counts) plus top-level fields `extension` and `configuration`.
+- `extension_name=""` is **not** summary — it returns the list of connected extensions (see “Extensions” below).
 
 ### Mode 2: List (meta_type and/or name_mask, without filter)
 
@@ -107,7 +115,7 @@ curl -sS -G --noproxy $BASE_HOST "$BASE_URL/api/get_metadata?channel=$CHANNEL" \
 
 # Rich card with all sections
 curl -sS --noproxy $BASE_HOST "$BASE_URL/api/get_metadata?channel=$CHANNEL" $J \
-  -d '{"filter":"Справочник.Номенклатура","sections":["properties","forms","commands","layouts","predefined"]}'
+  -d '{"filter":"Справочник.Номенклатура","sections":["properties","forms","commands","layouts","predefined","movements","characteristics"]}'
 ```
 
 Response (detail):
@@ -115,7 +123,7 @@ Response (detail):
 {
   "success": true,
   "data": {
-    "Тип": "РегистрНакопления",
+    "ТипОбъектаМетаданных": "РегистрНакопления",
     "Имя": "ОстаткиТоваров",
     "Синоним": "Остатки товаров",
     "ПолноеИмя": "РегистрНакопления.ОстаткиТоваров",
@@ -133,6 +141,37 @@ Response (detail):
 }
 ```
 
+### Mode 3a: Collection element (filter with full path)
+
+Collection names use the platform `ПолноеИмя()` singular format: `Реквизит`, `Измерение`, `Ресурс`, `ТабличнаяЧасть`, `СтандартныйРеквизит`, `РеквизитАдресации`.
+
+```sh
+# Catalog attribute
+curl -sS --noproxy $BASE_HOST "$BASE_URL/api/get_metadata?channel=$CHANNEL" $J \
+  -d '{"filter":"Справочник.Контрагенты.Реквизит.ИНН"}'
+
+# Register dimension with extended properties
+curl -sS --noproxy $BASE_HOST "$BASE_URL/api/get_metadata?channel=$CHANNEL" $J \
+  -d '{"filter":"РегистрНакопления.Остатки.Измерение.Номенклатура","sections":["properties"]}'
+
+# Nested tabular section attribute
+curl -sS --noproxy $BASE_HOST "$BASE_URL/api/get_metadata?channel=$CHANNEL" $J \
+  -d '{"filter":"Документ.Реализация.ТабличнаяЧасть.Товары.Реквизит.Номенклатура"}'
+```
+
+Response (collection element):
+```json
+{
+  "success": true,
+  "data": {
+    "ПолноеИмя": "Справочник.Контрагенты.Реквизит.ИНН",
+    "Имя": "ИНН",
+    "Синоним": "ИНН",
+    "Тип": "Строка(12)"
+  }
+}
+```
+
 ### Extensions
 
 ```sh
@@ -140,9 +179,37 @@ Response (detail):
 curl -sS --noproxy $BASE_HOST "$BASE_URL/api/get_metadata?channel=$CHANNEL" $J \
   -d '{"extension_name":""}'
 
-# Objects inside a specific extension
+# Objects inside a specific extension (list mode)
 curl -sS --noproxy $BASE_HOST "$BASE_URL/api/get_metadata?channel=$CHANNEL" $J \
   -d '{"extension_name":"MyExtension","meta_type":"Справочник"}'
+```
+
+Extension list response (`extension_name=""`):
+```json
+{
+  "success": true,
+  "data": [
+    {"Имя": "MyExtension", "Синоним": "My Extension", "УникальныйИдентификатор": "a1b2c3d4-..."}
+  ]
+}
+```
+
+Note: for `extension_name="MyExtension"` (specific extension), responses include a top-level `extension` field in all modes (summary/list/details). In list mode it looks like this:
+```json
+{
+  "success": true,
+  "extension": "MyExtension",
+  "truncated": false,
+  "limit": 50,
+  "returned": 2,
+  "count": 2,
+  "offset": 0,
+  "has_more": false,
+  "next_offset": 2,
+  "data": [
+    {"ПолноеИмя": "Справочник.МойСправочник", "Синоним": "Мой справочник"}
+  ]
+}
 ```
 
 ---

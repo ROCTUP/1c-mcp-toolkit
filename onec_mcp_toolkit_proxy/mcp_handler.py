@@ -536,11 +536,25 @@ async def get_metadata(
        Returns: List of objects matching the criteria.
        Each item includes: ПолноеИмя, Синоним.
        List results are sorted by ПолноеИмя and support pagination via offset.
-       If list is cut by limit, response includes: truncated, limit, returned, offset, has_more, next_offset.
+       List mode response always includes pagination metadata:
+         - truncated, limit, returned, count, offset, has_more, next_offset
+       Fields truncated/has_more indicate whether more results exist.
 
     3. Detailed structure: Use 'filter' parameter with exact full name
        Example: filter="Справочник.Номенклатура"
        Returns: Full structure with attributes, dimensions, resources, tabular sections
+
+    3a. Specific collection element: Use 'filter' with full path to element
+       Collection names are in singular (platform ПолноеИмя() format):
+         filter="Справочник.Контрагенты.Реквизит.ИНН"
+         filter="РегистрНакопления.Остатки.Измерение.Номенклатура"
+         filter="РегистрНакопления.Остатки.Ресурс.Количество"
+         filter="Задача.Задача.РеквизитАдресации.Исполнитель"
+         filter="Справочник.Контрагенты.СтандартныйРеквизит.Наименование"
+         filter="Документ.Реализация.ТабличнаяЧасть.Товары"
+         filter="Документ.Реализация.ТабличнаяЧасть.Товары.Реквизит.Номенклатура"
+       Use with sections=["properties"] to get extended element properties
+       (ПроверкаЗаполнения, ЗначениеЗаполнения, Ведущее, Использование, etc.)
 
     4. Extensions support: Use 'extension_name' parameter
        - extension_name not provided: work with main configuration (default)
@@ -549,11 +563,14 @@ async def get_metadata(
 
     Args:
         ctx: MCP Context (injected automatically)
-        filter: Exact object name for detailed structure (e.g., "Справочник.Номенклатура")
+        filter: Full name of object (e.g., "Справочник.Номенклатура") or full path to collection element
+               (e.g., "Справочник.Контрагенты.Реквизит.ИНН",
+               "РегистрНакопления.Остатки.Измерение.Номенклатура",
+               "Документ.Реализация.ТабличнаяЧасть.Товары.Реквизит.Номенклатура")
         meta_type: Object type filter for list (string or list). Use "*" to list across all root types.
         name_mask: Search mask for name/synonym (case-insensitive substring search)
         limit: Maximum number of objects in list (default: 100, max: 1000)
-        sections: Detail sections to include (works only with filter). Supported: properties, forms, commands, layouts, predefined
+        sections: Detail sections to include (works only with filter). Supported: properties, forms, commands, layouts, predefined, movements, characteristics (movements is only available for Документ objects)
         offset: Offset for pagination in list mode (default: 0)
         extension_name: Extension name (None=main config, ""=list extensions, "Name"=extension objects).
                        Whitespace-only values are rejected.
@@ -584,6 +601,21 @@ async def get_metadata(
 
         # Get details about a specific catalog
         get_metadata(filter="Справочник.Номенклатура")
+
+        # Get extended properties of a specific attribute
+        get_metadata(filter="Справочник.Контрагенты.Реквизит.ИНН", sections=["properties"])
+
+        # Get extended properties of a dimension
+        get_metadata(filter="РегистрНакопления.Остатки.Измерение.Номенклатура", sections=["properties"])
+
+        # Get info about a tabular section with its attributes
+        get_metadata(filter="Документ.Реализация.ТабличнаяЧасть.Товары")
+
+        # Get extended properties of a tabular section attribute
+        get_metadata(filter="Документ.Реализация.ТабличнаяЧасть.Товары.Реквизит.Номенклатура", sections=["properties"])
+
+        # Get extended properties of a standard attribute
+        get_metadata(filter="Справочник.Контрагенты.СтандартныйРеквизит.Наименование", sections=["properties"])
 
         # Get list of all connected extensions
         get_metadata(extension_name="")
