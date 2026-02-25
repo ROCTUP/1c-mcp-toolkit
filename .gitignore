@@ -76,8 +76,17 @@ desktop.ini
 *.erf.bak
 *.dt.bak
 
+# Native components
+# Template.bin files are compiled DLLs, generated at build time
+native_components/**/Ext/Template.bin
+native_components/**/Template.bin
+
+# Native component vendor headers (large, downloaded at build time)
+native_components/MCPHttpTransport/include/httplib.h
+
 # Build artifacts
-# build/
+#build/
+build_x86/
 dist/
 
 # IDE
