@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Template uuid="e35dfd8d-b27a-4a88-9b69-5d27bd151bd9">
+		<Properties>
+			<Name>ToonConverter</Name>
+			<Synonym>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>TOON Converter (Native)</v8:content>
+				</v8:item>
+			</Synonym>
+			<Comment>Native API компонента конвертации JSON в TOON-формат</Comment>
+			<TemplateType>BinaryData</TemplateType>
+		</Properties>
+	</Template>
+</MetaDataObject>

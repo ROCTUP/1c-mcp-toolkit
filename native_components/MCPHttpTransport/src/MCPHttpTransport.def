@@ -1,0 +1,6 @@
+LIBRARY MCPHttpTransport
+EXPORTS
+    GetClassNames
+    GetClassObject
+    DestroyObject
+    SetPlatformCapabilities

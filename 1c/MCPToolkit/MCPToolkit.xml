@@ -6,26 +6,28 @@
 				<xr:ClassId>c3831ec8-d8d5-4f93-8a22-f9bfae07327f</xr:ClassId>
 				<xr:ObjectId>b2c3d4e5-f6a7-8901-bcde-f12345678901</xr:ObjectId>
 			</xr:ContainedObject>
-			<xr:GeneratedType name="ExternalDataProcessorObject.MCPToolkitКлиент" category="Object">
+			<xr:GeneratedType name="ExternalDataProcessorObject.MCPToolkit" category="Object">
 				<xr:TypeId>c3d4e5f6-a7b8-9012-cdef-123456789012</xr:TypeId>
 				<xr:ValueId>d4e5f6a7-b8c9-0123-def0-234567890123</xr:ValueId>
 			</xr:GeneratedType>
 		</InternalInfo>
 		<Properties>
-			<Name>MCPToolkitКлиент</Name>
+			<Name>MCPToolkit</Name>
 			<Synonym>
 				<v8:item>
 					<v8:lang>ru</v8:lang>
-					<v8:content>MCP Toolkit Клиент</v8:content>
+					<v8:content>MCP Toolkit</v8:content>
 				</v8:item>
 			</Synonym>
-			<Comment>Клиент для подключения к MCP Toolkit прокси-серверу</Comment>
-			<DefaultForm>ExternalDataProcessor.MCPToolkitКлиент.Form.Форма</DefaultForm>
+			<Comment>MCP Toolkit — интеграция 1С с MCP/REST</Comment>
+			<DefaultForm>ExternalDataProcessor.MCPToolkit.Form.Форма</DefaultForm>
 			<AuxiliaryForm/>
 		</Properties>
 		<ChildObjects>
 			<Form>Форма</Form>
 			<Form>ФормаПодтверждения</Form>
+			<Template>MCPHttpTransport</Template>
+			<Template>ToonConverter</Template>
 		</ChildObjects>
 	</ExternalDataProcessor>
 </MetaDataObject>

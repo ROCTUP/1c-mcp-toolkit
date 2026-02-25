@@ -13,7 +13,73 @@
 			<Representation>NormalSeparation</Representation>
 			<ExtendedTooltip name="ГруппаПодключениеРасширеннаяПодсказка" id="2"/>
 			<ChildItems>
-				<InputField name="АдресСервераПоле" id="3">
+				<LabelDecoration name="ПустаяНадпись" id="21">
+					<Title>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content> </v8:content>
+						</v8:item>
+					</Title>
+					<ContextMenu name="ПустаяНадписьКонтекстноеМеню" id="22"/>
+					<ExtendedTooltip name="ПустаяНадписьРасширеннаяПодсказка" id="23"/>
+				</LabelDecoration>
+				<UsualGroup name="ГруппаРежимПодключения" id="39">
+					<Title>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Режим подключения</v8:content>
+						</v8:item>
+					</Title>
+					<Group>AlwaysHorizontal</Group>
+					<Representation>None</Representation>
+					<ExtendedTooltip name="ГруппаРежимПодключенияРасширеннаяПодсказка" id="40"/>
+					<ChildItems>
+						<RadioButtonField name="ПолеРежимПодключения" id="41">
+							<DataPath>РежимПодключения</DataPath>
+							<TitleLocation>None</TitleLocation>
+							<RadioButtonType>RadioButtons</RadioButtonType>
+							<ChoiceList>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation>
+											<v8:item>
+												<v8:lang>ru</v8:lang>
+												<v8:content>Прокси</v8:content>
+											</v8:item>
+										</Presentation>
+										<Value xsi:type="xs:decimal">0</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation>
+											<v8:item>
+												<v8:lang>ru</v8:lang>
+												<v8:content>Встроенный сервер</v8:content>
+											</v8:item>
+										</Presentation>
+										<Value xsi:type="xs:decimal">1</Value>
+									</xr:Value>
+								</xr:Item>
+							</ChoiceList>
+							<ContextMenu name="ПолеРежимПодключенияКонтекстноеМеню" id="43"/>
+							<ExtendedTooltip name="ПолеРежимПодключенияРасширеннаяПодсказка" id="42"/>
+							<Events>
+								<Event name="ПриИзменении">ПриИзмененииРежимаПодключения</Event>
+							</Events>
+						</RadioButtonField>
+					</ChildItems>
+				</UsualGroup>
+				<UsualGroup name="ГруппаПроксиНастройки" id="44">
+					<Group>Vertical</Group>
+					<Representation>None</Representation>
+					<ExtendedTooltip name="ГруппаПроксиНастройкиРасширеннаяПодсказка" id="45"/>
+					<ChildItems>
+						<InputField name="АдресСервераПоле" id="3">
 					<DataPath>АдресСервера</DataPath>
 					<Title>
 						<v8:item>
@@ -65,6 +131,92 @@
 							<CommandName>Form.Command.СгенерироватьИдентификаторКанала</CommandName>
 							<ExtendedTooltip name="КнопкаСгенерироватьКаналРасширеннаяПодсказка" id="38"/>
 						</Button>
+					</ChildItems>
+				</UsualGroup>
+					</ChildItems>
+				</UsualGroup>
+				<UsualGroup name="ГруппаВстроенныйСервер" id="46">
+					<Title>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content> </v8:content>
+						</v8:item>
+					</Title>
+					<Group>Vertical</Group>
+					<Representation>None</Representation>
+					<Visible>false</Visible>
+					<ExtendedTooltip name="ГруппаВстроенныйСерверРасширеннаяПодсказка" id="47"/>
+					<ChildItems>
+						<InputField name="ПортВстроенногоСервераПоле" id="48">
+							<DataPath>ПортВстроенногоСервера</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Порт встроенного сервера</v8:content>
+								</v8:item>
+							</Title>							
+							<EditFormat>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>ЧГ=</v8:content>
+									</v8:item>
+							</EditFormat>
+							<Width>10</Width>
+							<ExtendedTooltip name="ПортВстроенногоСервераПолеРасширеннаяПодсказка" id="49"/>
+						</InputField>
+						<RadioButtonField name="ПолеФорматОтветаВстроенный" id="50">
+							<DataPath>ФорматОтветаВстроенный</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Формат ответов</v8:content>
+								</v8:item>
+							</Title>
+							<RadioButtonType>RadioButtons</RadioButtonType>
+							<ChoiceList>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation>
+											<v8:item>
+												<v8:lang>ru</v8:lang>
+												<v8:content>JSON</v8:content>
+											</v8:item>
+										</Presentation>
+										<Value xsi:type="xs:decimal">0</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation>
+											<v8:item>
+												<v8:lang>ru</v8:lang>
+												<v8:content>TOON</v8:content>
+											</v8:item>
+										</Presentation>
+										<Value xsi:type="xs:decimal">1</Value>
+									</xr:Value>
+								</xr:Item>
+							</ChoiceList>
+							<ContextMenu name="ПолеФорматОтветаВстроенныйКонтекстноеМеню" id="51"/>
+							<ExtendedTooltip name="ПолеФорматОтветаВстроенныйРасширеннаяПодсказка" id="52"/>
+							<Events>
+								<Event name="ПриИзменении">ФорматОтветаВстроенныйПриИзменении</Event>
+							</Events>
+						</RadioButtonField>
+						<CheckBoxField name="ФлагРазрешатьОпасныеОперацииСПодтверждением" id="53">
+							<DataPath>РазрешатьОпасныеОперацииСПодтверждением</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Разрешать опасные операции с подтверждением</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="ФлагРазрешатьОпасныеОперацииСПодтверждениемРасширеннаяПодсказка" id="54"/>
+						</CheckBoxField>
 					</ChildItems>
 				</UsualGroup>
 				<UsualGroup name="ГруппаАвтоРазрешение" id="24">
@@ -119,17 +271,6 @@
 				</UsualGroup>
 			</ChildItems>
 		</UsualGroup>
-		<LabelDecoration name="ПустаяНадпись" id="21">
-			<Title>
-				<v8:item>
-					<v8:lang>ru</v8:lang>
-					<v8:content> </v8:content>
-				</v8:item>
-			</Title>
-			<Visible>false</Visible>
-			<ContextMenu name="ПустаяНадписьКонтекстноеМеню" id="22"/>
-			<ExtendedTooltip name="ПустаяНадписьРасширеннаяПодсказка" id="23"/>
-		</LabelDecoration>
 		<UsualGroup name="ГруппаСтатус" id="11">
 			<Group>Horizontal</Group>
 			<Grouping>Horizontal</Grouping>
@@ -192,7 +333,7 @@
 	<Attributes>
 		<Attribute name="Объект" id="1">
 			<Type>
-				<v8:Type>cfg:ExternalDataProcessorObject.MCPToolkitКлиент</v8:Type>
+				<v8:Type>cfg:ExternalDataProcessorObject.MCPToolkit</v8:Type>
 			</Type>
 			<MainAttribute>true</MainAttribute>
 		</Attribute>
@@ -246,7 +387,47 @@
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
-	</Attributes>
+		<Attribute name="РежимПодключения" id="9">
+			<Type>
+				<v8:Type>xs:decimal</v8:Type>
+				<v8:NumberQualifiers>
+					<v8:Digits>1</v8:Digits>
+					<v8:FractionDigits>0</v8:FractionDigits>
+					<v8:AllowedSign>Nonnegative</v8:AllowedSign>
+				</v8:NumberQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="ПортВстроенногоСервера" id="10">
+			<Type>
+				<v8:Type>xs:decimal</v8:Type>
+				<v8:NumberQualifiers>
+					<v8:Digits>5</v8:Digits>
+					<v8:FractionDigits>0</v8:FractionDigits>
+					<v8:AllowedSign>Nonnegative</v8:AllowedSign>
+				</v8:NumberQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="ВстроенныйСерверЗапущен" id="11">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+	<Attribute name="ФорматОтветаВстроенный" id="12">
+		<Type>
+			<v8:Type>xs:decimal</v8:Type>
+			<v8:NumberQualifiers>
+				<v8:Digits>1</v8:Digits>
+				<v8:FractionDigits>0</v8:FractionDigits>
+				<v8:AllowedSign>Nonnegative</v8:AllowedSign>
+			</v8:NumberQualifiers>
+		</Type>
+	</Attribute>
+	<Attribute name="РазрешатьОпасныеОперацииСПодтверждением" id="13">
+		<Type>
+			<v8:Type>xs:boolean</v8:Type>
+		</Type>
+	</Attribute>
+</Attributes>
 	<Commands>
 		<Command name="Подключиться" id="1">
 			<Action>Подключиться</Action>
@@ -271,5 +452,6 @@
 		<Event name="ПриСозданииНаСервере">ПриСозданииНаСервере</Event>
 		<Event name="ПриОткрытии">ПриОткрытии</Event>
 		<Event name="ПриЗакрытии">ПриЗакрытии</Event>
+		<Event name="ВнешнееСобытие">ОбработкаВнешнегоСобытия</Event>
 	</Events>
 </Form>
