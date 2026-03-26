@@ -421,6 +421,8 @@
 							</Title>
 							<Group>Vertical</Group>
 							<Representation>NormalSeparation</Representation>
+							<Behavior>Collapsible</Behavior>
+							<ControlRepresentation>Picture</ControlRepresentation>
 							<ExtendedTooltip name="ГруппаМаппингиРасширеннаяПодсказка" id="103"/>
 							<ChildItems>
 								<UsualGroup name="ГруппаУправлениеМаппингами" id="61">
@@ -542,6 +544,87 @@
 								<ExtendedTooltip name="ТаблицаМаппинговПолеУправлениеПоискомРасширеннаяПодсказка" id="82"/>
 							</SearchControlAddition>
 						</Table>
+							</ChildItems>
+						</UsualGroup>
+						<UsualGroup name="ГруппаДеАнонимизацияТекста" id="108">
+							<Title>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Деанонимизация текста</v8:content>
+								</v8:item>
+							</Title>
+							<Group>Vertical</Group>
+							<Representation>NormalSeparation</Representation>
+							<Behavior>Collapsible</Behavior>
+							<ControlRepresentation>Picture</ControlRepresentation>
+							<HorizontalStretch>true</HorizontalStretch>
+							<ExtendedTooltip name="ГруппаДеАнонимизацияТекстаРасширеннаяПодсказка" id="109"/>
+							<ChildItems>
+								<LabelDecoration name="НадписьДеАнонимизацияОтступ" id="113">
+									<Title>
+										<v8:item>
+											<v8:lang>ru</v8:lang>
+											<v8:content> </v8:content>
+										</v8:item>
+									</Title>
+									<ContextMenu name="НадписьДеАнонимизацияОтступКонтекстноеМеню" id="114"/>
+									<ExtendedTooltip name="НадписьДеАнонимизацияОтступРасширеннаяПодсказка" id="115"/>
+								</LabelDecoration>
+								<Button name="КнопкаДеАнонимизировать" id="110">
+									<Type>UsualButton</Type>
+									<CommandName>Form.Command.ДеАнонимизироватьТекст</CommandName>
+								</Button>
+								<Pages name="СтраницыПросмотраТекста" id="116">
+									<PagesRepresentation>TabsOnTop</PagesRepresentation>
+									<Height>9</Height>
+									<HorizontalStretch>true</HorizontalStretch>
+									<ExtendedTooltip name="СтраницыПросмотраТекстаРасширеннаяПодсказка" id="117"/>
+									<ChildItems>
+										<Page name="СтраницаТекст" id="118">
+											<Title>
+												<v8:item>
+													<v8:lang>ru</v8:lang>
+													<v8:content>Текст</v8:content>
+												</v8:item>
+											</Title>
+											<Group>Vertical</Group>
+											<ExtendedTooltip name="СтраницаТекстРасширеннаяПодсказка" id="119"/>
+											<ChildItems>
+												<InputField name="ПолеТекстДляДеАнонимизации" id="111">
+													<DataPath>ТекстДляДеАнонимизации</DataPath>
+													<MultiLine>true</MultiLine>
+													<Height>8</Height>
+													<HorizontalStretch>true</HorizontalStretch>
+													<AutoMaxWidth>false</AutoMaxWidth>
+													<TitleLocation>None</TitleLocation>
+													<ExtendedTooltip name="ПолеТекстДляДеАнонимизацииРасширеннаяПодсказка" id="112"/>
+													<Events>
+														<Event name="ПриИзменении">ПолеТекстДляДеАнонимизацииПриИзменении</Event>
+													</Events>
+												</InputField>
+											</ChildItems>
+										</Page>
+										<Page name="СтраницаПросмотрHTML" id="120">
+											<Title>
+												<v8:item>
+													<v8:lang>ru</v8:lang>
+													<v8:content>Просмотр</v8:content>
+												</v8:item>
+											</Title>
+											<Group>Vertical</Group>
+											<ExtendedTooltip name="СтраницаПросмотрHTMLРасширеннаяПодсказка" id="121"/>
+											<ChildItems>
+												<HTMLDocumentField name="ПолеТекстДляДеАнонимизацииHTML" id="122">
+													<DataPath>ТекстДляДеАнонимизацииHTML</DataPath>
+													<Height>8</Height>
+													<HorizontalStretch>true</HorizontalStretch>
+													<TitleLocation>None</TitleLocation>
+													<ExtendedTooltip name="ПолеТекстДляДеАнонимизацииHTMLРасширеннаяПодсказка" id="123"/>
+												</HTMLDocumentField>
+											</ChildItems>
+										</Page>
+									</ChildItems>
+								</Pages>
 							</ChildItems>
 						</UsualGroup>
 					</ChildItems>
@@ -702,6 +785,33 @@
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
+		<Attribute name="ТекстДляДеАнонимизации" id="18">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="ШаблонMarkdownПросмотра" id="19">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="ТекстДляДеАнонимизацииHTML" id="20">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="Подключиться" id="1">
@@ -739,6 +849,15 @@
 				</v8:item>
 			</Title>
 			<Action>ОткрытьНастройкиТочнойАнонимизации</Action>
+		</Command>
+		<Command name="ДеАнонимизироватьТекст" id="7">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Деанонимизировать</v8:content>
+				</v8:item>
+			</Title>
+			<Action>ДеАнонимизироватьТекст</Action>
 		</Command>
 	</Commands>
 	<Events>

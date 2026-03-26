@@ -1,6 +1,6 @@
 # Tools Full Reference
 
-Complete parameter tables, curl examples, and response structures for all 8 REST API endpoints.
+Complete parameter tables, curl examples, and response structures for all 9 REST API endpoints.
 
 > **Convention**: all examples use the variables from Quick Start:
 > ```sh
@@ -307,6 +307,7 @@ Execute arbitrary 1C code (statement block via `Выполнить`).
 | Parameter | Type | Default | Constraints | Description |
 |-----------|------|---------|-------------|-------------|
 | `code` | string | **required** | min 1 char | 1C code to execute |
+| `execution_context` | string | `"server"` | `"server"` or `"client"` | Execution context: `"server"` — `&НаСервереБезКонтекста` (DB access, 1C objects); `"client"` — `&НаКлиенте` (form attributes, UI functions, no DB queries) |
 
 ### Rules
 
@@ -327,13 +328,17 @@ Behavior when dangerous keyword detected:
 ### Examples
 
 ```sh
-# Simple expression
+# Simple expression (server context, default)
 curl -sS --noproxy $BASE_HOST "$BASE_URL/api/execute_code?channel=$CHANNEL" $J \
   -d '{"code":"Результат = ТекущаяДата();"}'
 
 # Multi-line code
 curl -sS --noproxy $BASE_HOST "$BASE_URL/api/execute_code?channel=$CHANNEL" $J \
   -d '{"code":"Запрос = Новый Запрос; Запрос.Текст = \"ВЫБРАТЬ 1 КАК Поле\"; Результат = Запрос.Выполнить().Выгрузить().Количество();"}'
+
+# Client context — open a form, read form attributes
+curl -sS --noproxy $BASE_HOST "$BASE_URL/api/execute_code?channel=$CHANNEL" $J \
+  -d '{"code":"ОткрытьФорму(\"Справочник.Номенклатура.ФормаСписка\"); Результат = \"OK\";","execution_context":"client"}'
 
 # With extended timeout (for long operations)
 curl --max-time 200 -sS --noproxy $BASE_HOST "$BASE_URL/api/execute_code?channel=$CHANNEL" $J \
@@ -713,3 +718,57 @@ curl -sS --noproxy $BASE_HOST "$BASE_URL/api/get_event_log?channel=$CHANNEL" $J 
 ```
 
 **Stop condition**: `has_more=false` means no more records.
+
+---
+
+## 9. submit_for_deanonymization — `POST /api/submit_for_deanonymization`
+
+Submit the final user-facing response for de-anonymization display. **Available only when anonymization is enabled.**
+
+> **Note:** This tool returns `{"received": true}` on success (not `{"success": true, "data": ...}`).
+
+### Parameters
+
+| Parameter | Type | Required | Default | Constraints | Description |
+|-----------|------|----------|---------|-------------|-------------|
+| `text` | string | Yes | - | String (empty allowed) | The complete final response text containing anonymization tokens |
+
+### Examples
+
+```sh
+curl -sS --noproxy $BASE_HOST "$BASE_URL/api/submit_for_deanonymization?channel=$CHANNEL" $J \
+  -d '{"text":"Компания [ORG-00001], ИНН [INN-00001], директор: [PER-00001]"}'
+```
+
+Response (success):
+```json
+{
+  "received": true
+}
+```
+
+Error (anonymization disabled):
+```json
+{
+  "success": false,
+  "error": "Tool is not available: anonymization is disabled"
+}
+```
+
+Error (missing or invalid parameter):
+```json
+{
+  "success": false,
+  "error": "Ошибка валидации параметров: Field 'text': ..."
+}
+```
+
+Error (wrong method, built-in mode):
+```json
+{
+  "success": false,
+  "error": "Method not allowed: submit_for_deanonymization requires POST"
+}
+```
+
+

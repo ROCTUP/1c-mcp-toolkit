@@ -37,7 +37,17 @@ from .channel_registry import channel_registry, ChannelRegistry, DEFAULT_CHANNEL
 from .channel_middleware import ChannelMiddleware
 from .query_encoding_middleware import QueryEncodingMiddleware
 from .channel_sse_transport import ChannelAwareSseTransport
-from .rest_api import execute_query_handler, execute_code_handler, get_metadata_handler, get_event_log_handler, get_object_by_link_handler, get_link_of_object_handler, find_references_to_object_handler, get_access_rights_handler
+from .rest_api import (
+    execute_query_handler,
+    execute_code_handler,
+    get_metadata_handler,
+    get_event_log_handler,
+    get_object_by_link_handler,
+    get_link_of_object_handler,
+    find_references_to_object_handler,
+    get_access_rights_handler,
+    submit_for_deanonymization_handler
+)
 from .anonymizer.registry import AnonymizerRegistry
 
 # Configure logging
@@ -206,6 +216,8 @@ class CommandResult(BaseModel):
     # Cursor pagination fields for get_event_log
     last_date: Optional[str] = None                  # Cursor - last record date
     next_same_second_offset: Optional[int] = None    # Accumulated offset for next page
+    # submit_for_deanonymization acknowledgement field
+    received: Optional[bool] = None
 
 
 class HealthResponse(BaseModel):
@@ -320,6 +332,7 @@ async def receive_result(request: Request) -> JSONResponse:
         "extension",
         "last_date",                 # Cursor for get_event_log pagination
         "next_same_second_offset",   # Accumulated offset for compound cursor
+        "received",                  # submit_for_deanonymization acknowledgement
     )
     for key in optional_meta_fields:
         value = getattr(result, key, None)
@@ -462,6 +475,7 @@ routes = [
     Route("/api/get_link_of_object", get_link_of_object_handler, methods=["POST"]),
     Route("/api/find_references_to_object", find_references_to_object_handler, methods=["POST"]),
     Route("/api/get_access_rights", get_access_rights_handler, methods=["POST"]),
+    Route("/api/submit_for_deanonymization", submit_for_deanonymization_handler, methods=["POST"]),
 ]
 
 app = Starlette(

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 8px 16px;
+  background: #fff;
+  color: #222;
+  font-size: 13px;
+  line-height: 1.5;
+}
+pre {
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 3px;
+  padding: 10px;
+  overflow-x: auto;
+}
+code {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 12px;
+}
+pre code {
+  background: none;
+  padding: 0;
+}
+:not(pre) > code {
+  background: #f0f0f0;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 8px 0;
+}
+th, td {
+  border: 1px solid #ddd;
+  padding: 6px 10px;
+  text-align: left;
+}
+th {
+  background: #f0f0f0;
+  font-weight: bold;
+}
+blockquote {
+  border-left: 3px solid #ccc;
+  margin: 0;
+  padding-left: 12px;
+  color: #666;
+}
+hr {
+  border: none;
+  border-top: 1px solid #eee;
+  margin: 16px 0;
+}
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 1em;
+  margin-bottom: 0.4em;
+}
+a {
+  color: #0066cc;
+}
+p {
+  margin: 0.5em 0;
+}
+ul, ol {
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+</style>
+</head>
+<body>
+<div id="content"></div>
+<div id="src" style="display:none">{{HTML_ESCAPED_CONTENT}}</div>
+<script>
+(function () {
+
+  function escapeHTML(str) {
+    return (str || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function tryParseMarkdownLink(text, startIndex) {
+    if (!text || text[startIndex] !== "[") return null;
+
+    var labelEnd = startIndex + 1;
+    var bracketDepth = 1;
+    while (labelEnd < text.length) {
+      var ch = text[labelEnd];
+      if (ch === "\\") { labelEnd += 2; continue; }
+      if (ch === "[") bracketDepth++;
+      else if (ch === "]") { bracketDepth--; if (bracketDepth === 0) break; }
+      labelEnd++;
+    }
+
+    if (bracketDepth !== 0 || text[labelEnd + 1] !== "(") return null;
+
+    var urlEnd = labelEnd + 2;
+    var parenDepth = 1;
+    while (urlEnd < text.length) {
+      var ch2 = text[urlEnd];
+      if (ch2 === "\\") { urlEnd += 2; continue; }
+      if (ch2 === "(") parenDepth++;
+      else if (ch2 === ")") { parenDepth--; if (parenDepth === 0) break; }
+      urlEnd++;
+    }
+
+    if (parenDepth !== 0) return null;
+
+    var label = text.slice(startIndex + 1, labelEnd);
+    var url = text.slice(labelEnd + 2, urlEnd).replace(/^\s+|\s+$/g, "");
+    if (!/^https?:\/\/[^\s]+$/i.test(url)) return null;
+
+    return {
+      endIndex: urlEnd + 1,
+      html: '<a href="' + url + '" target="_blank" rel="noopener noreferrer nofollow">' + label + "</a>"
+    };
+  }
+
+  function renderMarkdownLinks(text) {
+    if (!text) return "";
+    var result = "";
+    var cursor = 0;
+    while (cursor < text.length) {
+      var startIndex = text.indexOf("[", cursor);
+      if (startIndex === -1) { result += text.slice(cursor); break; }
+      result += text.slice(cursor, startIndex);
+      var parsed = tryParseMarkdownLink(text, startIndex);
+      if (!parsed) { result += text[startIndex]; cursor = startIndex + 1; continue; }
+      result += parsed.html;
+      cursor = parsed.endIndex;
+    }
+    return result;
+  }
+
+  function render(md) {
+    if (!md) return "";
+
+    // Normalize code block formats
+    md = md.replace(/```[ \t]*\r?\n[ \t]*```/g, "");
+    md = md.replace(/```1[\u0421\u0441]\r?\n/g, "```1c\n");
+    md = md.replace(/```<code>\r?\n/g, "```bsl\n");
+    md = md.replace(/```[ \t]*\r?\n[ \t]*<code>[ \t]*\r?\n[ \t]*```/g, "");
+    md = md.replace(/```[ \t]*\r?\n[ \t]*<code>[ \t]*\r?\n([\s\S]*?)\r?\n[ \t]*<\/code>[ \t]*\r?\n[ \t]*```/g, function(_m, code) {
+      return "```bsl\n" + code.replace(/^\s+|\s+$/g, "") + "\n```\n\n";
+    });
+    md = md.replace(/```[ \t]*\r?\n[ \t]*<code>[ \t]*\r?\n([\s\S]*?)```/g, function(_m, code) {
+      return "```bsl\n" + code.replace(/^\s+|\s+$/g, "") + "\n```";
+    });
+    md = md.replace(/```code\r?\n/g, "```bsl\n");
+    md = md.replace(/<code>[ \t]*\r?\n([\s\S]*?)\r?\n?<\/code>/g, function(_m, code) {
+      return "```bsl\n" + code.replace(/^\s+|\s+$/g, "") + "\n```\n\n";
+    });
+    md = md.replace(/<code>[ \t]*\r?\n([\s\S]*?)(?=\r?\n[ \t]*(?:[#\*\-]|\d+\.|>)|(?:\r?\n){2,}|$)/g, function(_m, code) {
+      return "```bsl\n" + code.replace(/\s+$/, "") + "\n```\n\n";
+    });
+
+    // Fix malformed `` closings (ES5: use capture group instead of lookbehind)
+    md = md.replace(/(^|[^`])``([^`]|$)/g, function(_m, before, after) {
+      return before + "```" + after;
+    });
+
+    // Extract fenced code blocks (mermaid treated as plain code)
+    var codeBlocks = [];
+    md = md.replace(/```([\w+-]*)\r?\n([\s\S]*?)```/g, function (_m, lang, code) {
+      var cls = lang ? ' class="lang-' + String(lang).toLowerCase() + '"' : "";
+      var html = "<pre><code" + cls + ">" + escapeHTML(code) + "</code></pre>";
+      var token = "SSCODEBLOCKSSS" + codeBlocks.length + "SSCODEBLOCKENDSSS";
+      codeBlocks.push(html);
+      return token;
+    });
+
+    // Extract inline code
+    var inlineCodes = [];
+    md = md.replace(/`([^`]+)`/g, function (_m, code) {
+      var token = "SSINLINECODESSS" + inlineCodes.length + "SSINLINECODEENDSSS";
+      inlineCodes.push("<code>" + escapeHTML(code) + "</code>");
+      return token;
+    });
+
+    // Escape HTML
+    md = escapeHTML(md);
+
+    // Horizontal rules
+    md = md.replace(/^(?:---+|\*\*\*+|___+)$/gm, "<hr>");
+
+    // Blockquotes
+    md = md.replace(/(?:^|\n)((?:^>.*(?:\n|$))+)/gm, function(_match, blockContent) {
+      var lines = blockContent.replace(/^\s+|\s+$/g, "").split(/\n/);
+      var content = "";
+      for (var qi = 0; qi < lines.length; qi++) {
+        if (qi > 0) content += "<br>";
+        content += lines[qi].replace(/^>\s?/, "");
+      }
+      return "\n<blockquote>" + content + "</blockquote>\n";
+    });
+
+    // Headings
+    md = md.replace(/^###### (.*)$/gm, "<h6>$1</h6>");
+    md = md.replace(/^##### (.*)$/gm, "<h5>$1</h5>");
+    md = md.replace(/^#### (.*)$/gm, "<h4>$1</h4>");
+    md = md.replace(/^### (.*)$/gm, "<h3>$1</h3>");
+    md = md.replace(/^## (.*)$/gm, "<h2>$1</h2>");
+    md = md.replace(/^# (.*)$/gm, "<h1>$1</h1>");
+
+    // Links
+    md = renderMarkdownLinks(md);
+
+    // Autolinks (ES5: use capture group instead of lookbehind)
+    md = md.replace(/(^|[^"'(>])(https?:\/\/[^\s<]+[^\s<.,;:!?'")\]])/g, function(_m, prefix, url) {
+      return prefix + '<a href="' + url + '" target="_blank" rel="noopener noreferrer nofollow">' + url + "</a>";
+    });
+
+    // Strikethrough
+    md = md.replace(/~~([^~]+)~~/g, "<del>$1</del>");
+
+    // Bold and italic (ES5: use capture group instead of lookbehind for word boundary)
+    // \u0400-\u04FF = Cyrillic range, treated as word characters for boundary detection
+    md = md.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+    md = md.replace(/(^|[^\w\u0400-\u04FF])__([^_\n]+)__(?![\w\u0400-\u04FF])/gm, function(_m, before, content) {
+      return before + "<strong>" + content + "</strong>";
+    });
+    md = md.replace(/(^|[^\w\u0400-\u04FF])_([^_\n]+)_(?![\w\u0400-\u04FF])/gm, function(_m, before, content) {
+      return before + "<em>" + content + "</em>";
+    });
+    md = md.replace(/(^|[^\w*])\*([^*\n]+)\*(?!\*)/gm, "$1<em>$2</em>");
+
+    // Lists
+    function parseList(lines, startIndex) {
+      startIndex = startIndex || 0;
+      var result = [];
+      var i = startIndex;
+      while (i < lines.length) {
+        var line = lines[i];
+        var match = line.match(/^([ \t]*)([\*\-]|\d+\.)\s+(.+)$/);
+        if (!match) break;
+        var indent = match[1];
+        var marker = match[2];
+        var content = match[3];
+        var indentLevel = indent.length;
+        var j = i + 1;
+        var nestedLines = [];
+        while (j < lines.length) {
+          var nextLine = lines[j];
+          var nextMatch = nextLine.match(/^([ \t]*)([\*\-]|\d+\.)\s+/);
+          if (!nextMatch) break;
+          if (nextMatch[1].length <= indentLevel) break;
+          nestedLines.push(nextLine);
+          j++;
+        }
+        var itemHTML = /^\d+\.$/.test(marker) ? marker + " " + content : content;
+        if (nestedLines.length > 0) {
+          var firstNestedMatch = nestedLines[0].match(/^[ \t]*([\*\-]|\d+\.)\s+/);
+          var nestedIsOrdered = firstNestedMatch && /^\d+\.$/.test(firstNestedMatch[1]);
+          var nestedTag = nestedIsOrdered ? "ol" : "ul";
+          itemHTML += "<" + nestedTag + ">" + parseList(nestedLines, 0) + "</" + nestedTag + ">";
+        }
+        result.push("<li>" + itemHTML + "</li>");
+        i = j;
+      }
+      return result.join("");
+    }
+
+    md = md.replace(/(?:^|\n)((?:[ \t]*[\*\-]\s+.+(?:\n|$))+)/g, function(_match, listContent) {
+      var lines = listContent.replace(/^\s+|\s+$/g, "").split(/\n/);
+      return "\n<ul>" + parseList(lines) + "</ul>\n";
+    });
+
+    md = md.replace(/(?:^|\n)((?:[ \t]*\d+\.\s+.+(?:\n|$))+)/g, function(_match, listContent) {
+      var lines = listContent.replace(/^\s+|\s+$/g, "").split(/\n/);
+      return "\n<ol style=\"list-style:none;padding-left:0\">" + parseList(lines) + "</ol>\n";
+    });
+
+    // Pre-process multi-line table cells.
+    // A pipe-row is "open" if it starts with | but does NOT end with |
+    // (meaning the closing pipe of that row hasn't appeared yet).
+    // Continuation lines (non-empty, non-pipe) are joined to the last open pipe-row.
+    // Empty lines between a continuation and its parent row are discarded (not pushed),
+    // so they don't break the table regex that requires consecutive pipe-rows.
+    (function() {
+      var lines = md.split("\n");
+      var out = [];
+      var pendingEmpties = 0;
+
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        if (line === "") {
+          pendingEmpties++;
+        } else if (line.charAt(0) === "|") {
+          // Flush buffered empties, then push this pipe-row
+          for (var e = 0; e < pendingEmpties; e++) out.push("");
+          pendingEmpties = 0;
+          out.push(line);
+        } else {
+          // Non-empty, non-pipe: check if last non-empty in out is an open pipe-row
+          var lastIdx = -1;
+          for (var j = out.length - 1; j >= 0; j--) {
+            if (out[j] !== "") { lastIdx = j; break; }
+          }
+          var lastLine = lastIdx >= 0 ? out[lastIdx] : "";
+          var isOpenPipeRow = lastLine.charAt(0) === "|" && lastLine.charAt(lastLine.length - 1) !== "|";
+          if (isOpenPipeRow) {
+            // Join continuation; discard buffered empties (they were inside the cell)
+            out[lastIdx] += " " + line.replace(/^\s+|\s+$/g, "");
+            pendingEmpties = 0;
+          } else {
+            // Regular text — flush buffered empties and push normally
+            for (var e2 = 0; e2 < pendingEmpties; e2++) out.push("");
+            pendingEmpties = 0;
+            out.push(line);
+          }
+        }
+      }
+      // Flush any remaining buffered empties
+      for (var ef = 0; ef < pendingEmpties; ef++) out.push("");
+
+      md = out.join("\n");
+    })();
+
+    // Tables
+    md = md.replace(/(?:^|\n)(\|.+\|\n\|[\s\-:|]+\|\n(?:\|.+\|\n?)+)/gm, function(_match, tableContent) {
+      var lines = tableContent.replace(/^\s+|\s+$/g, "").split(/\n/);
+      if (lines.length < 2) return tableContent;
+
+      var headerCells = lines[0].split("|").slice(1, -1);
+      for (var hi = 0; hi < headerCells.length; hi++) {
+        headerCells[hi] = headerCells[hi].replace(/^\s+|\s+$/g, "");
+      }
+
+      var separatorCells = lines[1].split("|").slice(1, -1);
+      var alignments = [];
+      for (var si = 0; si < separatorCells.length; si++) {
+        var trimmed = separatorCells[si].replace(/^\s+|\s+$/g, "");
+        if (trimmed.charAt(0) === ":" && trimmed.charAt(trimmed.length - 1) === ":") alignments.push("center");
+        else if (trimmed.charAt(trimmed.length - 1) === ":") alignments.push("right");
+        else if (trimmed.charAt(0) === ":") alignments.push("left");
+        else alignments.push("");
+      }
+
+      var tableHTML = "<table><thead><tr>";
+      for (var thi = 0; thi < headerCells.length; thi++) {
+        var align = alignments[thi] ? ' align="' + alignments[thi] + '"' : "";
+        tableHTML += "<th" + align + ">" + headerCells[thi] + "</th>";
+      }
+      tableHTML += "</tr></thead><tbody>";
+
+      for (var ri = 2; ri < lines.length; ri++) {
+        var cells = lines[ri].split("|").slice(1, -1);
+        tableHTML += "<tr>";
+        for (var ci = 0; ci < cells.length; ci++) {
+          var cellAlign = alignments[ci] ? ' align="' + alignments[ci] + '"' : "";
+          tableHTML += "<td" + cellAlign + ">" + cells[ci].replace(/^\s+|\s+$/g, "") + "</td>";
+        }
+        tableHTML += "</tr>";
+      }
+      tableHTML += "</tbody></table>";
+      return "\n" + tableHTML + "\n";
+    });
+
+    // Paragraphs
+    var blocks = md.split(/\n{2,}/);
+    var mappedBlocks = [];
+    for (var bi = 0; bi < blocks.length; bi++) {
+      var trimmed = blocks[bi].replace(/^\s+|\s+$/g, "");
+      if (!trimmed) { mappedBlocks.push(""); continue; }
+      if (/^<h[1-6]|^<pre|^<ul|^<ol|^<blockquote|^<hr|^<table/i.test(trimmed)) {
+        mappedBlocks.push(trimmed);
+      } else {
+        mappedBlocks.push("<p>" + trimmed.replace(/\n/g, "<br>") + "</p>");
+      }
+    }
+    md = mappedBlocks.join("\n");
+
+    // Restore code blocks
+    for (var cbi = 0; cbi < codeBlocks.length; cbi++) {
+      md = md.replace("SSCODEBLOCKSSS" + cbi + "SSCODEBLOCKENDSSS", codeBlocks[cbi]);
+    }
+
+    // Restore inline code
+    for (var ici = 0; ici < inlineCodes.length; ici++) {
+      md = md.replace("SSINLINECODESSS" + ici + "SSINLINECODEENDSSS", inlineCodes[ici]);
+    }
+
+    return md;
+  }
+
+  var md = document.getElementById("src").textContent || document.getElementById("src").innerText || "";
+  document.getElementById("content").innerHTML = render(md);
+
+})();
+</script>
+</body>
+</html>

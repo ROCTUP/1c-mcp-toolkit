@@ -160,6 +160,7 @@ python -m onec_mcp_toolkit_proxy
 | **get_link_of_object** | Генерация навигационной ссылки на объект |
 | **find_references_to_object** | Поиск всех ссылок на объект |
 | **get_access_rights** | Получение прав доступа к объектам метаданных |
+| **submit_for_deanonymization** | Отправка финального ответа для деанонимизации (только при включённой анонимизации) |
 
 ## 🌐 REST API (альтернатива MCP)
 
@@ -179,13 +180,16 @@ python -m onec_mcp_toolkit_proxy
 | `/api/get_link_of_object` | POST | Генерация ссылки на объект |
 | `/api/find_references_to_object` | POST | Поиск ссылок на объект |
 | `/api/get_access_rights` | POST | Получение прав доступа |
+| `/api/submit_for_deanonymization` | POST | Отправить текст для деанонимизации (только при включённой анонимизации) |
 
 ### Формат ответов
 
-Все ответы следуют единой структуре:
+Большинство ответов следуют единой структуре:
 
-**Успех:** `{"success": true, "data": <результат>}`  
+**Успех:** `{"success": true, "data": <результат>}`
 **Ошибка:** `{"success": false, "error": "Описание ошибки"}`
+
+**Исключение:** `submit_for_deanonymization` возвращает `{"received": true}` при успехе (без поля `data`).
 
 Подробные примеры использования REST API доступны в полной документации.
 

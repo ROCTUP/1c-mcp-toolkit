@@ -16,7 +16,7 @@ Validates: Requirements 2.1, 3.1, 4.1, Event Log 1.1
 import asyncio
 import logging
 import unicodedata
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 
 from mcp.server.fastmcp import FastMCP, Context
 from mcp.server.transport_security import TransportSecuritySettings
@@ -480,31 +480,36 @@ async def execute_query(
 
 
 @mcp.tool()
-async def execute_code(ctx: Context, code: str) -> Dict[str, Any]:
+async def execute_code(ctx: Context, code: str, execution_context: Literal["server", "client"] = "server") -> Dict[str, Any]:
     """
     Execute arbitrary code in 1C language.
-    
-    This tool executes code on the 1C:Enterprise server using the Execute() operator.
+
+    The execution context is controlled by the execution_context parameter:
+    - 'server' (default): code runs in НаСервереБезКонтекста — DB access, 1C objects, no form context.
+    - 'client': code runs in НаКлиенте — form attributes (ЭтаФорма), UI functions, no DB queries.
+
     The result is returned from the 'Результат' (Result) variable as JSON or TOON format.
-    
+
     Important limitations (code is executed as a statement block, not a full module):
     - Do NOT declare procedures/functions (`Процедура/Функция`) inside the snippet.
     - Do NOT use `Возврат` (Return). Instead assign a value to `Результат`.
-    
+
     WARNING: Some dangerous operations are blocked for safety reasons.
-    
+
     Args:
         ctx: MCP Context (injected automatically)
         code: The 1C code to execute. Use 'Результат = ...' to return a value.
-        
+        execution_context: Optional['server'|'client'], default='server'.
+
     Returns:
         Dictionary with:
         - success: Boolean indicating if the code executed successfully
         - data: The value of 'Результат' variable in JSON or TOON format (if successful)
         - error: Error message with line number (if failed)
-        
+
     Example:
         execute_code(code="Результат = ТекущаяДата();")
+        execute_code(code="Результат = ЭтаФорма.Наименование;", execution_context="client")
     """
     channel = _get_channel_from_context(ctx)
     logger.info(f"execute_code on channel '{channel}': code length={len(code)}")
@@ -512,7 +517,7 @@ async def execute_code(ctx: Context, code: str) -> Dict[str, Any]:
     # Validate parameters using Pydantic model
     # Validates: Requirement 6.4 - JSON serialization/deserialization errors with clear messages
     try:
-        validated = validate_execute_code_params(code=code)
+        validated = validate_execute_code_params(code=code, execution_context=execution_context)
     except ValidationError as e:
         error_msg = e.errors()[0]['msg'] if e.errors() else str(e)
         logger.warning(f"execute_code validation failed: {error_msg}")
@@ -544,6 +549,7 @@ async def execute_code(ctx: Context, code: str) -> Dict[str, Any]:
             logger.info(f"Dangerous code requires approval: {found_dangerous}")
             result = await _execute_1c_command("execute_code", {
                 "code": validated.code,
+                "execution_context": validated.execution_context,
                 "requires_approval": True,
                 "dangerous_keywords": found_dangerous
             }, channel=channel)
@@ -559,7 +565,8 @@ async def execute_code(ctx: Context, code: str) -> Dict[str, Any]:
     else:
         # Safe code: execute normally
         result = await _execute_1c_command("execute_code", {
-            "code": validated.code
+            "code": validated.code,
+            "execution_context": validated.execution_context,
         }, channel=channel)
     
     return result
@@ -927,16 +934,21 @@ async def get_event_log(
 async def get_object_by_link(ctx: Context, link: str) -> Dict[str, Any]:
     """
     Get 1C object data by navigation link.
-    
+
     This tool retrieves complete object data from the 1C:Enterprise database
-    using a navigation link. The link format is e1cib/data/Type.Name?ref=HexGUID.
+    using a navigation link. The link format is e1cib/data/Type.Name?ref=HexGUID
+    for standard objects. For external data sources:
+    - Object tables (single key): e1cib/data/ВнешнийИсточникДанных.Source.Таблица.TableName?ref=Value
+    - Non-object tables (composite key): e1cib/data/ВнешнийИсточникДанных.Source.Таблица.TableName?FieldName=Value
     Results are returned as JSON or TOON format.
-    
+
     Args:
         ctx: MCP Context (injected automatically)
-        link: Navigation link in format e1cib/data/Type.Name?ref=HexGUID
-              (e.g., "e1cib/data/Справочник.Контрагенты?ref=80c6cc1a7e58902811ebcda8cb07c0f5")
-              
+        link: Navigation link. Standard objects: e1cib/data/Type.Name?ref=HexGUID (32 hex chars).
+              External data sources: e1cib/data/ВнешнийИсточникДанных.Source.Таблица.TableName
+              - Object tables: ?ref=Value (e.g., "...Таблица.Заказы?ref=117953")
+              - Non-object tables: ?FieldName=Value (e.g., "...Таблица.OrderItems?ID=5&Type=A")
+
     Returns:
         Dictionary with:
         - success: Boolean indicating if the request was successful
@@ -947,7 +959,7 @@ async def get_object_by_link(ctx: Context, link: str) -> Dict[str, Any]:
             - Custom attributes defined in metadata
             - Tabular sections with all rows
         - error: Error message (if failed)
-        
+
     Example:
         get_object_by_link(
             link="e1cib/data/Справочник.Контрагенты?ref=80c6cc1a7e58902811ebcda8cb07c0f5"
@@ -1273,6 +1285,30 @@ async def get_access_rights(
     return result
 
 
+if settings.anonymization_enabled:
+    @mcp.tool()
+    async def submit_for_deanonymization(ctx: Context, text: str) -> Dict[str, Any]:
+        """
+        Submit the final user-facing response for de-anonymization display.
+
+        You MUST call this tool if, and only if, your final response to the user contains
+        anonymization tokens in the form [CATEGORY-NNNNN], for example [ORG-00001],
+        [PER-00042], [INN-00001].
+
+        Call this tool exactly once, immediately before sending the final response to the user.
+        Pass the complete final response text in the "text" parameter.
+        Do NOT call this tool for intermediate reasoning, drafts, or raw tool outputs.
+
+        This tool does NOT return de-anonymized text to you.
+        It only confirms receipt, for example {"received": true}.
+        After calling this tool, send your original final response with tokens unchanged.
+        The user will see the de-anonymized version in their interface.
+        """
+        channel = _get_channel_from_context(ctx)
+        result = await _execute_1c_command("submit_for_deanonymization", {"text": text}, channel=channel)
+        return result
+
+
 def _apply_anonymization_notice_to_tools() -> None:
     if not settings.anonymization_enabled:
         return
@@ -1282,7 +1318,8 @@ def _apply_anonymization_notice_to_tools() -> None:
         "personal data) are replaced with anonymous tokens in the format "
         "[CATEGORY-NNNNN] (e.g. [ORG-00001], [PER-00042], [INN-00001]). "
         "Tokens are stable within the current session. "
-        "Do not attempt to interpret these tokens as meaningful data."
+        "Do not attempt to interpret these tokens as meaningful data. "
+        "Tokens can be passed as query parameters in subsequent requests."
     )
     for tool in mcp._tool_manager.list_tools():
         if tool.name in settings.anonymization_tools:

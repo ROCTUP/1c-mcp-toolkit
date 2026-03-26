@@ -33,6 +33,7 @@
 			<Template>QueryLineageAnalyzer</Template>
 			<Template>RegexHelper</Template>
 			<Template>НастройкиRegexПоУмолчанию</Template>
+			<Template>MarkdownViewer</Template>
 		</ChildObjects>
 	</ExternalDataProcessor>
 </MetaDataObject>

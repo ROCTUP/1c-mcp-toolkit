@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Template uuid="f3c8a1b2-4d5e-6f7a-8b9c-0d1e2f3a4b5c">
+		<Properties>
+			<Name>MarkdownViewer</Name>
+			<Synonym>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Markdown Viewer</v8:content>
+				</v8:item>
+			</Synonym>
+			<Comment>HTML шаблон для отображения markdown в поле деанонимизации</Comment>
+			<TemplateType>BinaryData</TemplateType>
+		</Properties>
+	</Template>
+</MetaDataObject>

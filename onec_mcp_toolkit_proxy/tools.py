@@ -9,7 +9,7 @@ Validates: Requirements 2.1, 2.5, 2.6, 3.1, 4.1
 
 import re
 import json
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 from pydantic import BaseModel, Field, StrictBool, field_validator, model_validator
 
 
@@ -181,7 +181,15 @@ class ExecuteCodeParams(BaseModel):
         min_length=1,
         examples=["Результат = ТекущаяДата();"]
     )
-    
+
+    execution_context: Literal["server", "client"] = Field(
+        default="server",
+        description=(
+            "Execution context: 'server' (НаСервереБезКонтекста, default — DB access, 1C objects) "
+            "or 'client' (НаКлиенте — form attributes, UI functions, no DB queries)"
+        )
+    )
+
     @field_validator('code')
     @classmethod
     def validate_code_not_empty(cls, v: str) -> str:
@@ -669,57 +677,95 @@ class GetEventLogParams(BaseModel):
 class GetObjectByLinkParams(BaseModel):
     """
     Parameters for the get_object_by_link MCP tool.
-    
+
     Validates: Requirements 1.2, 7.1, 7.2, 7.3, 7.4
     - 1.2: WHEN the `link` parameter is provided, THE MCP_Proxy SHALL validate it against the navigation link format
     - 7.1: WHEN the `link` parameter is empty or whitespace, THE MCP_Proxy SHALL return validation error
     - 7.2: WHEN the `link` parameter does not start with `e1cib/data/`, THE MCP_Proxy SHALL return format error
     - 7.3: WHEN the `ref` parameter is missing from the link, THE MCP_Proxy SHALL return error indicating missing reference
     - 7.4: WHEN the HexGUID is not exactly 32 hexadecimal characters, THE MCP_Proxy SHALL return error describing expected format
+
+    Supports external data sources: e1cib/data/ВнешнийИсточникДанных.Source.Таблица.TableName
+    - Object tables (single key): ?ref=Value (system parameter)
+    - Non-object tables (composite key): ?FieldName=Value where FieldName = actual key field names
+    Multiple keys example: ?ID=5&Type=A
     """
-    
+
     link: str = Field(
         ...,
-        description="Навигационная ссылка 1С",
+        description=(
+            "Навигационная ссылка 1С. "
+            "Standard objects: e1cib/data/Type.Name?ref=HexGUID (32 hex chars). "
+            "External data sources: e1cib/data/ВнешнийИсточникДанных.Source.Таблица.TableName?... "
+            "Object tables (single key): ?ref=Value (system parameter). "
+            "Non-object tables (composite key): ?FieldName=Value where FieldName = actual key field name. "
+            "Multiple keys: ?ID=5&Type=A"
+        ),
         min_length=1
     )
-    
+
     @field_validator('link')
     @classmethod
     def validate_link_format(cls, v: str) -> str:
         """
         Validate navigation link format.
-        
-        Expected format: e1cib/data/ТипОбъекта.ИмяОбъекта?ref=HexGUID
+
+        Standard objects: e1cib/data/ТипОбъекта.ИмяОбъекта?ref=HexGUID
         Example: e1cib/data/Справочник.Контрагенты?ref=80c6cc1a7e58902811ebcda8cb07c0f5
+
+        External data sources: e1cib/data/ВнешнийИсточникДанных.Source.Таблица.TableName
+        - Object tables (single key): ?ref=Value (system parameter)
+          Example: e1cib/data/ВнешнийИсточникДанных.ВнешняяБД.Таблица.Заказы?ref=117953
+        - Non-object tables (composite key): ?FieldName=Value (real field names)
+          Example: e1cib/data/ВнешнийИсточникДанных.ВнешняяБД.Таблица.OrderItems?ID=5&Type=A
         """
-        # Strip whitespace
         v = v.strip()
-        
-        # Requirement 7.1: Check for empty or whitespace-only link
+
         if not v:
             raise ValueError("Link cannot be empty")
-        
-        # Requirement 7.2: Check for correct prefix
+
         if not v.startswith("e1cib/data/"):
             raise ValueError("Link must start with 'e1cib/data/'")
-        
-        # Requirement 7.3: Check for ref parameter
-        if "?ref=" not in v:
-            raise ValueError("Link must contain '?ref=' parameter")
-        
-        # Requirement 7.4: Extract and validate HexGUID
-        ref_part = v.split("?ref=")[-1]
-        
-        # Validate HexGUID is exactly 32 hexadecimal characters
-        if len(ref_part) != 32:
-            raise ValueError(
-                f"ref parameter must be exactly 32 hexadecimal characters, got {len(ref_part)}"
-            )
-        
-        if not HEXGUID_PATTERN.match(ref_part):
-            raise ValueError("ref parameter must contain only hexadecimal characters (0-9, a-f, A-F)")
-        
+
+        # Тип определяем по пути — до '?', независимо от его наличия
+        path_part = v[len("e1cib/data/"):].split("?")[0]
+        is_external_ds = path_part.lower().startswith("внешнийисточникданных.")
+
+        if is_external_ds:
+            # Внешний источник: путь должен быть ровно 4 сегмента
+            segments = path_part.split(".")
+            if len(segments) != 4:
+                raise ValueError(
+                    "External data source link path must have exactly 4 segments: "
+                    "ВнешнийИсточникДанных.SourceName.Таблица.TableName"
+                )
+            if segments[2].lower() != "таблица":
+                raise ValueError(
+                    "External data source link path segment 3 must be 'Таблица'"
+                )
+            if "?" not in v:
+                raise ValueError(
+                    "External data source link must contain '?' with key field parameters"
+                )
+            params_str = v.split("?", 1)[1]
+            if not params_str or "=" not in params_str:
+                raise ValueError(
+                    "External data source link must contain key parameters after '?'"
+                )
+        else:
+            # Обычный объект — строгая hex-32 проверка
+            if "?ref=" not in v:
+                raise ValueError("Link must contain '?ref=' parameter")
+            ref_part = v.split("?ref=")[-1]
+            if len(ref_part) != 32:
+                raise ValueError(
+                    f"ref parameter must be exactly 32 hexadecimal characters, got {len(ref_part)}"
+                )
+            if not HEXGUID_PATTERN.match(ref_part):
+                raise ValueError(
+                    "ref parameter must contain only hexadecimal characters (0-9, a-f, A-F)"
+                )
+
         return v
 
 
@@ -1237,7 +1283,12 @@ GET_OBJECT_BY_LINK_SCHEMA = {
         "properties": {
             "link": {
                 "type": "string",
-                "description": "Навигационная ссылка в формате e1cib/data/ТипОбъекта.ИмяОбъекта?ref=HexGUID"
+                "description": (
+                    "Навигационная ссылка. "
+                    "Стандартные объекты: e1cib/data/ТипОбъекта.ИмяОбъекта?ref=HexGUID (32 hex символа). "
+                    "Внешние источники данных: e1cib/data/ВнешнийИсточникДанных.Источник.Таблица.ИмяТаблицы?ИмяПоля=Значение "
+                    "(имена параметров = имена ключевых полей, несколько ключей: ?ID=5&Type=A)"
+                )
             }
         },
         "required": ["link"]
@@ -1416,7 +1467,7 @@ def validate_execute_query_params(
     return ExecuteQueryParams(query=query, params=params, limit=limit, include_schema=include_schema)
 
 
-def validate_execute_code_params(code: str) -> ExecuteCodeParams:
+def validate_execute_code_params(code: str, execution_context: str = "server") -> ExecuteCodeParams:
     """
     Validate execute_code parameters using Pydantic model.
     
@@ -1429,7 +1480,7 @@ def validate_execute_code_params(code: str) -> ExecuteCodeParams:
     Raises:
         ValueError: If validation fails
     """
-    return ExecuteCodeParams(code=code)
+    return ExecuteCodeParams(code=code, execution_context=execution_context)
 
 
 def validate_get_metadata_params(
@@ -1537,15 +1588,18 @@ def validate_get_event_log_params(
 def validate_get_object_by_link_params(link: str) -> GetObjectByLinkParams:
     """
     Validate get_object_by_link parameters using Pydantic model.
-    
+
     Validates: Requirements 1.2, 7.1, 7.2, 7.3, 7.4
-    
+
     Args:
-        link: Navigation link in format e1cib/data/Type.Name?ref=HexGUID
-        
+        link: Navigation link. Standard objects: e1cib/data/Type.Name?ref=HexGUID (32 hex chars).
+              External data sources: e1cib/data/ВнешнийИсточникДанных.Source.Таблица.TableName
+              - Object tables (single key): ?ref=Value (system parameter)
+              - Non-object tables (composite key): ?FieldName=Value (real field names, e.g., ?ID=5&Type=A)
+
     Returns:
         Validated GetObjectByLinkParams instance
-        
+
     Raises:
         ValueError: If validation fails
     """
@@ -1636,3 +1690,8 @@ def validate_get_access_rights_params(
         rights_filter=rights_filter,
         roles_filter=roles_filter
     )
+
+
+class SubmitForDeanonymizationParams(BaseModel):
+    """Parameters for submit_for_deanonymization tool."""
+    text: str

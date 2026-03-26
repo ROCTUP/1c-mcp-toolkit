@@ -26,7 +26,8 @@ from .tools import (
     validate_get_object_by_link_params,
     validate_get_link_of_object_params,
     validate_find_references_to_object_params,
-    validate_get_access_rights_params
+    validate_get_access_rights_params,
+    SubmitForDeanonymizationParams
 )
 from .channel_registry import ChannelRegistry, DEFAULT_CHANNEL
 
@@ -529,7 +530,8 @@ async def execute_code_handler(request: Request) -> JSONResponse:
     
     Request format:
     {
-        "code": "Результат = ТекущаяДата();"
+        "code": "Результат = ТекущаяДата();",
+        "execution_context": "server"  // optional, "server" (default) or "client"
     }
     
     Response for dangerous code (blocked):
@@ -552,12 +554,13 @@ async def execute_code_handler(request: Request) -> JSONResponse:
     if parse_error:
         return parse_error
 
-    # Step 3: Extract code parameter from body
+    # Step 3: Extract parameters from body
     code = body.get("code", "")
+    execution_context = body.get("execution_context", "server")
     
     # Step 4: Validate parameters via Pydantic
     try:
-        validated_params = validate_execute_code_params(code=code)
+        validated_params = validate_execute_code_params(code=code, execution_context=execution_context)
     except ValidationError as e:
         return _validation_error_response(e)
     
@@ -575,6 +578,7 @@ async def execute_code_handler(request: Request) -> JSONResponse:
             logger.info(f"REST API: Dangerous code requires approval: {found_dangerous}")
             params_dict = {
                 "code": validated_params.code,
+                "execution_context": validated_params.execution_context,
                 "requires_approval": True,
                 "dangerous_keywords": found_dangerous
             }
@@ -592,7 +596,10 @@ async def execute_code_handler(request: Request) -> JSONResponse:
     
     # Step 7: Execute command via _execute_1c_command
     # Convert validated params to dict for _execute_1c_command
-    params_dict = {"code": validated_params.code}
+    params_dict = {
+        "code": validated_params.code,
+        "execution_context": validated_params.execution_context,
+    }
     
     result = await _execute_1c_command("execute_code", params_dict, channel)
     
@@ -898,19 +905,25 @@ async def get_event_log_handler(request: Request) -> JSONResponse:
 async def get_object_by_link_handler(request: Request) -> JSONResponse:
     """
     POST /api/get_object_by_link - Get object data by navigation link.
-    
+
     Validates: Requirements 5.1, 5.2, 5.3
     - 5.1: POST request with JSON body {"link": "e1cib/data/..."} returns object data
     - 5.2: Invalid link format returns HTTP 422 with format error description
     - 5.3: Object not found returns HTTP 200 with {"success": false, "error": "..."}
-    
+
     Order of checks: Content-Type (415) → JSON parsing (400) → validation (422)
-    
+
+    Link formats:
+    - Standard objects: e1cib/data/Type.Name?ref=HexGUID (32 hex chars)
+    - External data sources: e1cib/data/ВнешнийИсточникДанных.Source.Таблица.TableName
+      - Object tables (single key): ?ref=Value (system parameter)
+      - Non-object tables (composite key): ?FieldName=Value (real field names, e.g., ?ID=5&Type=A)
+
     Request format:
     {
         "link": "e1cib/data/Справочник.Контрагенты?ref=80c6cc1a7e58902811ebcda8cb07c0f5"
     }
-    
+
     Response format (success):
     {
         "success": true,
@@ -920,7 +933,7 @@ async def get_object_by_link_handler(request: Request) -> JSONResponse:
             ...
         }
     }
-    
+
     Response format (not found):
     {
         "success": false,
@@ -1150,4 +1163,44 @@ async def get_access_rights_handler(request: Request) -> JSONResponse:
     result = await _execute_1c_command("get_access_rights", params_dict, channel)
 
     # Step 7: Return result as JSONResponse
+    return JSONResponse(content=result)
+
+
+async def submit_for_deanonymization_handler(request: Request) -> JSONResponse:
+    """
+    Handle submit_for_deanonymization requests.
+
+    Validates: Requirements 7.1, 7.2, 8.1, 8.5
+    - 7.1: Channel routing
+    - 7.2: Default channel
+    - 8.1: JSON parse error
+    - 8.5: Content-Type check
+
+    Tool appends de-anonymized text to form field.
+    Returns {"received": true} on success (not {"success": true, "data": ...}).
+    """
+    content_type_error = _check_content_type(request)
+    if content_type_error:
+        return content_type_error
+
+    # Используем encoding detection как остальные POST handlers
+    body, parse_error = await _parse_json_body_with_encoding_detection(request)
+    if parse_error:
+        return parse_error
+
+    # Валидация через Pydantic model
+    try:
+        validated = SubmitForDeanonymizationParams(**body)
+        body = validated.model_dump(exclude_none=True)  # Используем валидированные данные
+    except ValidationError as e:
+        return _validation_error_response(e)
+
+    # Единый контракт: HTTP 200 + success:false при отключенной анонимизации
+    if not settings.anonymization_enabled:
+        return JSONResponse(
+            content={"success": False, "error": "Tool is not available: anonymization is disabled"}
+        )
+
+    channel = _get_channel(request)
+    result = await _execute_1c_command("submit_for_deanonymization", body, channel=channel)
     return JSONResponse(content=result)

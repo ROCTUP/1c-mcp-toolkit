@@ -2,11 +2,12 @@
 name: calling-1c-rest-api-via-curl
 description: >
   Access a 1C:Enterprise database through the 1C MCP Toolkit REST API using curl.
-  Provides 8 endpoints under /api/ for querying data (execute_query), exploring metadata
+  Provides 9 endpoints under /api/ for querying data (execute_query), exploring metadata
   (get_metadata), reading event logs (get_event_log), checking access rights
   (get_access_rights), finding object references (find_references_to_object), navigating
-  objects by link (get_object_by_link, get_link_of_object), and executing 1C code
-  (execute_code). Use when the agent needs to interact with a 1C database via HTTP but
+  objects by link (get_object_by_link, get_link_of_object), executing 1C code
+  (execute_code), and submitting text for de-anonymization (submit_for_deanonymization, when
+  anonymization is enabled). Use when the agent needs to interact with a 1C database via HTTP but
   does not speak MCP. Supports channel isolation for multi-database routing.
 ---
 
@@ -38,6 +39,8 @@ Every response is JSON with this structure:
 {"success": true, "data": <result>}
 {"success": false, "error": "description"}
 ```
+
+Most endpoints follow this pattern. **Exception:** `submit_for_deanonymization` returns `{"received": true}` on success (no `data` field).
 
 Some endpoints add extra fields: `count`, `truncated`, `has_more`, `last_date`, `next_same_second_offset`, `configuration`, `schema`.
 
@@ -155,6 +158,11 @@ Response:
 
 Execute arbitrary 1C code. Must assign result to `Результат` variable. Cannot declare `Процедура`/`Функция` or use `Возврат`.
 
+**Parameters**: `code` (**required**), `execution_context` (optional: `"server"` (default) or `"client"`).
+
+- **`"server"`** (default) — runs in `&НаСервереБезКонтекста`: full DB access, 1C objects, queries. Use for data operations.
+- **`"client"`** — runs in `&НаКлиенте`: access to form attributes and UI functions (`ОткрытьФорму`, etc.), **no DB queries**.
+
 **Dangerous keywords** blocked by default: `Удалить`, `Delete`, `Записать`, `Write`, `УстановитьПривилегированныйРежим`, `SetPrivilegedMode`, `COMОбъект`, `COMObject`, `УдалитьФайлы`, `DeleteFiles`, and others (see [references/tools-full-reference.md](references/tools-full-reference.md#3-execute_code--post-apiexecute_code)).
 
 **CRITICAL: Query text inside execute_code must be a single line.** Always write the entire query in one line without line breaks. Do not use multiline formatting.
@@ -165,13 +173,17 @@ Execute arbitrary 1C code. Must assign result to `Результат` variable. 
 ```
 
 ```sh
-# Simple code (no query):
+# Simple code (server context, default):
 curl -sS --noproxy $BASE_HOST "$BASE_URL/api/execute_code?channel=$CHANNEL" $J \
   -d '{"code":"Результат = ТекущаяДата();"}'
 
 # Code with query — single line:
 curl -sS --noproxy $BASE_HOST "$BASE_URL/api/execute_code?channel=$CHANNEL" $J \
   -d '{"code":"Запрос = Новый Запрос;\nЗапрос.Текст = \"ВЫБРАТЬ Ссылка, Наименование ИЗ Справочник.Контрагенты ГДЕ НЕ ПометкаУдаления\";\nРезультат = Запрос.Выполнить().Выгрузить().Количество();"}'
+
+# Client context — open a form:
+curl -sS --noproxy $BASE_HOST "$BASE_URL/api/execute_code?channel=$CHANNEL" $J \
+  -d '{"code":"ОткрытьФорму(\"Справочник.Номенклатура.ФормаСписка\"); Результат = \"OK\";","execution_context":"client"}'
 ```
 
 Response: `{"success": true, "data": "2024-01-15T10:30:00"}`
@@ -292,6 +304,25 @@ Response:
   "count": 1, "last_date": "2024-01-15T10:30:00", "next_same_second_offset": 1, "has_more": false
 }
 ```
+
+---
+
+### 9. submit_for_deanonymization — `POST /api/submit_for_deanonymization`
+
+Submit the final user-facing response for de-anonymization display. **Available only when anonymization is enabled.** Returns `{"received": true}` on success (not `{"success": true, "data": ...}`).
+
+**When to use:** MUST call if, and only if, your final response contains anonymization tokens `[CATEGORY-NNNNN]` (e.g., `[ORG-00001]`, `[PER-00042]`, `[INN-00001]`). Call exactly once, immediately before the final response. Do NOT call for intermediate steps.
+
+Key params: `text` (**required**, string) — the complete final response text containing anonymization tokens.
+
+```sh
+curl -sS --noproxy $BASE_HOST "$BASE_URL/api/submit_for_deanonymization?channel=$CHANNEL" $J \
+  -d '{"text":"Компания [ORG-00001], ИНН [INN-00001], директор: [PER-00001]"}'
+```
+
+Response: `{"received": true}`
+
+Error: `{"success": false, "error": "Tool is not available: anonymization is disabled"}`
 
 ---
 
