@@ -1,0 +1,47 @@
+name: build-macos
+
+# Builds the native components as universal (x86_64 + arm64) macOS .dylib files.
+# Lets the project ship macOS support without anyone owning a Mac:
+# the dylib artifacts are produced here, then dropped into the processing's
+# Template.bin and the .epf is re-saved in Designer (any OS) — the same manual
+# embedding step already used for the Windows/Linux binaries.
+#
+# ScreenCapture is intentionally excluded: it relies on the Windows GDI API and
+# has no non-Windows code path.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'native_components/**'
+      - '.github/workflows/build-macos.yml'
+  pull_request:
+    paths:
+      - 'native_components/**'
+      - '.github/workflows/build-macos.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14   # Apple Silicon runner; cross-builds the x86_64 slice too
+    strategy:
+      fail-fast: false
+      matrix:
+        component:
+          - MCPHttpTransport
+          - QueryLineageAnalyzer
+          - RegexHelper
+          - SyntaxHelpReader
+          - ToonConverter
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build ${{ matrix.component }} (universal)
+        run: bash "native_components/${{ matrix.component }}/build_macos.sh"
+
+      - name: Upload ${{ matrix.component }} dylib
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.component }}-macos-universal
+          path: native_components/${{ matrix.component }}/build_macos/${{ matrix.component }}.dylib
+          if-no-files-found: error
