@@ -3,8 +3,8 @@ name: build-macos
 # Builds the native components as universal (x86_64 + arm64) macOS .dylib files.
 # Lets the project ship macOS support without anyone owning a Mac:
 # the dylib artifacts are produced here, then dropped into the processing's
-# Template.bin and the .epf is re-saved in Designer (any OS) — exactly like the
-# Linux .so workflow.
+# Template.bin and the .epf is re-saved in Designer (any OS) — the same manual
+# embedding step already used for the Windows/Linux binaries.
 #
 # ScreenCapture is intentionally excluded: it relies on the Windows GDI API and
 # has no non-Windows code path.
