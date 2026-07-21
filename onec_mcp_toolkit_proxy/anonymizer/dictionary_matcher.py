@@ -56,7 +56,12 @@ class DictionaryMatcher:
         else:
             logger.warning("Dictionary: no terms, matcher inactive")
 
-    def replace(self, text: str, tokenize_fn: Callable[[str, str], str]) -> str:
+    def replace(
+        self,
+        text: str,
+        tokenize_fn: Callable[[str, str], str],
+        exclude_fragment: Optional[Callable[[str], bool]] = None,
+    ) -> str:
         """Replace dictionary matches in text with tokens.
 
         - Case-insensitive match (searches text.lower())
@@ -64,6 +69,10 @@ class DictionaryMatcher:
         - Skips spans inside existing [TOKEN-NNNN]
         - Longest match wins on overlaps (greedy left-to-right)
         - Calls tokenize_fn(canonical_term, category) — BOTH args required
+        - exclude_fragment(found_text) — optional predicate over the ACTUALLY
+          matched fragment text[s:e] (case-sensitive). When it returns True the
+          fragment is kept verbatim and NOT tokenized. Used to honor the shared
+          inline-exclusion predicate for the "error" field.
 
         end convention: end is EXCLUSIVE (first char after match).
         pyahocorasick.iter() returns end-inclusive → converted: end = aho_end + 1
@@ -128,8 +137,14 @@ class DictionaryMatcher:
         prev = 0
         for s, e, canonical_term, category in selected:
             parts.append(text[prev:s])
-            # Pass canonical_term (from dict), not text[s:e], for stable tokens
-            parts.append(tokenize_fn(canonical_term, category))
+            found = text[s:e]
+            # Shared error-field exclusion: check the actually-matched fragment
+            # (case-sensitive), keep it verbatim instead of tokenizing.
+            if exclude_fragment is not None and exclude_fragment(found):
+                parts.append(found)
+            else:
+                # Pass canonical_term (from dict), not text[s:e], for stable tokens
+                parts.append(tokenize_fn(canonical_term, category))
             prev = e
         parts.append(text[prev:])
         return "".join(parts)

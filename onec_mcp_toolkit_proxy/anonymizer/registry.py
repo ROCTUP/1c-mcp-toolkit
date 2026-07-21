@@ -23,6 +23,7 @@ class AnonymizerRegistry:
                 cls._registry[channel] = Anonymizer(
                     radical_mode=settings.anonymization_radical_mode,
                     include_errors=settings.anonymization_include_errors,
+                    tokenmap_max=settings.anonymization_tokenmap_max,
                 )
             return cls._registry[channel]
 

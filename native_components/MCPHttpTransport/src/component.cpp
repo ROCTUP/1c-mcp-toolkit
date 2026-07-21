@@ -33,6 +33,7 @@ const wchar_t* MCPHttpTransportComponent::method_names_en_[] = {
     L"SendSSEEvent",
     L"CloseSSEStream",
     L"GetRequestBody",
+    L"GetLocalAddresses",
 };
 
 const wchar_t* MCPHttpTransportComponent::method_names_ru_[] = {
@@ -42,6 +43,7 @@ const wchar_t* MCPHttpTransportComponent::method_names_ru_[] = {
     L"ОтправитьSSEСобытие",
     L"ЗакрытьSSEПоток",
     L"ПолучитьТелоЗапроса",
+    L"ПолучитьЛокальныеАдреса",
 };
 
 // ============================================================================
@@ -236,12 +238,13 @@ const WCHAR_T* MCPHttpTransportComponent::GetMethodName(const long lMethodNum, c
 
 long MCPHttpTransportComponent::GetNParams(const long lMethodNum) {
     switch (lMethodNum) {
-        case eMethodStart:            return 1;  // port
+        case eMethodStart:            return 2;  // port, bindAddress
         case eMethodStop:             return 0;
         case eMethodSendResponse:     return 4;  // requestId, statusCode, headersJson, body
         case eMethodSendSSEEvent:     return 4;  // requestId, eventData, headersJson, eventType
         case eMethodCloseSSEStream:   return 1;  // requestId
         case eMethodGetRequestBody:   return 1;  // requestId
+        case eMethodGetLocalAddresses: return 0;
         default: return 0;
     }
 }
@@ -250,6 +253,10 @@ bool MCPHttpTransportComponent::GetParamDefValue(const long lMethodNum, const lo
                                                    tVariant* pvarParamDefValue) {
     if (lMethodNum == eMethodSendSSEEvent && lParamNum == 3) {
         return SetWStringToVariant(pvarParamDefValue, L"message");
+    }
+    if (lMethodNum == eMethodStart && lParamNum == 1) {
+        // Default bind address preserves legacy Start(port) behavior
+        return SetWStringToVariant(pvarParamDefValue, L"0.0.0.0");
     }
     TV_VT(pvarParamDefValue) = VTYPE_EMPTY;
     return false;
@@ -280,12 +287,21 @@ bool MCPHttpTransportComponent::CallAsFunc(const long lMethodNum, tVariant* pvar
             else if (TV_VT(&paParams[0]) == VTYPE_R8) port = static_cast<int>(TV_R8(&paParams[0]));
             else return false;
 
+            // Optional bind address. Guard lSizeArray like eMethodSendSSEEvent does for its
+            // optional param — do not rely on GetParamDefValue alone. Legacy one-arg Start(port)
+            // must keep binding to 0.0.0.0.
+            std::string bind_address;
+            if (lSizeArray >= 2) {
+                bind_address = WStringToUTF8(GetWStringFromVariant(&paParams[1]));
+            }
+            if (bind_address.empty()) bind_address = "0.0.0.0";
+
             auto callback = [this](const std::string& source, const std::string& event,
                                    const std::string& data) -> bool {
                 return FireExternalEvent(source, event, data);
             };
 
-            bool result = transport_.Start(port, callback);
+            bool result = transport_.Start(port, bind_address, callback);
             TV_VT(pvarRetValue) = VTYPE_BOOL;
             TV_BOOL(pvarRetValue) = result;
             return true;
@@ -350,6 +366,12 @@ bool MCPHttpTransportComponent::CallAsFunc(const long lMethodNum, tVariant* pvar
             std::string body = transport_.GetRequestBody(request_id);
             std::wstring wbody = UTF8ToWString(body);
             return SetWStringToVariant(pvarRetValue, wbody);
+        }
+
+        case eMethodGetLocalAddresses: {
+            std::string json = transport_.GetLocalAddresses();
+            std::wstring wjson = UTF8ToWString(json);
+            return SetWStringToVariant(pvarRetValue, wjson);
         }
 
         default:

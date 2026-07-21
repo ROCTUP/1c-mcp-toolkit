@@ -10,10 +10,20 @@
 #include <algorithm>
 #include <cctype>
 #include <map>
+#include <vector>
 
 #if defined(_WIN32) || defined(_WINDOWS)
 #define NOMINMAX   // Prevent min/max macro conflicts with std::min/std::max
 #include <windows.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <iphlpapi.h>
+#else
+#include <sys/types.h>
+#include <ifaddrs.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <net/if.h>
 #endif
 
 namespace mcp {
@@ -24,7 +34,7 @@ HttpTransport::~HttpTransport() {
     Stop();
 }
 
-bool HttpTransport::Start(int port, ExternalEventCallback callback) {
+bool HttpTransport::Start(int port, const std::string& bind_address, ExternalEventCallback callback) {
     if (running_.load()) return false;
 
     event_callback_ = std::move(callback);
@@ -77,8 +87,9 @@ bool HttpTransport::Start(int port, ExternalEventCallback callback) {
     running_.store(true);
 
     // Start server in a separate thread
-    server_thread_ = std::thread([this, port]() {
-        server_->listen("0.0.0.0", port);
+    std::string listen_host = bind_address.empty() ? std::string("0.0.0.0") : bind_address;
+    server_thread_ = std::thread([this, listen_host, port]() {
+        server_->listen(listen_host, port);
         running_.store(false);
     });
 
@@ -114,6 +125,85 @@ bool HttpTransport::Stop() {
     server_.reset();
     running_.store(false);
     return true;
+}
+
+// ============================================================================
+// Local network interface enumeration
+// ============================================================================
+
+std::string HttpTransport::GetLocalAddresses() {
+    // Build JSON array [{"id":..,"displayName":..,"address":..}] of local IPv4 interfaces.
+    // Loopback and IPv6 are excluded (loopback is offered by the form as an artificial item).
+    std::string json = "[";
+    bool first = true;
+
+#if defined(_WIN32) || defined(_WINDOWS)
+    ULONG family = AF_INET;
+    ULONG flags = GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST | GAA_FLAG_SKIP_DNS_SERVER;
+    ULONG size = 15 * 1024;
+    std::vector<unsigned char> buffer(size);
+    PIP_ADAPTER_ADDRESSES adapters = reinterpret_cast<PIP_ADAPTER_ADDRESSES>(buffer.data());
+
+    ULONG ret = GetAdaptersAddresses(family, flags, nullptr, adapters, &size);
+    if (ret == ERROR_BUFFER_OVERFLOW) {
+        buffer.resize(size);
+        adapters = reinterpret_cast<PIP_ADAPTER_ADDRESSES>(buffer.data());
+        ret = GetAdaptersAddresses(family, flags, nullptr, adapters, &size);
+    }
+    if (ret == NO_ERROR) {
+        for (PIP_ADAPTER_ADDRESSES a = adapters; a != nullptr; a = a->Next) {
+            if (a->IfType == IF_TYPE_SOFTWARE_LOOPBACK) continue;
+            if (a->OperStatus != IfOperStatusUp) continue;
+
+            // id: stable AdapterName (GUID string). displayName: FriendlyName (user-facing).
+            std::string id = a->AdapterName ? std::string(a->AdapterName) : std::string();
+            std::string display_name;
+            if (a->FriendlyName) {
+                display_name = WStringToUTF8(std::wstring(a->FriendlyName));
+            }
+
+            for (PIP_ADAPTER_UNICAST_ADDRESS ua = a->FirstUnicastAddress; ua != nullptr; ua = ua->Next) {
+                if (!ua->Address.lpSockaddr) continue;
+                if (ua->Address.lpSockaddr->sa_family != AF_INET) continue;
+                sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(ua->Address.lpSockaddr);
+                char ip[INET_ADDRSTRLEN] = {0};
+                if (!inet_ntop(AF_INET, &sin->sin_addr, ip, sizeof(ip))) continue;
+
+                if (!first) json += ",";
+                first = false;
+                json += "{\"id\":\"" + JsonEscape(id) +
+                        "\",\"displayName\":\"" + JsonEscape(display_name) +
+                        "\",\"address\":\"" + JsonEscape(ip) + "\"}";
+            }
+        }
+    }
+#else
+    struct ifaddrs* ifaddr = nullptr;
+    if (getifaddrs(&ifaddr) == 0) {
+        for (struct ifaddrs* ifa = ifaddr; ifa != nullptr; ifa = ifa->ifa_next) {
+            if (!ifa->ifa_addr) continue;
+            if (ifa->ifa_addr->sa_family != AF_INET) continue;
+            if (ifa->ifa_flags & IFF_LOOPBACK) continue;
+
+            sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(ifa->ifa_addr);
+            char ip[INET_ADDRSTRLEN] = {0};
+            if (!inet_ntop(AF_INET, &sin->sin_addr, ip, sizeof(ip))) continue;
+
+            // POSIX: ifa_name serves as both stable id and display name.
+            std::string name = ifa->ifa_name ? std::string(ifa->ifa_name) : std::string();
+
+            if (!first) json += ",";
+            first = false;
+            json += "{\"id\":\"" + JsonEscape(name) +
+                    "\",\"displayName\":\"" + JsonEscape(name) +
+                    "\",\"address\":\"" + JsonEscape(ip) + "\"}";
+        }
+        freeifaddrs(ifaddr);
+    }
+#endif
+
+    json += "]";
+    return json;
 }
 
 // ============================================================================

@@ -23,6 +23,7 @@ from .anonymization_defaults import (
     _DEFAULT_SENSITIVE_KEY_SUBSTRINGS,
     _DEFAULT_SKIP_PREFIXES,
     _NER_ERROR_STOPWORD_SUBSTRINGS,
+    is_error_inline_anonymization_exclusion,
 )
 
 logger = logging.getLogger(__name__)
@@ -540,6 +541,18 @@ class ValueDetector:
         if parent_key in SKIP_KEYS and parent_key != "error":
             return value
 
+        # Общий предикат исключений для поля "error": те же технические слова
+        # защищаются во всех inline-путях (regex/NER/card) через один guarded-обёртчик.
+        # Проверяется фактически найденный фрагмент; вне "error" обёртка не создаётся.
+        if parent_key == "error":
+            def _guarded_tokenize(matched_text, category, _fn=tokenize_fn):
+                if is_error_inline_anonymization_exclusion(matched_text, parent_key):
+                    return matched_text  # вернуть исходный найденный текст
+                return _fn(matched_text, category)
+            inline_tokenize = _guarded_tokenize
+        else:
+            inline_tokenize = tokenize_fn
+
         # JSON-aware replacement for fields that store structured JSON as a string
         # (e.g. контактная информация). This prevents tokenizing JSON keys like
         # "areaCode"/"countryCode" as SWIFT due to case-insensitive SWIFT regex.
@@ -579,7 +592,7 @@ class ValueDetector:
             value = _sub_outside_tokens(
                 value,
                 pattern,
-                lambda m, cat=category: tokenize_fn(m.group(0), cat),
+                lambda m, cat=category: inline_tokenize(m.group(0), cat),
             )
         # 2. NER — catches PER/ORG/LOC in free text (if SpaCy available)
         if allow_ner and self._ner._nlp:
@@ -611,7 +624,7 @@ class ValueDetector:
                     if _looks_like_1c_identifier_fragment(ent.text):
                         continue
 
-                token = tokenize_fn(ent.text, cat)
+                token = inline_tokenize(ent.text, cat)
                 value = value[:ent.start_char] + token + value[ent.end_char:]
 
         # 3. Bank cards (PAN): 13–19 digits with optional spaces/dashes + Luhn check
@@ -619,7 +632,7 @@ class ValueDetector:
             raw = m.group(0)
             digits = re.sub(r"\D", "", raw)
             if 13 <= len(digits) <= 19 and _luhn_is_valid(digits):
-                return tokenize_fn(raw, "CARD")
+                return inline_tokenize(raw, "CARD")
             return raw
 
         value = _sub_outside_tokens(value, _CARD_CANDIDATE_RE, _replace_card)

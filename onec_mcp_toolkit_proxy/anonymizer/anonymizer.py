@@ -15,6 +15,7 @@ from .anonymization_defaults import (
     ROW_GROUP_ORG_EVIDENCE_KEY_SUBSTRINGS,
     ROW_GROUP_ORG_GENERIC_NAME_KEYS,
     TOP_LEVEL_SKIP_KEYS,
+    is_error_inline_anonymization_exclusion,
 )
 
 
@@ -22,8 +23,9 @@ class Anonymizer:
     """Anonymizes 1C responses and de-tokenizes agent requests."""
 
     def __init__(self, radical_mode: bool = False,
-                 include_errors: bool = True):
-        self._mapper = TokenMapper()
+                 include_errors: bool = True,
+                 tokenmap_max: int = 0):
+        self._mapper = TokenMapper(max_size=tokenmap_max)
         self._detector = ValueDetector(radical_mode=radical_mode)
         self._include_errors = include_errors
         self._dict_matcher: Optional[DictionaryMatcher] = None
@@ -447,7 +449,15 @@ class Anonymizer:
             # passes canonical_term(category) to tokenize_fn for stable tokens
             dict_changed = False
             if self._dict_matcher and (force_dict_apply or self._should_apply_dict(parent_key, extra_keys)):
-                new_obj = self._dict_matcher.replace(obj, self._mapper.tokenize)
+                # Same shared exclusion predicate as inline paths: only for the
+                # "error" field, and only over the actually-matched fragment.
+                exclude_fragment = (
+                    (lambda frag: is_error_inline_anonymization_exclusion(frag, "error"))
+                    if parent_key == "error" else None
+                )
+                new_obj = self._dict_matcher.replace(
+                    obj, self._mapper.tokenize, exclude_fragment=exclude_fragment
+                )
                 if new_obj != obj:
                     dict_changed = True
                     obj = new_obj
@@ -622,6 +632,13 @@ class Anonymizer:
         if isinstance(obj, str) and self._mapper.has_tokens(obj):
             return self._mapper.detokenize(obj)
         return obj
+
+    def prune(self) -> None:
+        """Evict token map down to its soft cap. Call once per request boundary,
+        after incoming params have been detokenized (so used tokens are touched
+        and survive). See TokenMapper.prune for the overflow contract.
+        """
+        self._mapper.prune()
 
     @property
     def mapper(self) -> TokenMapper:

@@ -135,6 +135,13 @@ python -m onec_mcp_toolkit_proxy
 
 ### Claude Desktop
 
+> **Важно:** `claude_desktop_config.json` поддерживает только stdio-серверы
+> (поля `command`/`args`). Формат с `url`/`transport` (как в секции Kiro IDE выше)
+> Claude Desktop **не понимает** — такая запись игнорируется. Для подключения к
+> HTTP-серверу используйте один из вариантов ниже.
+
+#### Вариант 1. Мост mcp-remote (требуется Node.js)
+
 Откройте конфигурационный файл:
 - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
@@ -145,14 +152,46 @@ python -m onec_mcp_toolkit_proxy
 {
   "mcpServers": {
     "onec-mcp-toolkit-proxy": {
-      "url": "http://localhost:6003/mcp",
-      "transport": "http"
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "http://127.0.0.1:6003/mcp",
+        "--allow-http",
+        "--transport", "http-only"
+      ]
     }
   }
 }
 ```
 
 Перезапустите приложение.
+
+> Используйте `127.0.0.1`, а не `localhost` — так надёжнее с точки зрения
+> IPv4/IPv6-биндинга. Флаг `--allow-http` разрешает подключение по http без TLS.
+
+#### Вариант 2. Custom Connector (без Node.js)
+
+На платных планах HTTP-сервер можно добавить через UI:
+**Settings → Connectors → Add custom connector**, указав URL `http://localhost:6003/mcp`.
+
+### 🔐 Аутентификация по токену (встроенный сервер)
+
+По умолчанию встроенный сервер не требует аутентификации. Чтобы её включить, задайте на форме в поле **«Токен доступа»** значение (или нажмите «Сгенерировать»), затем добавьте в конфигурацию клиента заголовок `Authorization: Bearer <token>`:
+
+```json
+{
+  "mcpServers": {
+    "onec-mcp-toolkit": {
+      "url": "http://127.0.0.1:6003/mcp",
+      "transport": "http",
+      "headers": { "Authorization": "Bearer ВАШ_ТОКЕН" }
+    }
+  }
+}
+```
+
+Для Claude Desktop через `mcp-remote` — аргумент `--header "Authorization: Bearer ВАШ_ТОКЕН"`. Пустой токен = аутентификация выключена. Подробнее (границы безопасности, ротация, legacy SSE) — в [README_FULL.md](README_FULL.md#аутентификация-по-токену-bearer).
 
 ## 🛠️ Доступные MCP-инструменты
 

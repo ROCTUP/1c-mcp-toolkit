@@ -30,11 +30,16 @@ public:
     HttpTransport();
     ~HttpTransport();
 
-    // Start HTTP server on 127.0.0.1:port
-    bool Start(int port, ExternalEventCallback callback);
+    // Start HTTP server bound to bind_address:port (bind_address e.g. "0.0.0.0", "127.0.0.1",
+    // or a concrete interface IPv4). Empty bind_address is treated as "0.0.0.0".
+    bool Start(int port, const std::string& bind_address, ExternalEventCallback callback);
 
     // Stop HTTP server
     bool Stop();
+
+    // Enumerate local IPv4 network interfaces as JSON array [{"id","displayName","address"}].
+    // Windows: GetAdaptersAddresses; Linux/macOS: getifaddrs. Loopback excluded, IPv6 excluded.
+    std::string GetLocalAddresses();
 
     bool IsRunning() const { return running_.load(); }
     int GetPort() const { return port_; }

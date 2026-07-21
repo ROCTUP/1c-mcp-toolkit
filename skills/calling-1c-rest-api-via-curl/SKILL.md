@@ -15,7 +15,7 @@ description: >
 
 # 1C MCP Toolkit REST API via curl
 
-REST API under `/api/*` mirrors the MCP tools. No authentication required. All endpoints use the same channel routing and validation logic as MCP.
+REST API under `/api/*` mirrors the MCP tools. All endpoints use the same channel routing and validation logic as MCP. Authentication is **optional**: if the embedded server has an access token set (form field "Токен доступа"), every `/api/*` request must carry it as `Authorization: Bearer <token>`, otherwise the server returns `401`. No token set = no header needed (default). `/health` never requires the token.
 
 ## Setup
 
@@ -25,9 +25,23 @@ BASE_URL="http://$BASE_HOST:6003"
 CHANNEL="default"
 J='-H Content-Type:application/json'
 
-# Health check
+# Access token — paste the value from the form field "Токен доступа".
+# Leave empty if authentication is disabled (default).
+TOKEN=""
+# Add this header to every /api/* call when TOKEN is set (alongside $J):
+#   -H "Authorization: Bearer $TOKEN"
+
+# Health check (no token needed)
 curl -sS --noproxy $BASE_HOST "$BASE_URL/health"
+
+# Authenticated call example (when TOKEN is set):
+curl -sS --noproxy $BASE_HOST "$BASE_URL/api/get_metadata?channel=$CHANNEL" \
+  $J -H "Authorization: Bearer $TOKEN"
 ```
+
+> The token goes in the `Authorization` header (not the URL). Unlike `$J`, it can't be
+> word-split from a single variable because the value contains a space, so write the
+> header explicitly (`-H "Authorization: Bearer $TOKEN"`) on each `/api/*` request.
 
 Set `curl --max-time` above the proxy timeout (default 180s), e.g. `--max-time 200`.
 
@@ -442,6 +456,7 @@ Response: `{"success": true, "data": "Session closed. To start a new session, ru
 | 200 + `success:true` | OK | Use `data` |
 | 200 + `success:false` | Business error / timeout from 1C | Read `error` string |
 | 400 | Invalid JSON | Fix request body |
+| 401 | Missing/invalid access token (embedded server with token set) | Add `-H "Authorization: Bearer $TOKEN"` with the token from the form |
 | 415 | Wrong Content-Type for POST | Add `-H Content-Type:application/json` |
 | 422 | Validation error | Read `error` and `details`, fix params |
 | 500 | Server error | Check proxy logs |

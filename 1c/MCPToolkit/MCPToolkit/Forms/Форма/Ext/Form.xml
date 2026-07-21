@@ -164,12 +164,41 @@
 					<Visible>false</Visible>
 					<ExtendedTooltip name="ГруппаВстроенныйСерверРасширеннаяПодсказка" id="47"/>
 					<ChildItems>
+						<UsualGroup name="ГруппаАдресПорт" id="194">
+							<Title>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content> </v8:content>
+								</v8:item>
+							</Title>
+							<Group>Horizontal</Group>
+							<Representation>None</Representation>
+							<ExtendedTooltip name="ГруппаАдресПортРасширеннаяПодсказка" id="196"/>
+							<ChildItems>
+								<InputField name="ПолеАдресВстроенногоСервера" id="195">
+									<DataPath>АдресВстроенногоСервераОтображение</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>ru</v8:lang>
+											<v8:content>Адрес внутреннего сервера</v8:content>
+										</v8:item>
+									</Title>
+									<ListChoiceMode>true</ListChoiceMode>
+									<DropListButton>true</DropListButton>
+									<Width>18</Width>
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<MaxWidth>18</MaxWidth>
+									<ExtendedTooltip name="ПолеАдресВстроенногоСервераРасширеннаяПодсказка" id="198"/>
+									<Events>
+										<Event name="ПриИзменении">АдресВстроенногоСервераПриИзменении</Event>
+									</Events>
+								</InputField>
 						<InputField name="ПортВстроенногоСервераПоле" id="48">
 							<DataPath>ПортВстроенногоСервера</DataPath>
 							<Title>
 								<v8:item>
 									<v8:lang>ru</v8:lang>
-									<v8:content>Порт встроенного сервера</v8:content>
+									<v8:content> </v8:content>
 								</v8:item>
 							</Title>
 							<EditFormat>
@@ -178,9 +207,70 @@
 									<v8:content>ЧГ=</v8:content>
 									</v8:item>
 							</EditFormat>
-							<Width>10</Width>
+							<Width>5</Width>
 							<ExtendedTooltip name="ПортВстроенногоСервераПолеРасширеннаяПодсказка" id="49"/>
 						</InputField>
+								<Button name="КнопкаОбновитьАдреса" id="197">
+									<Type>UsualButton</Type>
+									<Title>
+										<v8:item>
+											<v8:lang>ru</v8:lang>
+											<v8:content>Обновить</v8:content>
+										</v8:item>
+									</Title>
+									<ToolTip>
+										<v8:item>
+											<v8:lang>ru</v8:lang>
+											<v8:content>Обновить список IP-адресов</v8:content>
+										</v8:item>
+									</ToolTip>
+									<CommandName>Form.Command.КомандаОбновитьАдреса</CommandName>
+									<ExtendedTooltip name="КнопкаОбновитьАдресаРасширеннаяПодсказка" id="201"/>
+								</Button>
+							</ChildItems>
+						</UsualGroup>
+						<UsualGroup name="ГруппаТокен" id="204">
+							<Group>AlwaysHorizontal</Group>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="ГруппаТокенРасширеннаяПодсказка" id="208"/>
+							<ChildItems>
+								<InputField name="ПолеТокенВстроенногоСервера" id="205">
+									<DataPath>ТокенВстроенногоСервера</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>ru</v8:lang>
+											<v8:content>Токен доступа</v8:content>
+										</v8:item>
+									</Title>
+									<Width>29</Width>
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<MaxWidth>29</MaxWidth>
+									<ExtendedTooltip name="ПолеТокенВстроенногоСервераРасширеннаяПодсказка" id="206">
+										<Title>
+											<v8:item>
+												<v8:lang>ru</v8:lang>
+												<v8:content>Если задан — входящие запросы требуют Authorization: Bearer &lt;token&gt;. Пусто = без аутентификации</v8:content>
+											</v8:item>
+										</Title>
+									</ExtendedTooltip>
+									<Events>
+										<Event name="ПриИзменении">ТокенВстроенногоСервераПриИзменении</Event>
+									</Events>
+								</InputField>
+								<Button name="КнопкаСгенерироватьТокен" id="207">
+									<Type>UsualButton</Type>
+									<Title>
+										<v8:item>
+											<v8:lang>ru</v8:lang>
+											<v8:content>Сгенерировать</v8:content>
+										</v8:item>
+									</Title>
+									<CommandName>Form.Command.СгенерироватьТокенВстроенногоСервера</CommandName>
+									<ExtendedTooltip name="КнопкаСгенерироватьТокенРасширеннаяПодсказка" id="209"/>
+								</Button>
+							</ChildItems>
+						</UsualGroup>
 						<RadioButtonField name="ПолеФорматОтветаВстроенный" id="50">
 							<DataPath>ФорматОтветаВстроенный</DataPath>
 							<Title>
@@ -718,13 +808,23 @@
 							<Title>
 								<v8:item>
 									<v8:lang>ru</v8:lang>
-									<v8:content>v1.7.1</v8:content>
+									<v8:content>v1.8.0</v8:content>
 								</v8:item>
 							</Title>
+							<ToolTip>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>https://github.com/ROCTUP/1c-mcp-toolkit</v8:content>
+								</v8:item>
+							</ToolTip>
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<HorizontalStretch>true</HorizontalStretch>
 							<HorizontalAlign>Right</HorizontalAlign>
 							<TextColor>web:Blue</TextColor>
+							<Hyperlink>true</Hyperlink>
+							<Events>
+								<Event name="Click">НадписьВерсияНажатие</Event>
+							</Events>
 							<ContextMenu name="НадписьВерсияКонтекстноеМеню" id="189"/>
 							<ExtendedTooltip name="НадписьВерсияРасширеннаяПодсказка" id="190"/>
 						</LabelDecoration>
@@ -840,6 +940,33 @@
 											<ExtendedTooltip name="ПолеПоискМаппинговРасширеннаяПодсказка" id="66"/>
 											<Events>
 												<Event name="ПриИзменении">ПоискМаппинговПриИзменении</Event>
+											</Events>
+										</InputField>
+										<InputField name="ЛимитМаппингаВстроенныйПоле" id="192">
+											<DataPath>ЛимитМаппингаВстроенный</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>ru</v8:lang>
+													<v8:content>Лимит записей</v8:content>
+												</v8:item>
+											</Title>
+											<EditFormat>
+												<v8:item>
+													<v8:lang>ru</v8:lang>
+													<v8:content>ЧГ=</v8:content>
+												</v8:item>
+											</EditFormat>
+											<Width>10</Width>
+											<ExtendedTooltip name="ЛимитМаппингаВстроенныйПолеРасширеннаяПодсказка" id="193">
+												<Title>
+													<v8:item>
+														<v8:lang>ru</v8:lang>
+														<v8:content>Лимит записей маппинга анонимизации (0 = без лимита). При превышении старые записи вытесняются (FIFO).</v8:content>
+													</v8:item>
+												</Title>
+											</ExtendedTooltip>
+											<Events>
+												<Event name="ПриИзменении">ЛимитМаппингаВстроенныйПриИзменении</Event>
 											</Events>
 										</InputField>
 										<LabelDecoration name="НадписьСтатистикаМаппингов" id="67">
@@ -1046,6 +1173,15 @@
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
+		<Attribute name="АдресВстроенногоСервераОтображение" id="199">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
 		<Attribute name="Статус" id="3">
 			<Type>
 				<v8:Type>xs:string</v8:Type>
@@ -1107,6 +1243,15 @@
 				</v8:NumberQualifiers>
 			</Type>
 		</Attribute>
+		<Attribute name="ТокенВстроенногоСервера" id="202">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
 		<Attribute name="ВстроенныйСерверЗапущен" id="11">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
@@ -1125,6 +1270,16 @@
 		<Attribute name="РазрешатьОпасныеОперацииСПодтверждением" id="13">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="ЛимитМаппингаВстроенный" id="191">
+			<Type>
+				<v8:Type>xs:decimal</v8:Type>
+				<v8:NumberQualifiers>
+					<v8:Digits>9</v8:Digits>
+					<v8:FractionDigits>0</v8:FractionDigits>
+					<v8:AllowedSign>Nonnegative</v8:AllowedSign>
+				</v8:NumberQualifiers>
 			</Type>
 		</Attribute>
 		<Attribute name="ПоискМаппингов" id="14">
@@ -1328,6 +1483,9 @@
 		<Command name="СгенерироватьИдентификаторКанала" id="4">
 			<Action>СгенерироватьИдентификаторКанала</Action>
 		</Command>
+		<Command name="СгенерироватьТокенВстроенногоСервера" id="203">
+			<Action>СгенерироватьТокенВстроенногоСервера</Action>
+		</Command>
 		<Command name="ОбновитьМаппинги" id="5">
 			<Title>
 				<v8:item>
@@ -1366,6 +1524,21 @@
 		</Command>
 		<Command name="СгенерироватьПользовательскийКлюч" id="185">
 			<Action>СгенерироватьПользовательскийКлючНажатие</Action>
+		</Command>
+		<Command name="КомандаОбновитьАдреса" id="200">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Обновить</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Обновить список IP-адресов</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>КомандаОбновитьАдреса</Action>
 		</Command>
 	</Commands>
 	<Events>

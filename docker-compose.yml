@@ -12,4 +12,5 @@ services:
       - ANONYMIZATION_RADICAL_MODE=false
       - ANONYMIZATION_NER_ENABLED=false
       - ANONYMIZATION_DICTIONARY_ENABLED=true
+      - ANONYMIZATION_TOKENMAP_MAX=10000 # Soft cap on the token map size (per channel)
     restart: unless-stopped

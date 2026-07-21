@@ -69,6 +69,7 @@ private:
         eMethodSendSSEEvent,
         eMethodCloseSSEStream,
         eMethodGetRequestBody,
+        eMethodGetLocalAddresses,
         eMethodLast
     };
 

@@ -130,6 +130,34 @@ class Settings:
         self.anonymization_dictionary_apply_key_substrings_add: Optional[Tuple[str, ...]] = \
             self._parse_csv_tuple("ANONYMIZATION_DICTIONARY_APPLY_KEY_SUBSTRINGS_ADD")
 
+        # Soft cap on the token map size (per channel). Eviction happens at the
+        # request boundary (see TokenMapper.prune). 0 = unlimited (opt-out).
+        self.anonymization_tokenmap_max: int = self._parse_int(
+            "ANONYMIZATION_TOKENMAP_MAX", 10000
+        )
+
+    @staticmethod
+    def _parse_int(env_name: str, default: int) -> int:
+        """Parse a non-negative int from env, falling back to default on error."""
+        raw = os.getenv(env_name)
+        if raw is None or not raw.strip():
+            return default
+        try:
+            value = int(raw.strip())
+        except ValueError:
+            logger.warning(
+                "%s must be an integer, got %r. Using default %d.",
+                env_name, raw, default,
+            )
+            return default
+        if value < 0:
+            logger.warning(
+                "%s must be non-negative, got %d. Using default %d.",
+                env_name, value, default,
+            )
+            return default
+        return value
+
     def _parse_dangerous_keywords(self) -> List[str]:
         """Parse DANGEROUS_KEYWORDS from environment variable."""
         # Default dangerous keywords for execute_code blacklist

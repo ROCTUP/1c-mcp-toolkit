@@ -210,6 +210,35 @@ def _collect_called_identifiers(code: str) -> set:
     return called
 
 
+def _collect_nondotted_identifiers(code: str) -> set:
+    """
+    Return canonical names of identifiers that appear NOT preceded by a dot.
+
+    Used to detect eval operators (Выполнить/Вычислить) invoked as language
+    primitives (`Выполнить(...)`, `Выполнить Код`) while allowing object methods
+    (`Запрос.Выполнить()`), which are always preceded by a DOT token.
+    """
+    tokens = _tokenize_1c_code(code)
+    nondotted: set = set()
+    for idx, (kind, value) in enumerate(tokens):
+        if kind != "IDENT":
+            continue
+        if idx > 0 and tokens[idx - 1][0] == "DOT":
+            continue
+        nondotted.add(value.casefold())
+    return nondotted
+
+
+# Mandatory critical sinks — always enforced, independent of settings.dangerous_keywords.
+# These are NOT configurable via the DANGEROUS_KEYWORDS env var so an operator override
+# of the denylist cannot silently disable them (mirrored in Module.bsl).
+# EVAL_KEYWORDS are matched only when used NOT as an object method (not preceded by a dot),
+# which blocks the string-built `Выполнить("...")` bypass while keeping `Запрос.Выполнить()`.
+EVAL_KEYWORDS = ["Выполнить", "Execute", "Вычислить", "Eval"]
+# OS command primitives — matched as calls (IDENT + LPAREN), always enforced.
+MANDATORY_CALL_KEYWORDS = ["ЗапуститьПриложение", "RunApp", "КомандаСистемы", "System"]
+
+
 def find_dangerous_keywords(code: str, dangerous_keywords: list) -> list:
     """
     Find dangerous keywords in the given code.
@@ -223,16 +252,26 @@ def find_dangerous_keywords(code: str, dangerous_keywords: list) -> list:
     """
     normalized_code = _normalize_for_scan(code)
     called_identifiers = _collect_called_identifiers(normalized_code)
+    nondotted_identifiers = _collect_nondotted_identifiers(normalized_code)
 
-    found = []
-    seen = set()
-    for keyword in dangerous_keywords:
-        canonical_keyword = _normalize_for_scan(keyword).casefold()
-        if not canonical_keyword or canonical_keyword in seen:
-            continue
-        if canonical_keyword in called_identifiers:
-            found.append(keyword)
-            seen.add(canonical_keyword)
+    found: list = []
+    seen: set = set()
+
+    def _match(keywords: list, identifier_set: set) -> None:
+        for keyword in keywords:
+            canonical_keyword = _normalize_for_scan(keyword).casefold()
+            if not canonical_keyword or canonical_keyword in seen:
+                continue
+            if canonical_keyword in identifier_set:
+                found.append(keyword)
+                seen.add(canonical_keyword)
+
+    # Configurable denylist + mandatory OS commands: matched as calls (IDENT + LPAREN).
+    _match(dangerous_keywords, called_identifiers)
+    _match(MANDATORY_CALL_KEYWORDS, called_identifiers)
+    # Eval primitives: matched only when NOT used as an object method (not after a dot).
+    _match(EVAL_KEYWORDS, nondotted_identifiers)
+
     return found
 
 # Create the MCP server instance
@@ -303,6 +342,11 @@ async def _execute_1c_command(tool: str, params: Dict[str, Any], channel: str = 
         anon = AnonymizerRegistry.get(channel)
         await AnonymizerRegistry.ensure_dictionary_loaded(channel)
         params = anon.detokenize_params_for_tool(params, tool)
+        # Request-boundary eviction: prune AFTER detokenization so tokens this
+        # request references are LRU-touched (and survive) before old ones are
+        # evicted. Mandatory finalizer — runs for every anonymized tool-call,
+        # regardless of tool or whether params existed. No-op when cap is 0.
+        anon.prune()
 
     params_for_1c = dict(params)
     if _do_anon and tool == "execute_query":

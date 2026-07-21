@@ -65,8 +65,8 @@ if(WIN32)
         NOMINMAX
         _CRT_SECURE_NO_WARNINGS
     )
-    # Link ws2_32 for cpp-httplib (sockets)
-    target_link_libraries(${PROJECT_NAME} PRIVATE ws2_32)
+    # Link ws2_32 for cpp-httplib (sockets); iphlpapi for GetAdaptersAddresses (GetLocalAddresses)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ws2_32 iphlpapi)
 
     # Export symbols for 1C Native API via .def file
     set_target_properties(${PROJECT_NAME} PROPERTIES
@@ -107,4 +107,8 @@ if(MCPHTTPTRANSPORT_SMOKE_TEST)
     target_compile_definitions(mcp_smoke_test PRIVATE MCPHTTPTRANSPORT_SMOKE_TEST)
     target_compile_options(mcp_smoke_test PRIVATE -Wall -Wextra -fexceptions)
     target_link_libraries(mcp_smoke_test PRIVATE Threads::Threads)
+    if(WIN32)
+        # http_transport.cpp (compiled here) calls GetAdaptersAddresses/sockets on Windows
+        target_link_libraries(mcp_smoke_test PRIVATE ws2_32 iphlpapi)
+    endif()
 endif()
