@@ -271,6 +271,33 @@
 								</Button>
 							</ChildItems>
 						</UsualGroup>
+						<InputField name="ПолеТаймаутЗапроса" id="210">
+							<DataPath>ТаймаутЗапросаСек</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Таймаут ожидания ответа, с</v8:content>
+								</v8:item>
+							</Title>
+							<ToolTip>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Сколько секунд встроенный сервер ждет ответа от 1С, прежде чем вернуть клиенту 504. Сам запрос при этом продолжает выполняться в 1С и досчитывается. Применяется сразу, перезапускать сервер не нужно.</v8:content>
+								</v8:item>
+							</ToolTip>
+							<EditFormat>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>ЧГ=</v8:content>
+								</v8:item>
+							</EditFormat>
+							<Width>7</Width>
+							<ContextMenu name="ПолеТаймаутЗапросаКонтекстноеМеню" id="211"/>
+							<ExtendedTooltip name="ПолеТаймаутЗапросаРасширеннаяПодсказка" id="212"/>
+							<Events>
+								<Event name="ПриИзменении">ПолеТаймаутЗапросаПриИзменении</Event>
+							</Events>
+						</InputField>
 						<RadioButtonField name="ПолеФорматОтветаВстроенный" id="50">
 							<DataPath>ФорматОтветаВстроенный</DataPath>
 							<Title>
@@ -1250,6 +1277,16 @@
 					<v8:Length>0</v8:Length>
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="ТаймаутЗапросаСек" id="203">
+			<Type>
+				<v8:Type>xs:decimal</v8:Type>
+				<v8:NumberQualifiers>
+					<v8:Digits>5</v8:Digits>
+					<v8:FractionDigits>0</v8:FractionDigits>
+					<v8:AllowedSign>Nonnegative</v8:AllowedSign>
+				</v8:NumberQualifiers>
 			</Type>
 		</Attribute>
 		<Attribute name="ВстроенныйСерверЗапущен" id="11">
