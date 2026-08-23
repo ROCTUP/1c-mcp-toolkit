@@ -1,9 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
 	<AutoCommandBar name="ФормаКоманднаяПанель" id="-1"/>
+	<Events>
+		<Event name="OnCreateAtServer">ПриСозданииНаСервере</Event>
+	</Events>
 	<ChildItems>
 		<LabelDecoration name="ДекорацияПредупреждение" id="1">
-			<Title>
+			<Title formatted="false">
 				<v8:item>
 					<v8:lang>ru</v8:lang>
 					<v8:content>Код содержит потенциально опасные операции!</v8:content>
@@ -13,7 +16,7 @@
 			<ExtendedTooltip name="ДекорацияПредупреждениеРасширеннаяПодсказка" id="3"/>
 		</LabelDecoration>
 		<LabelDecoration name="ПустаяНадпись1" id="4">
-			<Title>
+			<Title formatted="false">
 				<v8:item>
 					<v8:lang>ru</v8:lang>
 					<v8:content> </v8:content>
@@ -23,7 +26,7 @@
 			<ExtendedTooltip name="ПустаяНадпись1РасширеннаяПодсказка" id="6"/>
 		</LabelDecoration>
 		<LabelDecoration name="ДекорацияОпасныеСлова" id="7">
-			<Title>
+			<Title formatted="false">
 				<v8:item>
 					<v8:lang>ru</v8:lang>
 					<v8:content>Найденные опасные ключевые слова:</v8:content>
@@ -34,13 +37,14 @@
 		</LabelDecoration>
 		<InputField name="ПолеОпасныеСлова" id="10">
 			<DataPath>ОпасныеСлова</DataPath>
-			<TitleLocation>None</TitleLocation>
 			<ReadOnly>true</ReadOnly>
+			<TitleLocation>None</TitleLocation>
 			<Width>60</Width>
+			<ContextMenu name="ПолеОпасныеСловаКонтекстноеМеню" id="29"/>
 			<ExtendedTooltip name="ПолеОпасныеСловаРасширеннаяПодсказка" id="11"/>
 		</InputField>
 		<LabelDecoration name="ПустаяНадпись2" id="12">
-			<Title>
+			<Title formatted="false">
 				<v8:item>
 					<v8:lang>ru</v8:lang>
 					<v8:content> </v8:content>
@@ -50,7 +54,7 @@
 			<ExtendedTooltip name="ПустаяНадпись2РасширеннаяПодсказка" id="14"/>
 		</LabelDecoration>
 		<LabelDecoration name="ДекорацияКод" id="15">
-			<Title>
+			<Title formatted="false">
 				<v8:item>
 					<v8:lang>ru</v8:lang>
 					<v8:content>Код для выполнения:</v8:content>
@@ -61,15 +65,16 @@
 		</LabelDecoration>
 		<InputField name="ПолеКод" id="18">
 			<DataPath>Код</DataPath>
-			<TitleLocation>None</TitleLocation>
 			<ReadOnly>true</ReadOnly>
-			<MultiLine>true</MultiLine>
-			<Height>10</Height>
+			<TitleLocation>None</TitleLocation>
 			<Width>60</Width>
+			<Height>10</Height>
+			<MultiLine>true</MultiLine>
+			<ContextMenu name="ПолеКодКонтекстноеМеню" id="30"/>
 			<ExtendedTooltip name="ПолеКодРасширеннаяПодсказка" id="19"/>
 		</InputField>
 		<LabelDecoration name="ПустаяНадпись3" id="20">
-			<Title>
+			<Title formatted="false">
 				<v8:item>
 					<v8:lang>ru</v8:lang>
 					<v8:content> </v8:content>
@@ -126,7 +131,4 @@
 			<Action>Отклонить</Action>
 		</Command>
 	</Commands>
-	<Events>
-		<Event name="ПриСозданииНаСервере">ПриСозданииНаСервере</Event>
-	</Events>
 </Form>
