@@ -21,6 +21,19 @@
 					</Title>
 					<ExtendedTooltip name="СтраницаПодключениеРасширеннаяПодсказка" id="58"/>
 					<ChildItems>
+						<UsualGroup name="ГруппаКолонки" id="249">
+							<VerticalStretch>true</VerticalStretch>
+							<Group>HorizontalIfPossible</Group>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="ГруппаКолонкиРасширеннаяПодсказка" id="250"/>
+							<ChildItems>
+								<UsualGroup name="ГруппаКолонкаЛевая" id="251">
+									<Group>Vertical</Group>
+									<Representation>None</Representation>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="ГруппаКолонкаЛеваяРасширеннаяПодсказка" id="252"/>
+									<ChildItems>
 						<UsualGroup name="ГруппаПодключение" id="1">
 							<Title>
 								<v8:item>
@@ -874,6 +887,8 @@
 								</InputField>
 							</ChildItems>
 						</UsualGroup>
+									</ChildItems>
+								</UsualGroup>
 						<UsualGroup name="ГруппаЛог" id="17">
 							<Title>
 								<v8:item>
@@ -881,6 +896,8 @@
 									<v8:content>Журнал событий</v8:content>
 								</v8:item>
 							</Title>
+							<HorizontalStretch>true</HorizontalStretch>
+							<VerticalStretch>true</VerticalStretch>
 							<Group>Vertical</Group>
 							<Representation>NormalSeparation</Representation>
 							<ExtendedTooltip name="ГруппаЛогРасширеннаяПодсказка" id="18"/>
@@ -889,8 +906,10 @@
 									<DataPath>Лог</DataPath>
 									<ReadOnly>true</ReadOnly>
 									<TitleLocation>None</TitleLocation>
-									<Width>80</Width>
-									<Height>5</Height>
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<Height>10</Height>
+									<HorizontalStretch>true</HorizontalStretch>
+									<VerticalStretch>true</VerticalStretch>
 									<MultiLine>true</MultiLine>
 									<ContextMenu name="ЛогПолеКонтекстноеМеню" id="236"/>
 									<ExtendedTooltip name="ЛогПолеРасширеннаяПодсказка" id="20"/>
@@ -932,6 +951,8 @@
 										</LabelDecoration>
 									</ChildItems>
 								</UsualGroup>
+							</ChildItems>
+						</UsualGroup>
 							</ChildItems>
 						</UsualGroup>
 					</ChildItems>
