@@ -38,6 +38,7 @@ SHARED = [
 # ДлительныеОперации.ВыполнитьПроцедуруМодуляОбъектаОбработки.
 ADAPTER = "ВыполнитьКомандуВФонеМодульОбъекта"
 ADAPTER_PARAMS = 2
+EXTERNAL_EXPORTS = ("СведенияОВнешнейОбработке", "ВыполнитьКоманду")
 
 START = re.compile(r"^(Процедура|Функция)\s+([A-Za-zА-Яа-яЁё_0-9]+)\s*\(")
 END = re.compile(r"^(КонецПроцедуры|КонецФункции)")
@@ -92,6 +93,12 @@ def main():
                 "у адаптера %s должно быть %d параметра, найдено %d — БСП вызывает его "
                 "как процедуру с параметрами выполнения и адресом хранилища"
                 % (ADAPTER, ADAPTER_PARAMS, count))
+
+    for name in EXTERNAL_EXPORTS:
+        if name not in obj:
+            problems.append("нет экспортного метода БСП в модуле объекта: " + name)
+        elif not re.search(r"\)\s+Экспорт\s*$", obj[name].split("\n", 1)[0], re.I):
+            problems.append("метод БСП не экспортирован в модуле объекта: " + name)
 
     for name in SHARED:
         if name not in form:
