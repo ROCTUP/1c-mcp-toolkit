@@ -23,7 +23,7 @@
 					<ChildItems>
 						<UsualGroup name="ГруппаКолонки" id="249">
 							<VerticalStretch>true</VerticalStretch>
-							<Group>HorizontalIfPossible</Group>
+							<Group>AlwaysHorizontal</Group>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
 							<ExtendedTooltip name="ГруппаКолонкиРасширеннаяПодсказка" id="250"/>
