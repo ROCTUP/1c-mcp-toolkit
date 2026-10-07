@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <cwctype>
 #include <vector>
 
 #ifdef _WINDOWS
@@ -14,6 +15,23 @@
 namespace screen_capture {
 
 static constexpr int kHighlightRectsMax = 20;
+
+static std::wstring WcharTToWstr(const WCHAR_T* source, size_t length = 0) {
+    if (source == nullptr) return L"";
+#ifdef _WINDOWS
+    return length == 0 ? std::wstring(source) : std::wstring(source, length);
+#else
+    std::wstring result;
+    if (length == 0) {
+        while (source[length] != 0) ++length;
+    }
+    result.reserve(length);
+    for (size_t index = 0; index < length; ++index) {
+        result += static_cast<wchar_t>(source[index]);
+    }
+    return result;
+#endif
+}
 
 // ============================================================================
 //  Name tables
@@ -61,7 +79,7 @@ bool ScreenCaptureComponent::RegisterExtensionAs(WCHAR_T** wsExtensionName) {
 long ScreenCaptureComponent::GetNMethods() { return eMethodLast; }
 
 long ScreenCaptureComponent::FindMethod(const WCHAR_T* wsMethodName) {
-    std::wstring name(wsMethodName);
+    std::wstring name = WcharTToWstr(wsMethodName);
     auto lower = [](std::wstring s) {
         std::transform(s.begin(), s.end(), s.begin(), ::towlower);
         return s;
@@ -705,7 +723,7 @@ bool ScreenCaptureComponent::DrawHighlightRect(HDC hdc, int sw, int sh, int orig
     return true;
 }
 
-#else // non-Windows stub
+#elif !defined(__linux__) // unsupported non-Windows platforms
 
 bool ScreenCaptureComponent::CaptureMainWindow(int /*scale*/, bool /*showGrid*/, std::string& outB64,
                                                 int /*regionX*/, int /*regionY*/,
@@ -716,7 +734,7 @@ bool ScreenCaptureComponent::CaptureMainWindow(int /*scale*/, bool /*showGrid*/,
     return false;
 }
 
-#endif // _WINDOWS
+#endif // _WINDOWS / __linux__
 
 // ============================================================================
 //  Helpers: 1C variant
@@ -774,7 +792,7 @@ int ScreenCaptureComponent::GetIntFromVariant(const tVariant* var, int default_v
     if (TV_VT(var) == VTYPE_R8)  return static_cast<int>(var->dblVal);
     if (TV_VT(var) == VTYPE_PWSTR && var->pwstrVal && var->wstrLen > 0) {
         try {
-            return std::stoi(std::wstring(var->pwstrVal, var->wstrLen));
+            return std::stoi(WcharTToWstr(var->pwstrVal, var->wstrLen));
         } catch (...) {}
     }
     return default_val;
