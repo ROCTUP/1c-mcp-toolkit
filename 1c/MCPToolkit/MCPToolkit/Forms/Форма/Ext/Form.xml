@@ -5,6 +5,9 @@
 		<Pages name="СтраницыФормы" id="55">
 			<PagesRepresentation>TabsOnTop</PagesRepresentation>
 			<ExtendedTooltip name="СтраницыФормыРасширеннаяПодсказка" id="56"/>
+			<Events>
+				<Event name="ПриСменеСтраницы">СтраницыФормыПриСменеСтраницы</Event>
+			</Events>
 			<ChildItems>
 				<Page name="СтраницаПодключение" id="57">
 					<Title>
@@ -209,6 +212,9 @@
 							</EditFormat>
 							<Width>5</Width>
 							<ExtendedTooltip name="ПортВстроенногоСервераПолеРасширеннаяПодсказка" id="49"/>
+							<Events>
+								<Event name="ПриИзменении">ПортMCPПриИзменении</Event>
+							</Events>
 						</InputField>
 								<Button name="КнопкаОбновитьАдреса" id="197">
 									<Type>UsualButton</Type>
@@ -688,6 +694,91 @@
 								</Button>
 							</ChildItems>
 						</UsualGroup>
+						<UsualGroup name="ГруппаКонтроляСервера" id="210">
+							<Group>Vertical</Group>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="ГруппаКонтроляСервераРасширеннаяПодсказка" id="211"/>
+							<ChildItems>
+								<UsualGroup name="ГруппаКонтроляСервераСтрока" id="212">
+									<Group>AlwaysHorizontal</Group>
+									<Representation>None</Representation>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="ГруппаКонтроляСервераСтрокаРасширеннаяПодсказка" id="213"/>
+									<ChildItems>
+										<CheckBoxField name="ФлагКонтрольСерверногоКонтекста" id="214">
+											<DataPath>КонтрольСерверногоКонтекста</DataPath>
+											<TitleLocation>Right</TitleLocation>
+											<Title>
+												<v8:item>
+													<v8:lang>ru</v8:lang>
+													<v8:content>Следить за связью с сервером 1С</v8:content>
+												</v8:item>
+											</Title>
+											<ExtendedTooltip name="ФлагКонтрольСерверногоКонтекстаРасширеннаяПодсказка" id="215">
+												<Title>
+													<v8:item>
+														<v8:lang>ru</v8:lang>
+														<v8:content>Периодический пробный серверный вызов: не даёт сеансу «заснуть» и обнаруживает потерю серверного контекста обработки (ошибка «Неизвестная функция» после перезапуска рабочего процесса кластера).</v8:content>
+													</v8:item>
+												</Title>
+											</ExtendedTooltip>
+											<Events>
+												<Event name="ПриИзменении">КонтрольСерверногоКонтекстаПриИзменении</Event>
+											</Events>
+										</CheckBoxField>
+										<InputField name="ПолеИнтервалКонтроляСервера" id="216">
+											<DataPath>ИнтервалКонтроляСервера</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>ru</v8:lang>
+													<v8:content>каждые, сек</v8:content>
+												</v8:item>
+											</Title>
+											<EditFormat>
+												<v8:item>
+													<v8:lang>ru</v8:lang>
+													<v8:content>ЧГ=</v8:content>
+												</v8:item>
+											</EditFormat>
+											<Width>6</Width>
+											<ExtendedTooltip name="ПолеИнтервалКонтроляСервераРасширеннаяПодсказка" id="217">
+												<Title>
+													<v8:item>
+														<v8:lang>ru</v8:lang>
+														<v8:content>Интервал проверки в секундах (минимум 30, по умолчанию 300).</v8:content>
+													</v8:item>
+												</Title>
+											</ExtendedTooltip>
+											<Events>
+												<Event name="ПриИзменении">ИнтервалКонтроляСервераПриИзменении</Event>
+											</Events>
+										</InputField>
+									</ChildItems>
+								</UsualGroup>
+								<CheckBoxField name="ФлагАвтоПерезапускПриПотереКонтекста" id="218">
+									<DataPath>АвтоПерезапускПриПотереКонтекста</DataPath>
+									<TitleLocation>Right</TitleLocation>
+									<Title>
+										<v8:item>
+											<v8:lang>ru</v8:lang>
+											<v8:content>Автоматически перезапускать сессию при потере серверного контекста</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="ФлагАвтоПерезапускПриПотереКонтекстаРасширеннаяПодсказка" id="219">
+										<Title>
+											<v8:item>
+												<v8:lang>ru</v8:lang>
+												<v8:content>При потере серверного контекста инструменты MCP перестают работать до перезапуска сессии. Автоперезапуск использует тот же механизм, что и инструмент restart_1c_session, — нужны заполненные параметры аутентификации перезапуска (Windows или пароль).</v8:content>
+											</v8:item>
+										</Title>
+									</ExtendedTooltip>
+									<Events>
+										<Event name="ПриИзменении">АвтоПерезапускПриПотереКонтекстаПриИзменении</Event>
+									</Events>
+								</CheckBoxField>
+							</ChildItems>
+						</UsualGroup>
 					</ChildItems>
 				</UsualGroup>
 				<UsualGroup name="ГруппаАвтоРазрешение" id="24">
@@ -738,6 +829,46 @@
 							<CommandName>Form.Command.Отключиться</CommandName>
 							<ExtendedTooltip name="КнопкаОтключитьсяРасширеннаяПодсказка" id="10"/>
 						</Button>
+						<CheckBoxField name="ФлагЗапускатьСерверПриОткрытии" id="267">
+							<DataPath>ЗапускатьСерверПриОткрытии</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Запускать при открытии обработки</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="ФлагЗапускатьСерверПриОткрытииРасширеннаяПодсказка" id="268">
+								<Title>
+									<v8:item>
+										<v8:lang>ru</v8:lang>
+										<v8:content>При обычном открытии обработки сразу запускать встроенный сервер (или подключаться к прокси), не дожидаясь нажатия кнопки. В режимах автозапуска не используется.</v8:content>
+									</v8:item>
+								</Title>
+							</ExtendedTooltip>
+							<Events>
+								<Event name="ПриИзменении">ЗапускатьСерверПриОткрытииПриИзменении</Event>
+							</Events>
+						</CheckBoxField>
+					</ChildItems>
+				</UsualGroup>
+				<UsualGroup name="ГруппаИИКлиенты" id="220">
+					<Group>AlwaysHorizontal</Group>
+					<Representation>None</Representation>
+					<ShowTitle>false</ShowTitle>
+					<ExtendedTooltip name="ГруппаИИКлиентыРасширеннаяПодсказка" id="221"/>
+					<ChildItems>
+						<LabelDecoration name="НадписьИИКлиенты" id="222">
+							<Title>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>ИИ-клиенты: определение...</v8:content>
+								</v8:item>
+							</Title>
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<HorizontalStretch>true</HorizontalStretch>
+							<ContextMenu name="НадписьИИКлиентыКонтекстноеМеню" id="223"/>
+							<ExtendedTooltip name="НадписьИИКлиентыРасширеннаяПодсказка" id="224"/>
+						</LabelDecoration>
 					</ChildItems>
 				</UsualGroup>
 			</ChildItems>
@@ -808,7 +939,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>ru</v8:lang>
-									<v8:content>v1.8.0</v8:content>
+									<v8:content>v1.9.0</v8:content>
 								</v8:item>
 							</Title>
 							<ToolTip>
@@ -1154,6 +1285,232 @@
 						</UsualGroup>
 					</ChildItems>
 				</Page>
+				<Page name="СтраницаИИКлиенты" id="230">
+					<Title>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>ИИ-клиенты</v8:content>
+						</v8:item>
+					</Title>
+					<Group>Vertical</Group>
+					<ExtendedTooltip name="СтраницаИИКлиентыРасширеннаяПодсказка" id="231"/>
+					<ChildItems>
+						<LabelDecoration name="НадписьОписаниеИИКлиентов" id="232">
+							<Title>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Отметьте клиентов, в конфигурацию которых нужно прописать MCP-сервер этой обработки, и нажмите «Прописать в выбранные». Остальные настройки клиентов сохраняются, перед записью создаётся резервная копия файла; если запись с этим адресом уже есть, она обновляется под прежним именем. После записи перезапустите ИИ-клиент.</v8:content>
+								</v8:item>
+							</Title>
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<HorizontalStretch>true</HorizontalStretch>
+							<ContextMenu name="НадписьОписаниеИИКлиентовКонтекстноеМеню" id="233"/>
+							<ExtendedTooltip name="НадписьОписаниеИИКлиентовРасширеннаяПодсказка" id="234"/>
+						</LabelDecoration>
+						<UsualGroup name="ГруппаПараметровИИКлиентов" id="235">
+							<Group>AlwaysHorizontal</Group>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="ГруппаПараметровИИКлиентовРасширеннаяПодсказка" id="236"/>
+							<ChildItems>
+								<InputField name="ПолеАдресMCPКлиентов" id="237">
+									<DataPath>АдресMCPКлиентов</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>ru</v8:lang>
+											<v8:content>Адрес MCP-сервера</v8:content>
+										</v8:item>
+									</Title>
+									<Width>35</Width>
+									<ExtendedTooltip name="ПолеАдресMCPКлиентовРасширеннаяПодсказка" id="238">
+										<Title>
+											<v8:item>
+												<v8:lang>ru</v8:lang>
+												<v8:content>Адрес MCP-сервера этой базы. Порт можно изменить прямо здесь: он сохраняется в настройках базы и в реестре баз профиля, адрес пересчитывается. Если сервер уже запущен, новый порт применится после его перезапуска.</v8:content>
+											</v8:item>
+										</Title>
+									</ExtendedTooltip>
+									<Events>
+										<Event name="ПриИзменении">АдресMCPКлиентовПриИзменении</Event>
+									</Events>
+								</InputField>
+								<InputField name="ПолеИмяMCPСервера" id="239">
+									<DataPath>ИмяMCPСервера</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>ru</v8:lang>
+											<v8:content>Имя сервера в конфигурации</v8:content>
+										</v8:item>
+									</Title>
+									<Width>25</Width>
+									<ExtendedTooltip name="ПолеИмяMCPСервераРасширеннаяПодсказка" id="240">
+										<Title>
+											<v8:item>
+												<v8:lang>ru</v8:lang>
+												<v8:content>Имя записи MCP-сервера в файлах клиентов: латиница, цифры, «-» и «_». По умолчанию — 1c-&lt;имя базы&gt;.</v8:content>
+											</v8:item>
+										</Title>
+									</ExtendedTooltip>
+									<Events>
+										<Event name="ПриИзменении">ИмяMCPСервераПриИзменении</Event>
+									</Events>
+								</InputField>
+								<InputField name="ПолеШаблонИмениMCPСервера" id="275">
+									<DataPath>ШаблонИмениMCPСервера</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>ru</v8:lang>
+											<v8:content>Шаблон имени</v8:content>
+										</v8:item>
+									</Title>
+									<Width>22</Width>
+									<ExtendedTooltip name="ПолеШаблонИмениMCPСервераРасширеннаяПодсказка" id="276">
+										<Title>
+											<v8:item>
+												<v8:lang>ru</v8:lang>
+												<v8:content>Общий для всех баз шаблон имени MCP-сервера (хранится в реестре баз профиля). Подстановки: {base} — имя базы, {server} — сервер 1С (file для файловой базы), {port} — порт. Пример: 1c-{base}-{server} → 1c-plata_buh_prod-1c-diftech-org.</v8:content>
+											</v8:item>
+										</Title>
+									</ExtendedTooltip>
+									<Events>
+										<Event name="ПриИзменении">ШаблонИмениMCPСервераПриИзменении</Event>
+									</Events>
+								</InputField>
+							</ChildItems>
+						</UsualGroup>
+						<LabelDecoration name="НадписьРеестрБазMCP" id="272">
+							<Title>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Реестр баз профиля</v8:content>
+								</v8:item>
+							</Title>
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<HorizontalStretch>true</HorizontalStretch>
+							<ContextMenu name="НадписьРеестрБазMCPКонтекстноеМеню" id="273"/>
+							<ExtendedTooltip name="НадписьРеестрБазMCPРасширеннаяПодсказка" id="274"/>
+						</LabelDecoration>
+						<LabelDecoration name="НадписьТокенИИКлиентов" id="269">
+							<Title>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Задан токен доступа — в конфигурацию клиентов будет записан заголовок Authorization: Bearer &lt;токен&gt;.</v8:content>
+								</v8:item>
+							</Title>
+							<ContextMenu name="НадписьТокенИИКлиентовКонтекстноеМеню" id="270"/>
+							<ExtendedTooltip name="НадписьТокенИИКлиентовРасширеннаяПодсказка" id="271"/>
+						</LabelDecoration>
+						<Table name="ТаблицаИИКлиентов" id="241">
+							<ChangeRowSet>false</ChangeRowSet>
+							<ChangeRowOrder>false</ChangeRowOrder>
+							<RowSelectionMode>Row</RowSelectionMode>
+							<AutoInsertNewRow>false</AutoInsertNewRow>
+							<DataPath>ИИКлиенты</DataPath>
+							<TitleLocation>None</TitleLocation>
+							<Height>9</Height>
+							<Width>95</Width>
+							<ContextMenu name="ТаблицаИИКлиентовКонтекстноеМеню" id="242"/>
+							<AutoCommandBar name="ТаблицаИИКлиентовКоманднаяПанель" id="243">
+								<Autofill>false</Autofill>
+							</AutoCommandBar>
+							<ExtendedTooltip name="ТаблицаИИКлиентовРасширеннаяПодсказка" id="244"/>
+							<Events>
+								<Event name="OnActivateRow">ТаблицаИИКлиентовПриАктивизацииСтроки</Event>
+							</Events>
+							<ChildItems>
+								<CheckBoxField name="ИИКлиентыВыбрать" id="245">
+									<DataPath>ИИКлиенты.Выбрать</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>ru</v8:lang>
+											<v8:content>Прописать</v8:content>
+										</v8:item>
+									</Title>
+									<Width>6</Width>
+									<EditMode>EnterOnInput</EditMode>
+									<ContextMenu name="ИИКлиентыВыбратьКонтекстноеМеню" id="246"/>
+									<ExtendedTooltip name="ИИКлиентыВыбратьРасширеннаяПодсказка" id="247"/>
+								</CheckBoxField>
+								<InputField name="ИИКлиентыНаименование" id="248">
+									<DataPath>ИИКлиенты.Наименование</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>ru</v8:lang>
+											<v8:content>Клиент</v8:content>
+										</v8:item>
+									</Title>
+									<ReadOnly>true</ReadOnly>
+									<Width>20</Width>
+									<ContextMenu name="ИИКлиентыНаименованиеКонтекстноеМеню" id="249"/>
+									<ExtendedTooltip name="ИИКлиентыНаименованиеРасширеннаяПодсказка" id="250"/>
+								</InputField>
+								<InputField name="ИИКлиентыСтатус" id="251">
+									<DataPath>ИИКлиенты.Статус</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>ru</v8:lang>
+											<v8:content>Состояние</v8:content>
+										</v8:item>
+									</Title>
+									<ReadOnly>true</ReadOnly>
+									<Width>30</Width>
+									<ContextMenu name="ИИКлиентыСтатусКонтекстноеМеню" id="252"/>
+									<ExtendedTooltip name="ИИКлиентыСтатусРасширеннаяПодсказка" id="253"/>
+								</InputField>
+								<InputField name="ИИКлиентыФайлКонфигурации" id="254">
+									<DataPath>ИИКлиенты.ФайлКонфигурации</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>ru</v8:lang>
+											<v8:content>Файл конфигурации</v8:content>
+										</v8:item>
+									</Title>
+									<ReadOnly>true</ReadOnly>
+									<Width>45</Width>
+									<ContextMenu name="ИИКлиентыФайлКонфигурацииКонтекстноеМеню" id="255"/>
+									<ExtendedTooltip name="ИИКлиентыФайлКонфигурацииРасширеннаяПодсказка" id="256"/>
+								</InputField>
+							</ChildItems>
+						</Table>
+						<UsualGroup name="ГруппаКнопокИИКлиентов" id="257">
+							<Group>AlwaysHorizontal</Group>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="ГруппаКнопокИИКлиентовРасширеннаяПодсказка" id="258"/>
+							<ChildItems>
+								<Button name="КнопкаЗаписатьИИКлиентов" id="259">
+									<Type>UsualButton</Type>
+									<CommandName>Form.Command.ЗаписатьНастройкиИИКлиентов</CommandName>
+									<ExtendedTooltip name="КнопкаЗаписатьИИКлиентовРасширеннаяПодсказка" id="260"/>
+								</Button>
+								<Button name="КнопкаОбновитьИИКлиентов" id="261">
+									<Type>UsualButton</Type>
+									<CommandName>Form.Command.ОбновитьИИКлиентов</CommandName>
+									<ExtendedTooltip name="КнопкаОбновитьИИКлиентовРасширеннаяПодсказка" id="262"/>
+								</Button>
+								<Button name="КнопкаФрагментИИКлиента" id="263">
+									<Type>UsualButton</Type>
+									<CommandName>Form.Command.ПоказатьФрагментИИКлиента</CommandName>
+									<ExtendedTooltip name="КнопкаФрагментИИКлиентаРасширеннаяПодсказка" id="264"/>
+								</Button>
+							</ChildItems>
+						</UsualGroup>
+						<InputField name="ПолеФрагментИИКлиента" id="265">
+							<DataPath>ФрагментНастройкиИИКлиента</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Фрагмент конфигурации выбранного клиента / результат записи</v8:content>
+								</v8:item>
+							</Title>
+							<ReadOnly>true</ReadOnly>
+							<MultiLine>true</MultiLine>
+							<Height>7</Height>
+							<Width>95</Width>
+							<ExtendedTooltip name="ПолеФрагментИИКлиентаРасширеннаяПодсказка" id="266"/>
+						</InputField>
+					</ChildItems>
+				</Page>
 			</ChildItems>
 		</Pages>
 	</ChildItems>
@@ -1463,6 +1820,175 @@
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
+		<Attribute name="КонтрольСерверногоКонтекста" id="210">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="АвтоПерезапускПриПотереКонтекста" id="211">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="ИнтервалКонтроляСервера" id="212">
+			<Type>
+				<v8:Type>xs:decimal</v8:Type>
+				<v8:NumberQualifiers>
+					<v8:Digits>5</v8:Digits>
+					<v8:FractionDigits>0</v8:FractionDigits>
+					<v8:AllowedSign>Nonnegative</v8:AllowedSign>
+				</v8:NumberQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="НеПредлагатьНастройкуИИКлиентов" id="213">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="ИИКлиенты" id="214">
+			<Type>
+				<v8:Type>v8:ValueTable</v8:Type>
+			</Type>
+			<Columns>
+				<Column name="Выбрать" id="1">
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
+				<Column name="Ключ" id="2">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="Наименование" id="3">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="Формат" id="4">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="Статус" id="5">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="ФайлКонфигурации" id="6">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="Примечание" id="7">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="ИмяЗаписи" id="8">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="Сообщение" id="9">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="ПроверенныеПути" id="10">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="Обнаружен" id="11">
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
+				<Column name="Настроен" id="12">
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
+			</Columns>
+		</Attribute>
+		<Attribute name="ИмяMCPСервера" id="215">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="АдресMCPКлиентов" id="216">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="ФрагментНастройкиИИКлиента" id="217">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="ЗапускатьСерверПриОткрытии" id="218">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="ШаблонИмениMCPСервера" id="219">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="Подключиться" id="1">
@@ -1539,6 +2065,33 @@
 				</v8:item>
 			</ToolTip>
 			<Action>КомандаОбновитьАдреса</Action>
+		</Command>
+		<Command name="ОбновитьИИКлиентов" id="211">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Обновить</v8:content>
+				</v8:item>
+			</Title>
+			<Action>ОбновитьИИКлиентов</Action>
+		</Command>
+		<Command name="ЗаписатьНастройкиИИКлиентов" id="212">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Прописать в выбранные</v8:content>
+				</v8:item>
+			</Title>
+			<Action>ЗаписатьНастройкиИИКлиентов</Action>
+		</Command>
+		<Command name="ПоказатьФрагментИИКлиента" id="213">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Показать фрагмент</v8:content>
+				</v8:item>
+			</Title>
+			<Action>ПоказатьФрагментИИКлиента</Action>
 		</Command>
 	</Commands>
 	<Events>
