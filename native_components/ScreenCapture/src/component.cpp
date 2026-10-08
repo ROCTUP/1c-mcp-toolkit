@@ -1,7 +1,10 @@
 #include "component.h"
 
+#include "overlay_selection.h"
+
 #include <algorithm>
 #include <cstring>
+#include <cwctype>
 #include <vector>
 
 #ifdef _WINDOWS
@@ -14,6 +17,48 @@
 namespace screen_capture {
 
 static constexpr int kHighlightRectsMax = 20;
+
+// The Native API uses UTF-16 on Linux too, where wchar_t is 32 bits.
+static std::wstring NativeToWide(const WCHAR_T* source, size_t length) {
+    if (!source) return {};
+#ifdef _WINDOWS
+    return std::wstring(source, length);
+#else
+    std::wstring result;
+    result.reserve(length);
+    for (size_t index = 0; index < length; ++index) {
+        uint32_t code = source[index];
+        if (code >= 0xD800 && code <= 0xDBFF && index + 1 < length &&
+            source[index + 1] >= 0xDC00 && source[index + 1] <= 0xDFFF) {
+            code = 0x10000 + ((code - 0xD800) << 10) + source[++index] - 0xDC00;
+        } else if (code >= 0xD800 && code <= 0xDFFF) {
+            code = 0xFFFD;
+        }
+        result += static_cast<wchar_t>(code);
+    }
+    return result;
+#endif
+}
+
+#ifndef _WINDOWS
+static std::vector<WCHAR_T> WideToNative(const std::wstring& source) {
+    std::vector<WCHAR_T> result;
+    result.reserve(source.size() + 1);
+    for (wchar_t character : source) {
+        uint32_t code = static_cast<uint32_t>(character);
+        if (code > 0x10FFFF || (code >= 0xD800 && code <= 0xDFFF)) code = 0xFFFD;
+        if (code >= 0x10000) {
+            code -= 0x10000;
+            result.push_back(static_cast<WCHAR_T>(0xD800 + (code >> 10)));
+            result.push_back(static_cast<WCHAR_T>(0xDC00 + (code & 0x3FF)));
+        } else {
+            result.push_back(static_cast<WCHAR_T>(code));
+        }
+    }
+    result.push_back(0);
+    return result;
+}
+#endif
 
 // ============================================================================
 //  Name tables
@@ -61,9 +106,22 @@ bool ScreenCaptureComponent::RegisterExtensionAs(WCHAR_T** wsExtensionName) {
 long ScreenCaptureComponent::GetNMethods() { return eMethodLast; }
 
 long ScreenCaptureComponent::FindMethod(const WCHAR_T* wsMethodName) {
-    std::wstring name(wsMethodName);
+    if (!wsMethodName) return -1;
+    size_t length = 0;
+    while (wsMethodName[length]) ++length;
+    std::wstring name = NativeToWide(wsMethodName, length);
     auto lower = [](std::wstring s) {
+#ifdef _WINDOWS
         std::transform(s.begin(), s.end(), s.begin(), ::towlower);
+#else
+        // The hosting process may use the C locale. Method lookup must still be
+        // case-insensitive for the Russian Native API alias.
+        std::transform(s.begin(), s.end(), s.begin(), [](wchar_t c) {
+            if (c >= L'\u0410' && c <= L'\u042F') return wchar_t(c + 0x20);
+            if (c == L'\u0401') return L'\u0451';
+            return wchar_t(::towlower(c));
+        });
+#endif
         return s;
     };
     std::wstring lower_name = lower(name);
@@ -159,17 +217,311 @@ static bool IsOurWindow(HWND hwnd, DWORD pid) {
     return wpid == pid;
 }
 
-// Fallback: find the largest visible top-level window of the process
+// Anchor search: the largest visible UNOWNED top-level window of the process.
+//
+// Unowned matters. 1C keeps several unowned auxiliary windows around — a notification
+// (V8ConfirmationWindowTaxi, 255x85), a confirmation (V8StateDlg), a validation message
+// (V8ValidationMessageWnd, 238x75). Their root owner is themselves, so a foreground-based anchor
+// would return the 255x85 dialog and the screenshot would lose the form behind it. Nothing is lost
+// by anchoring on the main frame instead: everything else is composited on top of it.
 struct FindMainData { DWORD pid; HWND best; int bestArea; };
 
 static BOOL CALLBACK EnumMainProc(HWND hwnd, LPARAM lp) {
     auto* d = reinterpret_cast<FindMainData*>(lp);
     if (!IsOurWindow(hwnd, d->pid)) return TRUE;
     if (GetParent(hwnd) != NULL) return TRUE;
+    if (GetWindow(hwnd, GW_OWNER) != NULL) return TRUE;
     RECT rc; GetClientRect(hwnd, &rc);
     int area = (rc.right - rc.left) * (rc.bottom - rc.top);
     if (area > d->bestArea) { d->bestArea = area; d->best = hwnd; }
     return TRUE;
+}
+
+// ---------------------------------------------------------------------------
+//  Overlay collection and painting
+// ---------------------------------------------------------------------------
+
+// Every getter here reads state the window manager already holds and sends no messages, so the
+// collection itself can never block on a busy 1C.
+struct CollectData {
+    DWORD pid;
+    HWND  anchor;
+    int   anchorZ;
+    int   index;
+    std::vector<overlay::OverlayCandidate>* out;
+};
+
+static BOOL CALLBACK EnumCollectProc(HWND hwnd, LPARAM lp) {
+    auto* d = reinterpret_cast<CollectData*>(lp);
+    DWORD wpid = 0;
+    DWORD wtid = GetWindowThreadProcessId(hwnd, &wpid);
+    if (wpid != d->pid) return TRUE;
+
+    overlay::OverlayCandidate c;
+    c.hwnd = reinterpret_cast<unsigned long long>(hwnd);
+    c.pid = wpid;
+    c.tid = wtid;
+    c.visible = IsWindowVisible(hwnd) != FALSE;
+    RECT wr = {};
+    GetWindowRect(hwnd, &wr);
+    c.left = wr.left;
+    c.top = wr.top;
+    c.width = wr.right - wr.left;
+    c.height = wr.bottom - wr.top;
+    // EnumWindows walks top-level windows in Z-order, topmost first, so the running index over our
+    // own windows preserves that order.
+    c.z = d->index++;
+    if (hwnd == d->anchor) d->anchorZ = c.z;
+    d->out->push_back(c);
+    return TRUE;
+}
+
+// pid is stored on every candidate and is NOT treated as already checked: the early filter here is
+// an optimisation, the guarantee is carried by SelectOverlays.
+static std::vector<overlay::OverlayCandidate> CollectWindows(DWORD pid, HWND anchor, int* anchorZ) {
+    std::vector<overlay::OverlayCandidate> out;
+    CollectData d { pid, anchor, -1, 0, &out };
+    EnumWindows(EnumCollectProc, reinterpret_cast<LPARAM>(&d));
+    if (anchorZ) *anchorZ = d.anchorZ;
+    return out;
+}
+
+// One layer that made it into the frame, as reported back to the agent.
+struct OverlayReport {
+    unsigned long long hwnd = 0;
+    int  x = 0, y = 0, w = 0, h = 0;
+    bool clipped = false;
+    overlay::OverlayBackend source = overlay::OverlayBackend::PrintWindow;
+    std::wstring cls;
+};
+
+// A layer that was still on screen and could not be captured by any permitted backend. Without the
+// list, capture_complete = false would not say which layer went missing.
+struct OverlayFailure {
+    unsigned long long hwnd = 0;
+    int  x = 0, y = 0, w = 0, h = 0;  // тот же клиентский прямоугольник, что у работы
+    const char* reason = "";
+};
+
+// What the overlay pass ended with. It cannot be void: it needs the frame for the screen-source
+// gate, and it has to be able to say "the layer is visible but was not captured" — otherwise the
+// pipeline would go on to GetDIBits and return an ordinary successful PNG without the layer, which
+// is exactly the untrustworthy frame this whole change exists to remove.
+struct OverlayPaintResult {
+    // false only while the screen source is forbidden: then a layer that cannot be captured has
+    // nowhere to be reported, so the whole capture fails loudly instead of lying.
+    bool ok = true;
+    unsigned long long failedHwnd = 0;
+    std::vector<OverlayReport>  painted;
+    std::vector<OverlayFailure> failures;
+};
+
+// A uniform bitmap is the classic DirectComposition symptom: PrintWindow reports success and
+// renders nothing. 32 sampled points are microseconds on a 356x182 window.
+static bool BitmapLooksBlank(HDC dc, int w, int h) {
+    COLORREF first = GetPixel(dc, 0, 0);
+    if (first == CLR_INVALID) return false;
+    for (int i = 0; i < 32; ++i) {
+        int x = (w - 1) * (i % 8) / 7;
+        int y = (h - 1) * (i / 8) / 3;
+        if (GetPixel(dc, x, y) != first) return false;
+    }
+    return true;
+}
+
+// PW_RENDERFULLCONTENT — no PW_CLIENTONLY here: the layer's frame is part of what a human sees, and
+// GetWindowRect includes it.
+static OverlayPaintResult PaintOverlays(HDC dst, HDC screen, const overlay::CaptureFrame& frame,
+                                        const std::vector<overlay::OverlayPaint>& jobs) {
+    OverlayPaintResult result;
+    result.painted.reserve(jobs.size());
+
+    for (size_t i = 0; i < jobs.size(); ++i) {
+        const overlay::OverlayPaint& job = jobs[i];
+        HWND hwnd = reinterpret_cast<HWND>(static_cast<uintptr_t>(job.hwnd));
+
+        // The window may have gone between enumeration and painting. Not a defect: it is not on
+        // screen either, so the job is simply dropped.
+        if (!IsWindow(hwnd) || !IsWindowVisible(hwnd)) continue;
+
+        HDC tmp = CreateCompatibleDC(screen);
+        if (!tmp) { result.ok = false; result.failedHwnd = job.hwnd; return result; }
+
+        HBITMAP bmp = CreateCompatibleBitmap(screen, job.w, job.h);
+        if (!bmp) {
+            DeleteDC(tmp);
+            result.ok = false; result.failedHwnd = job.hwnd; return result;
+        }
+
+        HGDIOBJ oldBmp = SelectObject(tmp, bmp);
+        if (!oldBmp || oldBmp == HGDI_ERROR) {
+            DeleteObject(bmp);
+            DeleteDC(tmp);
+            result.ok = false; result.failedHwnd = job.hwnd; return result;
+        }
+
+        overlay::OverlayBackend used = job.backend;
+        bool drawn = false;
+        if (job.backend == overlay::OverlayBackend::PrintWindow) {
+            drawn = PrintWindow(hwnd, tmp, 0x2) != FALSE;  // PW_RENDERFULLCONTENT
+            if (drawn && BitmapLooksBlank(tmp, job.w, job.h)) drawn = false;
+        }
+        if (!drawn && frame.screenSourceAllowed) {
+            drawn = BitBlt(tmp, 0, 0, job.w, job.h, screen, job.srcLeft, job.srcTop, SRCCOPY) != FALSE;
+            if (drawn) used = overlay::OverlayBackend::Screen;
+        }
+
+        if (drawn) {
+            // GDI clips to the destination surface, so negative dstX/dstY and an overhang past the
+            // right or bottom edge are safe; job.clipped is bookkeeping for the report, not a guard.
+            drawn = BitBlt(dst, job.dstX, job.dstY, job.w, job.h, tmp, 0, 0, SRCCOPY) != FALSE;
+        }
+
+        SelectObject(tmp, oldBmp);
+        DeleteObject(bmp);
+        DeleteDC(tmp);
+
+        if (drawn) {
+            OverlayReport rep;
+            rep.hwnd = job.hwnd;
+            rep.x = job.dstX;
+            rep.y = job.dstY;
+            rep.w = job.w;
+            rep.h = job.h;
+            rep.clipped = job.clipped;
+            rep.source = used;
+            wchar_t clsBuf[128] = {0};
+            int clsLen = GetClassNameW(hwnd, clsBuf, 128);
+            if (clsLen > 0) rep.cls.assign(clsBuf, static_cast<size_t>(clsLen));
+            result.painted.push_back(rep);
+            continue;
+        }
+
+        // Nothing was captured. If the window is gone by now, that is the race above and it is
+        // fine — it is not on screen either.
+        if (!IsWindow(hwnd) || !IsWindowVisible(hwnd)) continue;
+
+        // Still visible. Dropping it silently would hand back a successful frame with a hole in it,
+        // which is the exact defect this change removes. Where provenance can carry the fact, it is
+        // reported and the frame is marked incomplete; where it cannot, the capture fails loudly.
+        if (frame.screenSourceAllowed) {
+            OverlayFailure f;
+            f.hwnd = job.hwnd;
+            f.x = job.dstX;
+            f.y = job.dstY;
+            f.w = job.w;
+            f.h = job.h;
+            f.reason = "backend_failed";
+            result.failures.push_back(f);
+            continue;
+        }
+        result.ok = false;
+        result.failedHwnd = job.hwnd;
+        return result;
+    }
+
+    return result;
+}
+
+// ---------------------------------------------------------------------------
+//  Metadata envelope
+// ---------------------------------------------------------------------------
+// A flat JSON writer, forty-odd lines, instead of a dependency on
+// native_components/UIAutomation/common/json.h: ScreenCapture is an independent binary with no ties
+// to that tree, and coupling two separate components by source for a flat writer is not worth it.
+//
+// ASCII only — everything above 0x7F leaves as \uXXXX — so the character length of the JSON equals
+// its byte length, and the length prefix in the protocol string is unambiguous.
+static void JsonAppendString(std::string& out, const std::wstring& value) {
+    out += '"';
+    for (wchar_t ch : value) {
+        switch (ch) {
+            case L'"':  out += "\\\""; continue;
+            case L'\\': out += "\\\\"; continue;
+            case L'\n': out += "\\n";  continue;
+            case L'\r': out += "\\r";  continue;
+            case L'\t': out += "\\t";  continue;
+            default: break;
+        }
+        unsigned code = static_cast<unsigned>(ch);
+        if (code < 0x20 || code > 0x7E) {
+            char esc[8];
+            wsprintfA(esc, "\\u%04X", code & 0xFFFF);
+            out += esc;
+        } else {
+            out += static_cast<char>(code);
+        }
+    }
+    out += '"';
+}
+
+static const char* SourceName(overlay::OverlayBackend backend) {
+    return backend == overlay::OverlayBackend::Screen ? "screen" : "print_window";
+}
+
+// Активное окно процесса и лежит ли оно в этом кадре. Якорь выбирается детерминированно — самое
+// большое неowned окно, — и это верно для координат, но означает, что окно, которое сейчас в фокусе,
+// может в кадр не попасть: например второй независимый фрейм, отведённый в сторону от главного.
+// Молчать об этом нельзя, иначе агент примет снимок главного окна за снимок того, с чем работает.
+struct ForegroundInfo {
+    bool known = false;              // фокус принадлежит нашему процессу
+    unsigned long long hwnd = 0;
+    bool inFrame = false;            // это якорь или один из вклеенных слоёв
+};
+
+static std::string BuildMetadataJson(int coordLeft, int coordTop, int w, int h,
+                                     bool showGrid,
+                                     const std::string& gridXStr, const std::string& gridYStr,
+                                     const OverlayPaintResult& overlays,
+                                     const ForegroundInfo& foreground) {
+    std::string json = "{";
+
+    json += "\"window_rect\":{\"left\":" + std::to_string(coordLeft) +
+            ",\"top\":" + std::to_string(coordTop) +
+            ",\"width\":" + std::to_string(w) +
+            ",\"height\":" + std::to_string(h) + "}";
+
+    if (showGrid) {
+        // gridXStr/gridYStr are already comma-separated decimal numbers, so they drop straight into
+        // JSON arrays; empty means the image was too small for lines on that axis.
+        json += ",\"grid_coords\":{\"grid_x\":[" + gridXStr + "],\"grid_y\":[" + gridYStr + "]}";
+    }
+
+    json += ",\"capture_complete\":";
+    json += overlays.failures.empty() ? "true" : "false";
+
+    json += ",\"overlays\":[";
+    for (size_t i = 0; i < overlays.painted.size(); ++i) {
+        const OverlayReport& o = overlays.painted[i];
+        if (i) json += ',';
+        json += "{\"hwnd\":" + std::to_string(o.hwnd) +
+                ",\"x\":" + std::to_string(o.x) +
+                ",\"y\":" + std::to_string(o.y) +
+                ",\"width\":" + std::to_string(o.w) +
+                ",\"height\":" + std::to_string(o.h) +
+                ",\"clipped\":" + (o.clipped ? "true" : "false") +
+                ",\"source\":\"" + SourceName(o.source) + "\"" +
+                ",\"class_name\":";
+        JsonAppendString(json, o.cls);
+        json += '}';
+    }
+    json += "]";
+
+    json += ",\"overlay_failures\":[";
+    for (size_t i = 0; i < overlays.failures.size(); ++i) {
+        if (i) json += ',';
+        json += "{\"hwnd\":" + std::to_string(overlays.failures[i].hwnd) +
+                ",\"reason\":\"" + overlays.failures[i].reason + "\"}";
+    }
+    json += "]";
+
+    if (foreground.known) {
+        json += ",\"foreground\":{\"hwnd\":" + std::to_string(foreground.hwnd) +
+                ",\"in_frame\":" + (foreground.inFrame ? "true" : "false") + "}";
+    }
+
+    json += "}";
+    return json;
 }
 
 bool ScreenCaptureComponent::CaptureMainWindow(int scale, bool showGrid, std::string& outB64,
@@ -182,20 +534,26 @@ bool ScreenCaptureComponent::CaptureMainWindow(int scale, bool showGrid, std::st
     DWORD pid = GetCurrentProcessId();
     HWND hwnd = nullptr;
 
-    // Primary: foreground window → root owner → PID check
-    HWND fg = GetForegroundWindow();
-    if (fg) {
-        HWND root = GetAncestor(fg, GA_ROOTOWNER);
-        if (root && IsOurWindow(root, pid)) {
-            hwnd = root;
-        }
-    }
-
-    // Fallback: largest visible top-level window of our process
-    if (!hwnd) {
+    // Primary: the largest visible unowned top-level window — the main frame. Deterministic on
+    // purpose: the agent gets the same coordinate frame between calls, which is what makes region
+    // and highlight_rects reusable across a sequence of screenshots. This is the same notion of
+    // "main window" the UI automation side publishes as isMain.
+    {
         FindMainData fd { pid, nullptr, 0 };
         EnumWindows(EnumMainProc, reinterpret_cast<LPARAM>(&fd));
         hwnd = fd.best;
+    }
+
+    // Fallback: foreground window → root owner → PID check. Only reached when the process has no
+    // unowned visible window at all.
+    if (!hwnd) {
+        HWND fg = GetForegroundWindow();
+        if (fg) {
+            HWND root = GetAncestor(fg, GA_ROOTOWNER);
+            if (root && IsOurWindow(root, pid)) {
+                hwnd = root;
+            }
+        }
     }
 
     if (!hwnd) {
@@ -268,6 +626,44 @@ bool ScreenCaptureComponent::CaptureMainWindow(int scale, bool showGrid, std::st
         ReleaseDC(nullptr, hScreenDC);
         outB64 = "RETRY:pw0";
         return true;
+    }
+
+    // ---- Step 6.2: composite the transient layers of this process ----
+    // PrintWindow renders one HWND and its WS_CHILD children; owned top-level windows are not part
+    // of it by design of the API. 1C draws its choice lists, menus, tooltips and dialogs as separate
+    // top-level windows, so without this pass they can never appear in the picture.
+    //
+    // Runs before the crop so that everything downstream — crop, scale, grid, highlight — works on
+    // the finished frame and needs no changes.
+    OverlayPaintResult overlaysPainted;
+    {
+        int anchorZ = -1;
+        std::vector<overlay::OverlayCandidate> candidates = CollectWindows(pid, hwnd, &anchorZ);
+
+        overlay::CaptureFrame frame;
+        frame.targetPid = pid;
+        frame.selfTid = GetCurrentThreadId();
+        frame.originX = coordLeft;
+        frame.originY = coordTop;
+        frame.width = w;
+        frame.height = h;
+        frame.anchorZ = (anchorZ >= 0) ? anchorZ : 0;
+        // The screen is allowed as a pixel source because the answer can now say so: every layer
+        // carries its source, and a frame with an uncaptured layer carries capture_complete=false
+        // plus the failing handle. Without that contract this must stay false — an unannounced
+        // screen pixel can contain another application's window.
+        frame.screenSourceAllowed = true;
+
+        std::vector<overlay::OverlayPaint> jobs = overlay::SelectOverlays(candidates, frame);
+        overlaysPainted = PaintOverlays(hdcSrc, hScreenDC, frame, jobs);
+        if (!overlaysPainted.ok) {
+            SelectObject(hdcSrc, oldSrc);
+            DeleteObject(hbmpSrc);
+            DeleteDC(hdcSrc);
+            ReleaseDC(nullptr, hScreenDC);
+            outB64 = "ERROR:overlay:" + std::to_string(overlaysPainted.failedHwnd);
+            return true;
+        }
     }
 
     // ---- Step 6.5: crop to region (if specified) ----
@@ -566,22 +962,64 @@ bool ScreenCaptureComponent::CaptureMainWindow(int scale, bool showGrid, std::st
         static_cast<uint8_t*>(pngBuf) + pngLen);
     mz_free(pngBuf);  // miniz allocates via mz_malloc — must free
 
-    // ---- Step 11: base64 encode ----
-    // Format (show_grid=false): "left|top|width|height|<base64>"          — unchanged
-    // Format (show_grid=true):  "left|top|width|height|gridX|gridY|<base64>"
-    //   gridX/gridY are comma-separated original-pixel coords of drawn lines (may be empty
-    //   if the image is too small for lines on that axis).
-    // '|' never appears in base64 (A-Za-z0-9+/=), so the separator is unambiguous.
-    // w and h are the actual window dimensions regardless of scale_percent.
-    std::string b64 = Base64Encode(rawPng);
-    outB64 = std::to_string(coordLeft) + "|"
-           + std::to_string(coordTop)  + "|"
-           + std::to_string(w)         + "|"
-           + std::to_string(h);
-    if (showGrid) {
-        outB64 += "|" + gridXStr + "|" + gridYStr;
+    // ---- Step 11: base64 encode and build the answer ----
+    // Format: "V2|<json length in characters>|<json>|<base64>"
+    //
+    // The metadata used to travel as positional fields, and that stopped scaling exactly here: the
+    // layer list carries a class name and a pixel source per entry, and every further field would
+    // have needed its own separator and its own escaping rule. The length prefix removes all
+    // separator ambiguity — read the number, take that many characters, skip one '|', the rest is
+    // base64 — and the writer emits ASCII only, so characters and bytes agree.
+    //
+    // w and h inside window_rect are the actual window dimensions regardless of scale_percent.
+    // Отчёт о слоях обязан описывать ТУ картинку, которая уезжает наружу. Композит шёл по полной
+    // клиентской области, а region мог вырезать из неё кусок, в котором слоя нет вовсе — тогда
+    // «слой на кадре» было бы неправдой, и ровно так же неправдой была бы неполнота кадра из-за
+    // слоя, не попавшего в вырезку. Поэтому фильтруем по отданному прямоугольнику и пересчитываем
+    // clipped относительно него же.
+    const int frameX = doCrop ? regionX : 0;
+    const int frameY = doCrop ? regionY : 0;
+    const int frameW = doCrop ? regionW : w;
+    const int frameH = doCrop ? regionH : h;
+
+    OverlayPaintResult reported;
+    reported.ok = overlaysPainted.ok;
+    for (const OverlayReport& o : overlaysPainted.painted) {
+        if (!overlay::RectsIntersect(o.x, o.y, o.w, o.h, frameX, frameY, frameW, frameH)) continue;
+        OverlayReport r = o;
+        r.clipped = !overlay::RectInside(o.x, o.y, o.w, o.h, frameX, frameY, frameW, frameH);
+        reported.painted.push_back(r);
     }
-    outB64 += "|" + b64;
+    for (const OverlayFailure& f : overlaysPainted.failures) {
+        if (!overlay::RectsIntersect(f.x, f.y, f.w, f.h, frameX, frameY, frameW, frameH)) continue;
+        reported.failures.push_back(f);
+    }
+
+    // Где сейчас фокус и виден ли он в этом кадре.
+    ForegroundInfo foreground;
+    {
+        // Именно GetForegroundWindow, без GA_ROOTOWNER. Владелец здесь не годится: у owned-диалога
+        // root owner — само главное окно, и поле сообщало бы «активно главное окно, оно в кадре»
+        // ровно тогда, когда активен диалог, которого в кадре нет. Это уничтожило бы различие,
+        // ради которого поле и заведено. Окно переднего плана всегда top-level, так что подниматься
+        // по цепочке владения не нужно.
+        HWND fg = GetForegroundWindow();
+        DWORD fgPid = 0;
+        if (fg) GetWindowThreadProcessId(fg, &fgPid);
+        if (fg && fgPid == pid) {
+            foreground.known = true;
+            foreground.hwnd = reinterpret_cast<unsigned long long>(fg);
+            foreground.inFrame = (fg == hwnd);
+            for (const OverlayReport& o : reported.painted) {
+                if (o.hwnd == foreground.hwnd) { foreground.inFrame = true; break; }
+            }
+        }
+    }
+
+    std::string meta = BuildMetadataJson(coordLeft, coordTop, w, h,
+                                         showGrid, gridXStr, gridYStr, reported, foreground);
+    std::string b64 = Base64Encode(rawPng);
+    outB64 = "V2|" + std::to_string(meta.size()) + "|" + meta + "|" + b64;
     return true;
 }
 
@@ -705,7 +1143,7 @@ bool ScreenCaptureComponent::DrawHighlightRect(HDC hdc, int sw, int sh, int orig
     return true;
 }
 
-#else // non-Windows stub
+#elif !defined(__linux__) // unsupported platforms (rejected by CMake)
 
 bool ScreenCaptureComponent::CaptureMainWindow(int /*scale*/, bool /*showGrid*/, std::string& outB64,
                                                 int /*regionX*/, int /*regionY*/,
@@ -726,17 +1164,21 @@ bool ScreenCaptureComponent::SetStringToVariant(tVariant* var, const std::string
     if (!var || !mem_manager_) return false;
     std::wstring ws = Utf8ToWstr(utf8);
     TV_VT(var) = VTYPE_PWSTR;
+#ifdef _WINDOWS
     size_t byte_count = (ws.size() + 1) * sizeof(WCHAR_T);
+#else
+    const auto native = WideToNative(ws);
+    size_t byte_count = native.size() * sizeof(WCHAR_T);
+#endif
     if (!mem_manager_->AllocMemory(reinterpret_cast<void**>(&var->pwstrVal),
                                     static_cast<unsigned long>(byte_count)))
         return false;
 #ifdef _WINDOWS
     memcpy(var->pwstrVal, ws.c_str(), byte_count);
 #else
-    for (size_t i = 0; i <= ws.size(); ++i)
-        var->pwstrVal[i] = static_cast<WCHAR_T>(ws[i]);
+    memcpy(var->pwstrVal, native.data(), byte_count);
 #endif
-    var->wstrLen = static_cast<uint32_t>(ws.size());
+    var->wstrLen = static_cast<uint32_t>(byte_count / sizeof(WCHAR_T) - 1);
     return true;
 }
 
@@ -747,10 +1189,7 @@ std::string ScreenCaptureComponent::GetStringFromVariant(const tVariant* var) {
         std::wstring ws(var->pwstrVal, var->wstrLen);
         return WstrToUtf8(ws);
 #else
-        std::wstring ws;
-        ws.reserve(var->wstrLen);
-        for (uint32_t i = 0; i < var->wstrLen; ++i)
-            ws += static_cast<wchar_t>(var->pwstrVal[i]);
+        std::wstring ws = NativeToWide(var->pwstrVal, var->wstrLen);
         return WstrToUtf8(ws);
 #endif
     }
@@ -774,7 +1213,7 @@ int ScreenCaptureComponent::GetIntFromVariant(const tVariant* var, int default_v
     if (TV_VT(var) == VTYPE_R8)  return static_cast<int>(var->dblVal);
     if (TV_VT(var) == VTYPE_PWSTR && var->pwstrVal && var->wstrLen > 0) {
         try {
-            return std::stoi(std::wstring(var->pwstrVal, var->wstrLen));
+            return std::stoi(NativeToWide(var->pwstrVal, var->wstrLen));
         } catch (...) {}
     }
     return default_val;
@@ -782,15 +1221,19 @@ int ScreenCaptureComponent::GetIntFromVariant(const tVariant* var, int default_v
 
 bool ScreenCaptureComponent::AllocWStr(WCHAR_T** dest, const std::wstring& src) {
     if (!dest || !mem_manager_) return false;
+#ifdef _WINDOWS
     size_t byte_count = (src.size() + 1) * sizeof(WCHAR_T);
+#else
+    const auto native = WideToNative(src);
+    size_t byte_count = native.size() * sizeof(WCHAR_T);
+#endif
     if (!mem_manager_->AllocMemory(reinterpret_cast<void**>(dest),
                                     static_cast<unsigned long>(byte_count)))
         return false;
 #ifdef _WINDOWS
     memcpy(*dest, src.c_str(), byte_count);
 #else
-    for (size_t i = 0; i <= src.size(); ++i)
-        (*dest)[i] = static_cast<WCHAR_T>(src[i]);
+    memcpy(*dest, native.data(), byte_count);
 #endif
     return true;
 }

@@ -77,6 +77,8 @@ struct QueryBatchNode {
     std::vector<StatementNode> statements;
 };
 
+// Table and output-column keys use NormalizeIdentifierKey on insertion and lookup.
+// Values (source paths) and AST names retain their original spelling.
 using TempTableMap = std::unordered_map<std::string, std::unordered_map<std::string, LineageSet>>;
 using OutputLineageMap = std::map<std::string, LineageSet>;
 

@@ -3,50 +3,13 @@
 
 #include <algorithm>
 #include <cctype>
-#include <cwctype>
 #include <cstring>
 #include <string>
 #include <unordered_map>
 
-#ifdef _WINDOWS
-#include <windows.h>
-#endif
-
 namespace lineage {
 
 namespace {
-
-std::wstring Utf8ToWide(const std::string& input) {
-#ifdef _WINDOWS
-    if (input.empty()) return L"";
-    int size = MultiByteToWideChar(CP_UTF8, 0, input.data(), static_cast<int>(input.size()), nullptr, 0);
-    if (size <= 0) return L"";
-    std::wstring result(size, L'\0');
-    MultiByteToWideChar(CP_UTF8, 0, input.data(), static_cast<int>(input.size()), result.data(), size);
-    return result;
-#else
-    return Utf8ToUtf16Units(input);
-#endif
-}
-
-std::string WideToUtf8(const std::wstring& input) {
-#ifdef _WINDOWS
-    if (input.empty()) return "";
-    int size = WideCharToMultiByte(CP_UTF8, 0, input.data(), static_cast<int>(input.size()), nullptr, 0, nullptr, nullptr);
-    if (size <= 0) return "";
-    std::string result(size, '\0');
-    WideCharToMultiByte(CP_UTF8, 0, input.data(), static_cast<int>(input.size()), result.data(), size, nullptr, nullptr);
-    return result;
-#else
-    return Utf16UnitsToUtf8(input);
-#endif
-}
-
-std::string ToUpperUtf8(const std::string& input) {
-    std::wstring wide = Utf8ToWide(input);
-    for (auto& ch : wide) ch = static_cast<wchar_t>(UppercaseU16(static_cast<uint32_t>(ch)));
-    return WideToUtf8(wide);
-}
 
 bool IsIdentifierByte(unsigned char ch) {
     return std::isalnum(ch) || ch == '_' || ch == '#' || ch >= 0x80;
@@ -107,6 +70,13 @@ std::vector<Token> Tokenize(const std::string& query) {
             ++i;
             continue;
         }
+        // Strings are consumed in full below, so this branch only sees comments
+        // outside literals. Keep offsets into the original query unchanged.
+        if (ch == '/' && i + 1 < query.size() && query[i + 1] == '/') {
+            i += 2;
+            while (i < query.size() && query[i] != '\r' && query[i] != '\n') ++i;
+            continue;
+        }
         if (ch == '.') { tokens.push_back({TokenKind::Dot, ".", i++}); continue; }
         if (ch == ',') { tokens.push_back({TokenKind::Comma, ",", i++}); continue; }
         if (ch == '(') { tokens.push_back({TokenKind::LParen, "(", i++}); continue; }
@@ -165,7 +135,7 @@ std::vector<Token> Tokenize(const std::string& query) {
             continue;
         }
         std::string text = query.substr(start, i - start);
-        std::string upper = ToUpperUtf8(text);
+        std::string upper = NormalizeIdentifierKey(text);
         auto it = KeywordMap().find(upper);
         if (it != KeywordMap().end()) {
             tokens.push_back({it->second, text, start});

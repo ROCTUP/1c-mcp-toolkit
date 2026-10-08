@@ -1,0 +1,7 @@
+FROM ubuntu:20.04
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    g++ cmake make pkg-config ca-certificates binutils uuid-dev \
+    libxcb1-dev libxcb-res0-dev libxcb-composite0-dev libxcb-render0-dev libxcb-shape0-dev xvfb xauth python3 \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /src

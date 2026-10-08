@@ -113,6 +113,8 @@ python -m onec_mcp_toolkit_proxy
    - (опционально) ID канала для изоляции команд
 4. Нажмите кнопку "Подключиться"
 
+Для запуска без нажатия «Подключиться» используйте [автозапуск через параметры командной строки](README_FULL.md#startup-command-line).
+
 ## ⚙️ Настройка AI-агента
 
 ### Kiro IDE
@@ -137,10 +139,10 @@ python -m onec_mcp_toolkit_proxy
 
 > **Важно:** `claude_desktop_config.json` поддерживает только stdio-серверы
 > (поля `command`/`args`). Формат с `url`/`transport` (как в секции Kiro IDE выше)
-> Claude Desktop **не понимает** — такая запись игнорируется. Для подключения к
-> HTTP-серверу используйте один из вариантов ниже.
+> не подходит для этого файла. Для подключения к локальному HTTP-серверу
+> используйте мост `mcp-remote`.
 
-#### Вариант 1. Мост mcp-remote (требуется Node.js)
+#### Локальное подключение через mcp-remote (требуется Node.js)
 
 Откройте конфигурационный файл:
 - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
@@ -170,10 +172,10 @@ python -m onec_mcp_toolkit_proxy
 > Используйте `127.0.0.1`, а не `localhost` — так надёжнее с точки зрения
 > IPv4/IPv6-биндинга. Флаг `--allow-http` разрешает подключение по http без TLS.
 
-#### Вариант 2. Custom Connector (без Node.js)
+#### Custom Connector — для внешнего HTTPS-сервера
 
-На платных планах HTTP-сервер можно добавить через UI:
-**Settings → Connectors → Add custom connector**, указав URL `http://localhost:6003/mcp`.
+**Settings → Connectors → Add custom connector** — только для HTTPS-сервера, доступного из облака Anthropic.
+Для локальной обработки используйте `mcp-remote`: `localhost` в Custom Connector не работает.
 
 ### 🔐 Аутентификация по токену (встроенный сервер)
 

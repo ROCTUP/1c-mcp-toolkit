@@ -1,4 +1,5 @@
 #include "json_utils.h"
+#include "utf_utils.h"
 
 #include <algorithm>
 #include <vector>
@@ -16,7 +17,7 @@ std::string EnrichSchemaJson(const std::string& schema_json, const OutputLineage
         auto name_it = column.find("name");
         if (name_it == column.end() || !name_it->is_string()) continue;
 
-        auto lineage_it = output_lineage.find(name_it->get<std::string>());
+        auto lineage_it = output_lineage.find(NormalizeIdentifierKey(name_it->get<std::string>()));
         if (lineage_it == output_lineage.end() || lineage_it->second.empty()) continue;
 
         std::vector<std::string> sources(lineage_it->second.begin(), lineage_it->second.end());

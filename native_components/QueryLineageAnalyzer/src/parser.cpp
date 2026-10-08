@@ -157,7 +157,8 @@ SourceNode Parser::ParseSource() {
     if (Match(TokenKind::KeywordAs) && (Check(TokenKind::Identifier) || IsKeyword(Peek().kind))) {
         source.alias = Advance().text;
     } else if ((Check(TokenKind::Identifier) || IsKeyword(Peek().kind))
-        && !IsJoinStart() && !IsSectionStart(Peek().kind)) {
+        && !IsJoinStart() && !IsSectionStart(Peek().kind)
+        && !Check(TokenKind::KeywordOn) && !Check(TokenKind::KeywordPo)) {
         source.alias = Advance().text;
     }
     return source;

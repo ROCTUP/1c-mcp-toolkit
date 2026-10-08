@@ -125,19 +125,31 @@ inline std::wstring Utf8ToUtf16Units(const std::string& s) {
 }
 
 // Locale-independent uppercase for a single UTF-16 code unit value.
-// Covers ASCII and basic Cyrillic (U+0430–U+044F). noexcept — no allocation.
+// Covers ASCII and Russian Cyrillic, including ё. noexcept — no allocation.
 inline uint32_t UppercaseU16(uint32_t cp) noexcept {
     if (cp >= 0x61 && cp <= 0x7A) return cp - 0x20;          // a–z → A–Z
     if (cp >= 0x0430 && cp <= 0x044F) return cp - 0x20;      // а–я → А–Я
+    if (cp == 0x0451) return 0x0401;                       // ё → Ё
     return cp;
 }
 
 // Locale-independent lowercase for a single UTF-16 code unit value.
-// Covers ASCII and basic Cyrillic (U+0410–U+042F). noexcept — no allocation.
+// Covers ASCII and Russian Cyrillic, including Ё. noexcept — no allocation.
 inline uint32_t LowercaseU16(uint32_t cp) noexcept {
     if (cp >= 0x41 && cp <= 0x5A) return cp + 0x20;          // A–Z → a–z
     if (cp >= 0x0410 && cp <= 0x042F) return cp + 0x20;      // А–Я → а–я
+    if (cp == 0x0401) return 0x0451;                       // Ё → ё
     return cp;
+}
+
+// Internal lookup keys only: preserve original AST text and emitted source paths.
+// Locale-independent ASCII/Russian matching, not general Unicode case folding.
+inline std::string NormalizeIdentifierKey(const std::string& input) {
+    std::wstring units = Utf8ToUtf16Units(input);
+    for (auto& unit : units) {
+        unit = static_cast<wchar_t>(UppercaseU16(static_cast<uint32_t>(unit)));
+    }
+    return Utf16UnitsToUtf8(units);
 }
 
 }  // namespace lineage

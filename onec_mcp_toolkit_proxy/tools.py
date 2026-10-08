@@ -13,6 +13,25 @@ from typing import Any, Dict, List, Literal, Optional, Union
 from pydantic import BaseModel, Field, RootModel, StrictBool, field_validator, model_validator
 
 
+def validate_types_int_input(v: Any) -> Optional[int]:
+    """Единая проверка исходного значения types_limit/types_offset (сырое,
+    до любых преобразований): bool/строки/массивы/объекты отклоняются, float
+    с нулевой дробной частью нормализуется (100.0 -> 100). Используется и в
+    Pydantic-модели, и в аннотации MCP-инструмента (FastMCP), чтобы обход
+    bool->int и str->int был невозможен на обоих входах."""
+    if v is None:
+        return None
+    if isinstance(v, bool):
+        raise ValueError("Input should be a valid integer")
+    if isinstance(v, int):
+        return v
+    if isinstance(v, float):
+        if v.is_integer():
+            return int(v)
+        raise ValueError("Input should be a valid integer")
+    raise ValueError("Input should be a valid integer")
+
+
 # Valid event log levels
 VALID_EVENT_LOG_LEVELS = {"Information", "Warning", "Error", "Note"}
 
@@ -285,6 +304,62 @@ class GetMetadataParams(BaseModel):
         ),
         examples=["контраг", "номенклат", "дата"]
     )
+
+    types_limit: Optional[int] = Field(
+        default=None,
+        ge=1,
+        le=200,
+        description=(
+            "Размер страницы полного перечня допустимых типов ОДНОГО адресного типизированного поля "
+            "(filter=Тип.Объект.Реквизит.Имя и т.п.), по умолчанию 100, максимум 200. "
+            "Запрещён для структуры объекта/ТЧ и несовместим с attribute_mask/meta_type/name_mask/extension_name=''. "
+            "Существующие limit/offset НЕ листают типы / "
+            "Page size for the full list of allowed types of a single addressed typed field "
+            "(default 100, max 200). Forbidden for structure requests. limit/offset do NOT paginate types."
+        )
+    )
+
+    types_offset: Optional[int] = Field(
+        default=None,
+        ge=0,
+        le=1000000,
+        description=(
+            "Смещение в перечне типов одного адресного типизированного поля. "
+            "Продолжать с types_offset=types.next_offset, пока types.has_more=true; "
+            "types_offset=shown_types_count возвращает оставшиеся типы сокращённого поля / "
+            "Offset in the types list of one addressed typed field. Continue with types.next_offset "
+            "while types.has_more=true."
+        )
+    )
+
+    @field_validator('types_limit', 'types_offset', mode='before')
+    @classmethod
+    def validate_types_pagination_int(cls, v):
+        """types_limit/types_offset: только JSON-числа (см. validate_types_int_input)."""
+        return validate_types_int_input(v)
+
+    @model_validator(mode='after')
+    def validate_types_params_combinations(self) -> 'GetMetadataParams':
+        """types_limit/types_offset: только адресный режим одного типизированного поля."""
+        if self.types_limit is None and self.types_offset is None:
+            return self
+        if not self.filter:
+            raise ValueError(
+                "types_limit/types_offset require a non-empty filter pointing to a single "
+                "typed field (e.g. Type.Object.Attribute.Name)"
+            )
+        if self.attribute_mask:
+            raise ValueError("types_limit/types_offset are incompatible with attribute_mask")
+        if self.meta_type:
+            raise ValueError("types_limit/types_offset are incompatible with meta_type")
+        if self.name_mask:
+            raise ValueError("types_limit/types_offset are incompatible with name_mask")
+        if self.extension_name == "":
+            raise ValueError(
+                "types_limit/types_offset are incompatible with extension_name='' "
+                "(list of extensions)"
+            )
+        return self
 
     @field_validator('filter')
     @classmethod
@@ -1235,6 +1310,37 @@ GET_METADATA_SCHEMA = {
                     "INCOMPATIBLE with sections (returns error — use round-trip instead: "
                     "pass data[0]['ПолноеИмя'] as filter, then use sections)."
                 )
+            },
+            "types_limit": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 200,
+                "description": (
+                    "Размер страницы перечня типов ОДНОГО адресного типизированного поля "
+                    "(filter=Тип.Объект.Реквизит.Имя / .Измерение / .Ресурс / .РеквизитАдресации / "
+                    ".СтандартныйРеквизит / .ТабличнаяЧасть.Имя.Реквизит.Имя), по умолчанию 100. "
+                    "Адресный ответ содержит Тип (не более 20 имён типов, как в структуре) и data.types = "
+                    "{count, limit, offset, returned, truncated, has_more, next_offset, items[]}. "
+                    "Продолжать с types_offset=types.next_offset пока has_more=true. "
+                    "В структурах при >20 типах у любого поля массива обе колонки "
+                    "total_types_count/shown_types_count появляются у ВСЕХ строк массива. "
+                    "ЗАПРЕЩЁН для структуры объекта/ТЧ; несовместим с attribute_mask, meta_type, "
+                    "name_mask, extension_name=''. limit/offset НЕ листают типы. / "
+                    "Page size for the types list of a single addressed typed field (default 100, max 200). "
+                    "Forbidden for structure requests."
+                )
+            },
+            "types_offset": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 1000000,
+                "description": (
+                    "Смещение в перечне типов одного адресного типизированного поля, по умолчанию 0. "
+                    "types_offset=shown_types_count возвращает оставшиеся типы сокращённого поля; "
+                    "объединение всех страниц и уже показанных в Тип первых типов — полный перечень. "
+                    "/ Offset in the types list of one addressed typed field (default 0). "
+                    "Continue with types.next_offset while types.has_more=true."
+                )
             }
         }
     }
@@ -1605,13 +1711,21 @@ class HighlightRectsParam(RootModel[List[HighlightRectItem]]):
 
 GET_SCREENSHOT_SCHEMA = {
     "name": "get_screenshot",
-    "description": "Take a screenshot of the active 1C application window and return it as base64 PNG. If form_name is specified, the form will be opened and then closed after the screenshot is captured.",
+    "description": "Captures the main 1C window, including open dropdowns, menus and dialogs. To capture an already open dropdown, omit form_name. With form_name or link the capture starts only after the form has had time to render (~1.5 s wait, activation, ~0.7 s more). form_name selects a form by its 1C name; link selects the form of an existing object by its navigation link (e1cib/data/...?ref=<32 hex>); page_name shows a specific tab of the selected form before capture. If capture_complete is false, some visible overlays could not be captured.",
     "inputSchema": {
         "type": "object",
         "properties": {
             "form_name": {
                 "type": "string",
-                "description": "Optional. 1C form name to open before capture. The form will be automatically closed after the screenshot is taken. If omitted, captures the current active 1C window.",
+                "description": "Optional. 1C form name to open (or activate if already open) before capture. The tool waits ~1.5 s for the form to render, activates it, waits ~0.7 s more and only then captures. The form is closed afterwards only if this request opened it; an already open form remains open. If omitted, captures the current active 1C window immediately. Mutually exclusive with link.",
+            },
+            "link": {
+                "type": "string",
+                "description": "Optional. Navigation link of an existing 1C object (e1cib/data/<Type>.<Name>?ref=<32 hex>), e.g. returned by get_link_of_object. The tool finds an already open form of this object or opens it via a single navigation, waits ~1.5 s, activates it, waits ~0.7 s more and only then captures. The form is closed afterwards only if this request opened it; an already open form remains open. If several forms of the same object are open, returns an ambiguity error. External data source links, navigation points and links with extra query parameters are not supported. Mutually exclusive with form_name.",
+            },
+            "page_name": {
+                "type": "string",
+                "description": "Optional. Internal name of a form page (tab) element to show before capture, e.g. \"ДополнительныеСведения\" — not the visible tab title. Parent page groups are switched as needed for nested pages. Requires form_name or link. After capture, pages changed by this request are restored in an already open form (unless the user switched them meanwhile).",
             },
             "scale_percent": {
                 "type": "integer",
@@ -1671,6 +1785,8 @@ GET_SCREENSHOT_SCHEMA = {
 
 class GetScreenshotParams(BaseModel):
     form_name: Optional[str] = Field(default=None)
+    link: Optional[str] = Field(default=None)
+    page_name: Optional[str] = Field(default=None)
     scale_percent: int = Field(default=100, ge=10, le=200)
     show_grid: bool = Field(default=False)
     region: Optional[RegionParams] = None
@@ -1686,10 +1802,60 @@ class GetScreenshotParams(BaseModel):
             return stripped
         return v
 
+    @field_validator('page_name')
+    @classmethod
+    def page_name_not_whitespace(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None:
+            stripped = v.strip()
+            if not stripped:
+                raise ValueError('page_name cannot be empty or whitespace only')
+            return stripped
+        return v
+
+    @field_validator('link')
+    @classmethod
+    def link_format_strict(cls, v: Optional[str]) -> Optional[str]:
+        # get_screenshot принимает только локальные ссылки на обычные объекты:
+        # e1cib/data/<Тип>.<Имя>?ref=<32 hex>. Внешние источники данных, которые
+        # допускает get_object_by_link, здесь не поддерживаются.
+        if v is None:
+            return v
+        stripped = v.strip()
+        if not stripped:
+            raise ValueError('link cannot be empty or whitespace only')
+        if not stripped.startswith("e1cib/data/"):
+            raise ValueError("link must start with 'e1cib/data/'")
+        path_part = stripped[len("e1cib/data/"):].split("?")[0]
+        if path_part.lower().startswith("внешнийисточникданных."):
+            raise ValueError(
+                "get_screenshot does not support external data source links; "
+                "only e1cib/data/<Type>.<Name>?ref=<32 hex> links of regular objects"
+            )
+        if "?ref=" not in stripped:
+            raise ValueError("link must contain '?ref=' parameter")
+        ref_part = stripped.split("?ref=")[-1]
+        if len(ref_part) != 32:
+            raise ValueError(
+                f"ref parameter must be exactly 32 hexadecimal characters, got {len(ref_part)}"
+            )
+        if not HEXGUID_PATTERN.match(ref_part):
+            raise ValueError(
+                "ref parameter must contain only hexadecimal characters (0-9, a-f, A-F)"
+            )
+        return stripped
+
     @model_validator(mode='after')
     def normalize_empty_highlight_rects(self) -> 'GetScreenshotParams':
         if self.highlight_rects is not None and len(self.highlight_rects.root) == 0:
             self.highlight_rects = None
+        return self
+
+    @model_validator(mode='after')
+    def check_selector_combination(self) -> 'GetScreenshotParams':
+        if self.form_name is not None and self.link is not None:
+            raise ValueError("form_name and link are mutually exclusive")
+        if self.page_name is not None and self.form_name is None and self.link is None:
+            raise ValueError("page_name requires form_name or link")
         return self
 
 
@@ -1797,7 +1963,9 @@ def validate_get_metadata_params(
     sections: Optional[List[str]] = None,
     offset: int = 0,
     extension_name: Optional[str] = None,
-    attribute_mask: Optional[str] = None
+    attribute_mask: Optional[str] = None,
+    types_limit: Optional[int] = None,
+    types_offset: Optional[int] = None
 ) -> GetMetadataParams:
     """
     Validate get_metadata parameters using Pydantic model.
@@ -1811,6 +1979,8 @@ def validate_get_metadata_params(
         offset: Offset for pagination in list mode
         extension_name: Optional extension name (None=main config, ""=list extensions, "Name"=work with a specific extension)
         attribute_mask: Optional search mask for attribute name/synonym (case-insensitive)
+        types_limit: Optional page size for the types list of one addressed typed field
+        types_offset: Optional offset in the types list of one addressed typed field
 
     Returns:
         Validated GetMetadataParams instance
@@ -1826,7 +1996,9 @@ def validate_get_metadata_params(
         sections=sections,
         offset=offset,
         extension_name=extension_name,
-        attribute_mask=attribute_mask
+        attribute_mask=attribute_mask,
+        types_limit=types_limit,
+        types_offset=types_offset
     )
 
 
