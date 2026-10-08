@@ -233,8 +233,8 @@ PATTERNS = [
     ("BIK",      re.compile(r"^04\d{7}$")),
     # Bank account: 20 digits starting with 3 or 4 (MVP heuristic).
     ("ACC",      re.compile(r"^[34]\d{19}$")),
-    # SWIFT/BIC: 8 or 11 chars
-    ("SWIFT",    re.compile(r"^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$", re.I)),
+    # SWIFT/BIC: 8 or 11 chars, uppercase only to avoid matching ordinary words.
+    ("SWIFT",    re.compile(r"^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$")),
     # IBAN: 15–34 chars total
     ("IBAN",     re.compile(r"^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$", re.I)),
     # FIO: three capitalized words
@@ -328,8 +328,8 @@ SEARCH_PATTERNS = [
     ("BIK",      re.compile(r"\b04\d{7}\b")),
     # Bank account: 20 digits starting with 3 or 4 (MVP heuristic).
     ("ACC",      re.compile(r"\b[34]\d{19}\b")),
-    # SWIFT/BIC: 8 or 11 chars
-    ("SWIFT",    re.compile(r"\b[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?\b", re.I)),
+    # SWIFT/BIC: 8 or 11 chars, uppercase only to preserve words in paths/text.
+    ("SWIFT",    re.compile(r"\b[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?\b")),
     # IBAN: 15–34 chars total
     ("IBAN",     re.compile(r"\b[A-Z]{2}\d{2}[A-Z0-9]{11,30}\b", re.I)),
     # FIO: three capitalized words
@@ -554,8 +554,8 @@ class ValueDetector:
             inline_tokenize = tokenize_fn
 
         # JSON-aware replacement for fields that store structured JSON as a string
-        # (e.g. контактная информация). This prevents tokenizing JSON keys like
-        # "areaCode"/"countryCode" as SWIFT due to case-insensitive SWIFT regex.
+        # (e.g. контактная информация). Only values are anonymized; technical
+        # JSON keys must remain unchanged regardless of the active detectors.
         parent_key_lower = (parent_key or "").lower()
         if "значени" in parent_key_lower:
             stripped = (value or "").strip()

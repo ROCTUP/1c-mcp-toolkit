@@ -109,10 +109,19 @@ Explore database structure. Five modes:
 | **Summary** | none | Root types with counts + configuration info |
 | **List** | `meta_type` and/or `name_mask` | Array of `{ПолноеИмя, Синоним}` with pagination |
 | **Detail** | `filter` = full object name | Full object structure (attributes, dimensions, tabular sections) |
-| **Collection element** | `filter` = full path to element | Single element info (e.g., `Справочник.Контрагенты.Реквизит.ИНН`) |
+| **Collection element** | `filter` = full path to element | Single element info; a typed field also returns a page of allowed types in `data.types` |
 | **Attribute search** | `attribute_mask` | Array of `{ПолноеИмя, Синоним}` for all matching attributes across all objects |
 
 Key params: `filter`, `meta_type` (string or array, `"*"` for all types), `name_mask`, `attribute_mask`, `sections` (requires filter, incompatible with `attribute_mask`): `properties`/`forms`/`commands`/`layouts`/`predefined`/`movements`/`characteristics` (`movements` only for `Документ`), `limit` (default 100, max 1000), `offset`, `extension_name`.
+
+Type lists:
+
+- In object/tabular-section structures, each field's `Тип` contains at most **20 actual type representations**. All fields are still returned. If any field in an array exceeds 20 types, every row of that array gets flat `total_types_count` and `shown_types_count` columns; otherwise both columns are absent. Equal counts mean all types are shown. Rows with `type_error` do not establish completeness.
+- To read more types, address **one typed field** with `filter`. Its response includes `data.types` even without pagination arguments: `types_limit` defaults to **100** (range 1–200), `types_offset` to **0** (range 0–1000000).
+- Continue with `types_offset=data.types.next_offset` while `data.types.has_more=true`. Start at 0 for the entire list, or at the structure row's `shown_types_count` for only the remaining types of a shortened field. `Тип` remains the same preview on every page.
+- `types_limit`/`types_offset` are forbidden for whole objects, whole tabular sections and elements without a type description; incompatible with nonempty `attribute_mask`, `meta_type`, `name_mask`, and with `extension_name=""`. Ordinary `limit`/`offset` do **not** paginate types.
+
+See [full type-pagination rules and curl examples](references/tools-full-reference.md#mode-6-paginated-types-of-one-typed-field) for the response contract and input validation.
 
 Request rules:
 - **GET**: parameters come from the URL query string; request body is ignored

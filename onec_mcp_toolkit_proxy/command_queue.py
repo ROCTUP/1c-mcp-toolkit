@@ -14,6 +14,7 @@ import asyncio
 import time
 import uuid
 import logging
+from collections import OrderedDict
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
@@ -52,7 +53,11 @@ class CommandQueue:
     def __init__(self):
         self._pending: Dict[str, Command] = {}
         self._results: Dict[str, Any] = {}
-        self._queue: asyncio.Queue[Command] = asyncio.Queue()
+        # Removable FIFO: cancelled commands must release their payload even
+        # when no 1C client polls this channel again.
+        self._queue: OrderedDict[str, Command] = OrderedDict()
+        self._available = asyncio.Event()
+        self._waiters: set[str] = set()
         self._lock = asyncio.Lock()
     
     async def add_command(self, tool: str, params: Dict[str, Any]) -> str:
@@ -66,6 +71,11 @@ class CommandQueue:
         Returns:
             Command ID (UUID string)
         """
+        async with self._lock:
+            return self._add_command(tool, params)
+
+    def _add_command(self, tool: str, params: Dict[str, Any]) -> str:
+        """Publish without suspension; all queue state belongs to one event loop."""
         command_id = str(uuid.uuid4())
         command = Command(
             id=command_id,
@@ -73,10 +83,9 @@ class CommandQueue:
             params=params
         )
         
-        async with self._lock:
-            self._pending[command_id] = command
-        
-        await self._queue.put(command)
+        self._pending[command_id] = command
+        self._queue[command_id] = command
+        self._available.set()
         return command_id
     
     async def get_next_command(self, timeout: Optional[float] = None) -> Optional[Command]:
@@ -90,17 +99,22 @@ class CommandQueue:
         Returns:
             Next command or None if no command available within timeout.
         """
-        try:
-            if timeout is None or timeout <= 0:
-                # Non-blocking get (timeout <= 0 should not miss queued items)
-                return self._queue.get_nowait()
-            # Blocking get with timeout
-            return await asyncio.wait_for(
-                self._queue.get(),
-                timeout=timeout
-            )
-        except (asyncio.QueueEmpty, asyncio.TimeoutError):
-            return None
+        deadline = time.monotonic() + timeout if timeout and timeout > 0 else None
+        while True:
+            if self._queue:
+                _, command = self._queue.popitem(last=False)
+                if not self._queue:
+                    self._available.clear()
+                return command
+            if deadline is None:
+                return None
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                return None
+            try:
+                await asyncio.wait_for(self._available.wait(), remaining)
+            except asyncio.TimeoutError:
+                return None
     
     async def set_result(self, command_id: str, result: Any) -> bool:
         """
@@ -137,20 +151,21 @@ class CommandQueue:
             asyncio.TimeoutError: If timeout is exceeded
             KeyError: If command_id is not found
         """
-        async with self._lock:
-            if command_id not in self._pending:
-                raise KeyError(f"Command {command_id} not found")
+        try:
             command = self._pending[command_id]
-        
-        # Wait for result with timeout
-        await asyncio.wait_for(command.result_event.wait(), timeout=timeout)
-        
-        # Get and clean up result
-        async with self._lock:
-            result = self._results.pop(command_id, None)
-            self._pending.pop(command_id, None)
-        
-        return result
+        except KeyError:
+            raise KeyError(f"Command {command_id} not found") from None
+        self._waiters.add(command_id)
+        try:
+            await asyncio.wait_for(command.result_event.wait(), timeout=timeout)
+            if command_id not in self._pending:
+                raise KeyError(f"Command {command_id} removed while waiting")
+            return self._results.get(command_id)
+        finally:
+            # No await: neither AnyIO level cancellation nor a second Task.cancel()
+            # can interrupt cleanup. Mutations run atomically on the event loop.
+            self._waiters.discard(command_id)
+            self._remove_command(command_id)
     
     async def get_pending_count(self) -> int:
         """Get the number of pending commands."""
@@ -167,21 +182,19 @@ class CommandQueue:
         Returns:
             Number of commands removed
         """
-        now = datetime.utcnow()
-        removed = 0
-        
         async with self._lock:
-            expired_ids = [
-                cmd_id for cmd_id, cmd in self._pending.items()
-                if (now - cmd.created_at).total_seconds() > max_age_seconds
-            ]
-            
-            for cmd_id in expired_ids:
-                self._pending.pop(cmd_id, None)
-                self._results.pop(cmd_id, None)
-                removed += 1
-        
-        return removed
+            return len(self._cleanup_expired(max_age_seconds))
+
+    def _cleanup_expired(self, max_age_seconds: float) -> List[str]:
+        now = datetime.utcnow()
+        expired_ids = [
+            cmd_id for cmd_id, cmd in self._pending.items()
+            if cmd_id not in self._waiters
+            and (now - cmd.created_at).total_seconds() > max_age_seconds
+        ]
+        for cmd_id in expired_ids:
+            self._remove_command(cmd_id)
+        return expired_ids
     
     async def remove_command(self, command_id: str) -> bool:
         """
@@ -194,11 +207,18 @@ class CommandQueue:
             True if command was found and removed, False otherwise.
         """
         async with self._lock:
-            if command_id in self._pending:
-                del self._pending[command_id]
-                self._results.pop(command_id, None)
-                return True
-            return False
+            return self._remove_command(command_id)
+
+    def _remove_command(self, command_id: str) -> bool:
+        """Remove all retained state without a cancellation checkpoint."""
+        command = self._pending.pop(command_id, None)
+        self._results.pop(command_id, None)
+        self._queue.pop(command_id, None)
+        if not self._queue:
+            self._available.clear()
+        if command is not None:
+            command.result_event.set()
+        return command is not None
 
 
 class ChannelCommandQueue:
@@ -212,7 +232,9 @@ class ChannelCommandQueue:
     
     Locking strategy:
     - _lock protects only dict operations (_channels, _command_index)
-    - await operations are performed OUTSIDE lock to avoid head-of-line blocking
+    - waits are performed OUTSIDE lock to avoid head-of-line blocking
+    - publication and finalization never suspend, so cancellation cannot split
+      queue/index updates (all state is owned by one event loop)
     
     Validates: Requirements 3.1, 3.2, 3.3, 3.4, 3.5
     """
@@ -247,11 +269,8 @@ class ChannelCommandQueue:
                 logger.info(f"Created queue for channel '{channel}'")
             queue = self._channels[channel]
         
-        # Outside lock: add command (may await)
-        command_id = await queue.add_command(tool, params)
-        
-        # Under lock: update index
-        async with self._lock:
+            # Publish the command and its routing index in one non-suspending step.
+            command_id = queue._add_command(tool, params)
             self._command_index[command_id] = channel
         
         logger.info(f"Command {command_id} added to channel '{channel}'")
@@ -285,7 +304,7 @@ class ChannelCommandQueue:
             return None
         
         # Calculate deadline to preserve wait time
-        deadline = time.monotonic() + (timeout or 0) if timeout else None
+        deadline = time.monotonic() + timeout if timeout and timeout > 0 else None
         
         # Outside lock: get command with validity check
         while True:
@@ -344,7 +363,7 @@ class ChannelCommandQueue:
         Wait for the result of a command.
         
         Uses the index for O(1) channel lookup.
-        Cleans up the index on success or timeout.
+        Cleans up all command state on success, timeout, error or cancellation.
         
         Args:
             command_id: ID of the command to wait for
@@ -357,39 +376,33 @@ class ChannelCommandQueue:
             asyncio.TimeoutError: If timeout is exceeded
             KeyError: If command_id is not found
         """
-        # Under lock: find channel
-        async with self._lock:
-            channel = self._command_index.get(command_id)
-        
-        if channel is None:
-            raise KeyError(f"Command {command_id} not found in index")
-        
-        # Under lock: get queue
-        async with self._lock:
-            queue = self._channels.get(channel)
-        
-        if queue is None:
-            raise KeyError(f"Queue for channel '{channel}' not found")
-        
         try:
-            # Outside lock: wait for result
-            result = await queue.wait_for_result(command_id, timeout)
-            
-            # Under lock: clean up index after success
-            async with self._lock:
-                self._command_index.pop(command_id, None)
-            
-            return result
+            channel = self._command_index.get(command_id)
+            if channel is None:
+                raise KeyError(f"Command {command_id} not found in index")
+            queue = self._channels.get(channel)
+            if queue is None:
+                raise KeyError(f"Queue for channel '{channel}' not found")
+            return await queue.wait_for_result(command_id, timeout)
         except asyncio.TimeoutError:
-            # Under lock: clean up index on timeout
-            async with self._lock:
-                self._command_index.pop(command_id, None)
-            
-            # Outside lock: remove command from pending
-            await queue.remove_command(command_id)
-            
             logger.warning(f"Command {command_id} timed out, cleaned up")
             raise
+        finally:
+            channel = self._command_index.pop(command_id, None)
+            queue = self._channels.get(channel)
+            if queue is not None:
+                queue._remove_command(command_id)
+
+    async def cleanup_expired(self, max_age_seconds: float) -> int:
+        """Reap abandoned commands, preserving waits with their own timeouts."""
+        removed = 0
+        async with self._lock:
+            for queue in self._channels.values():
+                expired_ids = queue._cleanup_expired(max_age_seconds)
+                for command_id in expired_ids:
+                    self._command_index.pop(command_id, None)
+                removed += len(expired_ids)
+        return removed
     
     async def get_stats(self) -> Dict[str, int]:
         """

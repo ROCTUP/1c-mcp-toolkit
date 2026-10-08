@@ -659,9 +659,34 @@ async def get_metadata_handler(request: Request) -> JSONResponse:
         attribute_mask = request.query_params.get("attribute_mask")
         limit_str = request.query_params.get("limit")
         offset_str = request.query_params.get("offset")
+        types_limit_str = request.query_params.get("types_limit")
+        types_offset_str = request.query_params.get("types_offset")
         sections = _parse_csv_or_repeated_query_param(request, "sections")
         # extension_name: None if not in query string, "" if present but empty
         extension_name = request.query_params.get("extension_name")
+
+        # Step 2.1: Repeated types_limit/types_offset with DIFFERENT values are ambiguous -> 422.
+        # (query_params.get keeps the last value; the built-in 1C server sees the raw list —
+        # both must reject instead of silently choosing different pages.)
+        for types_param_name, types_param_value in (("types_limit", types_limit_str), ("types_offset", types_offset_str)):
+            repeated_values = request.query_params.getlist(types_param_name)
+            if len(repeated_values) > 1 and len(set(repeated_values)) > 1:
+                return JSONResponse(
+                    status_code=422,
+                    content={
+                        "success": False,
+                        "error": f"Ошибка валидации: параметр {types_param_name} передан несколько раз с разными значениями / "
+                                 f"Validation error: parameter '{types_param_name}' is ambiguous (repeated with different values)",
+                        "details": [
+                            {
+                                "loc": [types_param_name],
+                                "msg": "parameter repeated with different values",
+                                "type": "value_error.ambiguous",
+                                "input": repeated_values
+                            }
+                        ]
+                    }
+                )
         
         # Step 3: Parse limit parameter (validate it's a valid integer)
         limit = 100  # default
@@ -709,6 +734,51 @@ async def get_metadata_handler(request: Request) -> JSONResponse:
                     }
                 )
         
+        # Step 3.2: Parse types_limit/types_offset query params (same 422 contract as limit/offset)
+        types_limit: Optional[int] = None
+        if types_limit_str is not None:
+            try:
+                types_limit = int(types_limit_str)
+            except ValueError:
+                return JSONResponse(
+                    status_code=422,
+                    content={
+                        "success": False,
+                        "error": f"Ошибка валидации: types_limit должен быть целым числом, получено '{types_limit_str}' / "
+                                 f"Validation error: types_limit must be an integer, got '{types_limit_str}'",
+                        "details": [
+                            {
+                                "loc": ["types_limit"],
+                                "msg": f"value is not a valid integer",
+                                "type": "int_parsing",
+                                "input": types_limit_str
+                            }
+                        ]
+                    }
+                )
+
+        types_offset: Optional[int] = None
+        if types_offset_str is not None:
+            try:
+                types_offset = int(types_offset_str)
+            except ValueError:
+                return JSONResponse(
+                    status_code=422,
+                    content={
+                        "success": False,
+                        "error": f"Ошибка валидации: types_offset должен быть целым числом, получено '{types_offset_str}' / "
+                                 f"Validation error: types_offset must be an integer, got '{types_offset_str}'",
+                        "details": [
+                            {
+                                "loc": ["types_offset"],
+                                "msg": f"value is not a valid integer",
+                                "type": "int_parsing",
+                                "input": types_offset_str
+                            }
+                        ]
+                    }
+                )
+
         # Step 4: Validate parameters via Pydantic
         try:
             validated_params = validate_get_metadata_params(
@@ -719,7 +789,9 @@ async def get_metadata_handler(request: Request) -> JSONResponse:
                 sections=sections,
                 offset=offset,
                 extension_name=extension_name,
-                attribute_mask=attribute_mask
+                attribute_mask=attribute_mask,
+                types_limit=types_limit,
+                types_offset=types_offset
             )
         except ValidationError as e:
             return _validation_error_response(e)
@@ -745,6 +817,8 @@ async def get_metadata_handler(request: Request) -> JSONResponse:
         sections = body.get("sections")
         extension_name = body.get("extension_name")
         attribute_mask = body.get("attribute_mask")
+        types_limit = body.get("types_limit")
+        types_offset = body.get("types_offset")
 
         # Step 5: Validate parameters via Pydantic
         try:
@@ -756,7 +830,9 @@ async def get_metadata_handler(request: Request) -> JSONResponse:
                 sections=sections,
                 offset=offset,
                 extension_name=extension_name,
-                attribute_mask=attribute_mask
+                attribute_mask=attribute_mask,
+                types_limit=types_limit,
+                types_offset=types_offset
             )
         except ValidationError as e:
             return _validation_error_response(e)

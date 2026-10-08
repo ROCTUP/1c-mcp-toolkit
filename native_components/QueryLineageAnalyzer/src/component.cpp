@@ -100,7 +100,7 @@ bool QueryLineageAnalyzerComponent::CallAsFunc(const long lMethodNum, tVariant* 
                 return SetWStringToVariant(pvarRetValue, UTF8ToWString(enriched));
             }
             case eMethodVersion:
-                return SetWStringToVariant(pvarRetValue, L"0.1.0");
+                return SetWStringToVariant(pvarRetValue, L"0.1.2");
             default:
                 return false;
         }

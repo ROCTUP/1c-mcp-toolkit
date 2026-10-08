@@ -53,9 +53,12 @@ private:
         eMethodLast
     };
 
-    // Window capture: finds the active foreground window of the current process
-    // (GetForegroundWindow → GA_ROOTOWNER → PID check), falls back to the largest
-    // visible top-level window of the process.
+    // Window capture. The anchor is the largest visible UNOWNED top-level window of the process —
+    // the main frame — and every other visible top-level window of the process that lies above it
+    // in Z-order is composited on top of the capture. That is what puts 1C's choice lists, menus,
+    // tooltips and dialogs into the picture: they are separate top-level windows, and PrintWindow
+    // never renders those. Foreground → GA_ROOTOWNER remains only as a fallback for a process with
+    // no unowned visible window.
     // Returns true in all "expected" cases (window not found / not ready yet).
     // outB64 is empty → BSL retries.
     // Returns false only on unrecoverable GDI/PNG error (AddError already called).

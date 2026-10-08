@@ -16,822 +16,876 @@
 					<Group>Vertical</Group>
 					<ExtendedTooltip name="СтраницаПодключениеРасширеннаяПодсказка" id="58"/>
 					<ChildItems>
-		<UsualGroup name="ГруппаПодключение" id="1">
-			<Title>
-				<v8:item>
-					<v8:lang>ru</v8:lang>
-					<v8:content>Подключение к серверу</v8:content>
-				</v8:item>
-			</Title>
-			<Group>Vertical</Group>
-			<Representation>NormalSeparation</Representation>
-			<ExtendedTooltip name="ГруппаПодключениеРасширеннаяПодсказка" id="2"/>
-			<ChildItems>
-				<LabelDecoration name="ПустаяНадпись" id="21">
-					<Title>
-						<v8:item>
-							<v8:lang>ru</v8:lang>
-							<v8:content> </v8:content>
-						</v8:item>
-					</Title>
-					<ContextMenu name="ПустаяНадписьКонтекстноеМеню" id="22"/>
-					<ExtendedTooltip name="ПустаяНадписьРасширеннаяПодсказка" id="23"/>
-				</LabelDecoration>
-				<UsualGroup name="ГруппаРежимПодключения" id="39">
-					<Title>
-						<v8:item>
-							<v8:lang>ru</v8:lang>
-							<v8:content>Режим подключения</v8:content>
-						</v8:item>
-					</Title>
-					<Group>AlwaysHorizontal</Group>
-					<Representation>None</Representation>
-					<ExtendedTooltip name="ГруппаРежимПодключенияРасширеннаяПодсказка" id="40"/>
-					<ChildItems>
-						<RadioButtonField name="ПолеРежимПодключения" id="41">
-							<DataPath>РежимПодключения</DataPath>
-							<TitleLocation>None</TitleLocation>
-							<RadioButtonType>RadioButtons</RadioButtonType>
-							<ChoiceList>
-								<xr:Item>
-									<xr:Presentation/>
-									<xr:CheckState>0</xr:CheckState>
-									<xr:Value xsi:type="FormChoiceListDesTimeValue">
-										<Presentation>
-											<v8:item>
-												<v8:lang>ru</v8:lang>
-												<v8:content>Прокси</v8:content>
-											</v8:item>
-										</Presentation>
-										<Value xsi:type="xs:decimal">0</Value>
-									</xr:Value>
-								</xr:Item>
-								<xr:Item>
-									<xr:Presentation/>
-									<xr:CheckState>0</xr:CheckState>
-									<xr:Value xsi:type="FormChoiceListDesTimeValue">
-										<Presentation>
-											<v8:item>
-												<v8:lang>ru</v8:lang>
-												<v8:content>Встроенный сервер</v8:content>
-											</v8:item>
-										</Presentation>
-										<Value xsi:type="xs:decimal">1</Value>
-									</xr:Value>
-								</xr:Item>
-							</ChoiceList>
-							<ContextMenu name="ПолеРежимПодключенияКонтекстноеМеню" id="43"/>
-							<ExtendedTooltip name="ПолеРежимПодключенияРасширеннаяПодсказка" id="42"/>
-							<Events>
-								<Event name="ПриИзменении">ПриИзмененииРежимаПодключения</Event>
-							</Events>
-						</RadioButtonField>
-					</ChildItems>
-				</UsualGroup>
-				<UsualGroup name="ГруппаПроксиНастройки" id="44">
-					<Group>Vertical</Group>
-					<Representation>None</Representation>
-					<ExtendedTooltip name="ГруппаПроксиНастройкиРасширеннаяПодсказка" id="45"/>
-					<ChildItems>
-						<InputField name="АдресСервераПоле" id="3">
-					<DataPath>АдресСервера</DataPath>
-					<Title>
-						<v8:item>
-							<v8:lang>ru</v8:lang>
-							<v8:content>Адрес сервера</v8:content>
-						</v8:item>
-					</Title>
-					<Width>50</Width>
-					<ExtendedTooltip name="АдресСервераПолеРасширеннаяПодсказка" id="4"/>
-				</InputField>
-				<UsualGroup name="ГруппаКанал" id="32">
-					<Title>
-						<v8:item>
-							<v8:lang>ru</v8:lang>
-							<v8:content>Идентификатор канала</v8:content>
-						</v8:item>
-					</Title>
-					<Group>AlwaysHorizontal</Group>
-					<Representation>None</Representation>
-					<ExtendedTooltip name="ГруппаКаналРасширеннаяПодсказка" id="33"/>
-					<ChildItems>
-						<InputField name="ИдентификаторКаналаПоле" id="34">
-							<DataPath>ИдентификаторКанала</DataPath>
-							<Title>
-								<v8:item>
-									<v8:lang>ru</v8:lang>
-									<v8:content>Channel ID</v8:content>
-								</v8:item>
-							</Title>
-							<Width>40</Width>
-							<ExtendedTooltip name="ИдентификаторКаналаПолеРасширеннаяПодсказка" id="35">
-								<Title>
-									<v8:item>
-										<v8:lang>ru</v8:lang>
-										<v8:content>Идентификатор канала для изоляции команд между разными клиентами</v8:content>
-									</v8:item>
-								</Title>
-							</ExtendedTooltip>
-							<ContextMenu name="ИдентификаторКаналаПолеКонтекстноеМеню" id="36"/>
-							<Events>
-								<Event name="ПриИзменении">ИдентификаторКаналаПриИзменении</Event>
-							</Events>
-						</InputField>
-						<Button name="КнопкаСгенерироватьКанал" id="37">
-							<Type>UsualButton</Type>
-							<Title>
-								<v8:item>
-									<v8:lang>ru</v8:lang>
-									<v8:content>Сгенерировать</v8:content>
-								</v8:item>
-							</Title>
-							<CommandName>Form.Command.СгенерироватьИдентификаторКанала</CommandName>
-							<ExtendedTooltip name="КнопкаСгенерироватьКаналРасширеннаяПодсказка" id="38"/>
-						</Button>
-					</ChildItems>
-				</UsualGroup>
-					</ChildItems>
-				</UsualGroup>
-				<UsualGroup name="ГруппаВстроенныйСервер" id="46">
-					<Title>
-						<v8:item>
-							<v8:lang>ru</v8:lang>
-							<v8:content> </v8:content>
-						</v8:item>
-					</Title>
-					<Group>Vertical</Group>
-					<Representation>None</Representation>
-					<Visible>false</Visible>
-					<ExtendedTooltip name="ГруппаВстроенныйСерверРасширеннаяПодсказка" id="47"/>
-					<ChildItems>
-						<UsualGroup name="ГруппаАдресПорт" id="194">
-							<Title>
-								<v8:item>
-									<v8:lang>ru</v8:lang>
-									<v8:content> </v8:content>
-								</v8:item>
-							</Title>
-							<Group>Horizontal</Group>
-							<Representation>None</Representation>
-							<ExtendedTooltip name="ГруппаАдресПортРасширеннаяПодсказка" id="196"/>
-							<ChildItems>
-								<InputField name="ПолеАдресВстроенногоСервера" id="195">
-									<DataPath>АдресВстроенногоСервераОтображение</DataPath>
-									<Title>
-										<v8:item>
-											<v8:lang>ru</v8:lang>
-											<v8:content>Адрес внутреннего сервера</v8:content>
-										</v8:item>
-									</Title>
-									<ListChoiceMode>true</ListChoiceMode>
-									<DropListButton>true</DropListButton>
-									<Width>18</Width>
-									<AutoMaxWidth>false</AutoMaxWidth>
-									<MaxWidth>18</MaxWidth>
-									<ExtendedTooltip name="ПолеАдресВстроенногоСервераРасширеннаяПодсказка" id="198"/>
-									<Events>
-										<Event name="ПриИзменении">АдресВстроенногоСервераПриИзменении</Event>
-									</Events>
-								</InputField>
-						<InputField name="ПортВстроенногоСервераПоле" id="48">
-							<DataPath>ПортВстроенногоСервера</DataPath>
-							<Title>
-								<v8:item>
-									<v8:lang>ru</v8:lang>
-									<v8:content> </v8:content>
-								</v8:item>
-							</Title>
-							<EditFormat>
-								<v8:item>
-									<v8:lang>ru</v8:lang>
-									<v8:content>ЧГ=</v8:content>
-									</v8:item>
-							</EditFormat>
-							<Width>5</Width>
-							<ExtendedTooltip name="ПортВстроенногоСервераПолеРасширеннаяПодсказка" id="49"/>
-						</InputField>
-								<Button name="КнопкаОбновитьАдреса" id="197">
-									<Type>UsualButton</Type>
-									<Title>
-										<v8:item>
-											<v8:lang>ru</v8:lang>
-											<v8:content>Обновить</v8:content>
-										</v8:item>
-									</Title>
-									<ToolTip>
-										<v8:item>
-											<v8:lang>ru</v8:lang>
-											<v8:content>Обновить список IP-адресов</v8:content>
-										</v8:item>
-									</ToolTip>
-									<CommandName>Form.Command.КомандаОбновитьАдреса</CommandName>
-									<ExtendedTooltip name="КнопкаОбновитьАдресаРасширеннаяПодсказка" id="201"/>
-								</Button>
-							</ChildItems>
-						</UsualGroup>
-						<UsualGroup name="ГруппаТокен" id="204">
+						<UsualGroup name="ГруппаПодключениеИЛог" id="224">
 							<Group>AlwaysHorizontal</Group>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="ГруппаТокенРасширеннаяПодсказка" id="208"/>
+							<ExtendedTooltip name="ГруппаПодключениеИЛогРасширеннаяПодсказка" id="225"/>
 							<ChildItems>
-								<InputField name="ПолеТокенВстроенногоСервера" id="205">
-									<DataPath>ТокенВстроенногоСервера</DataPath>
-									<Title>
-										<v8:item>
-											<v8:lang>ru</v8:lang>
-											<v8:content>Токен доступа</v8:content>
-										</v8:item>
-									</Title>
-									<Width>29</Width>
-									<AutoMaxWidth>false</AutoMaxWidth>
-									<MaxWidth>29</MaxWidth>
-									<ExtendedTooltip name="ПолеТокенВстроенногоСервераРасширеннаяПодсказка" id="206">
-										<Title>
-											<v8:item>
-												<v8:lang>ru</v8:lang>
-												<v8:content>Если задан — входящие запросы требуют Authorization: Bearer &lt;token&gt;. Пусто = без аутентификации</v8:content>
-											</v8:item>
-										</Title>
-									</ExtendedTooltip>
-									<Events>
-										<Event name="ПриИзменении">ТокенВстроенногоСервераПриИзменении</Event>
-									</Events>
-								</InputField>
-								<Button name="КнопкаСгенерироватьТокен" id="207">
-									<Type>UsualButton</Type>
-									<Title>
-										<v8:item>
-											<v8:lang>ru</v8:lang>
-											<v8:content>Сгенерировать</v8:content>
-										</v8:item>
-									</Title>
-									<CommandName>Form.Command.СгенерироватьТокенВстроенногоСервера</CommandName>
-									<ExtendedTooltip name="КнопкаСгенерироватьТокенРасширеннаяПодсказка" id="209"/>
-								</Button>
-							</ChildItems>
-						</UsualGroup>
-						<RadioButtonField name="ПолеФорматОтветаВстроенный" id="50">
-							<DataPath>ФорматОтветаВстроенный</DataPath>
-							<Title>
-								<v8:item>
-									<v8:lang>ru</v8:lang>
-									<v8:content>Формат ответов</v8:content>
-								</v8:item>
-							</Title>
-							<RadioButtonType>RadioButtons</RadioButtonType>
-							<ChoiceList>
-								<xr:Item>
-									<xr:Presentation/>
-									<xr:CheckState>0</xr:CheckState>
-									<xr:Value xsi:type="FormChoiceListDesTimeValue">
-										<Presentation>
-											<v8:item>
-												<v8:lang>ru</v8:lang>
-												<v8:content>JSON</v8:content>
-											</v8:item>
-										</Presentation>
-										<Value xsi:type="xs:decimal">0</Value>
-									</xr:Value>
-								</xr:Item>
-								<xr:Item>
-									<xr:Presentation/>
-									<xr:CheckState>0</xr:CheckState>
-									<xr:Value xsi:type="FormChoiceListDesTimeValue">
-										<Presentation>
-											<v8:item>
-												<v8:lang>ru</v8:lang>
-												<v8:content>TOON</v8:content>
-											</v8:item>
-										</Presentation>
-										<Value xsi:type="xs:decimal">1</Value>
-									</xr:Value>
-								</xr:Item>
-							</ChoiceList>
-							<ContextMenu name="ПолеФорматОтветаВстроенныйКонтекстноеМеню" id="51"/>
-							<ExtendedTooltip name="ПолеФорматОтветаВстроенныйРасширеннаяПодсказка" id="52"/>
-							<Events>
-								<Event name="ПриИзменении">ФорматОтветаВстроенныйПриИзменении</Event>
-							</Events>
-						</RadioButtonField>
-						<CheckBoxField name="ФлагРазрешатьОпасныеОперацииСПодтверждением" id="53">
-							<DataPath>РазрешатьОпасныеОперацииСПодтверждением</DataPath>
-							<Title>
-								<v8:item>
-									<v8:lang>ru</v8:lang>
-									<v8:content>Разрешать опасные операции с подтверждением</v8:content>
-								</v8:item>
-							</Title>
-							<ExtendedTooltip name="ФлагРазрешатьОпасныеОперацииСПодтверждениемРасширеннаяПодсказка" id="54"/>
-						</CheckBoxField>
-						<UsualGroup name="ГруппаМCPИнструменты" id="124">
-							<Title>
-								<v8:item>
-									<v8:lang>ru</v8:lang>
-									<v8:content>MCP инструменты</v8:content>
-								</v8:item>
-							</Title>
-							<Group>AlwaysHorizontal</Group>
-							<Representation>None</Representation>
-							<Behavior>Collapsible</Behavior>
-							<Collapsed>true</Collapsed>
-							<ControlRepresentation>Picture</ControlRepresentation>
-							<ExtendedTooltip name="ГруппаМCPИнструментыРасширеннаяПодсказка" id="125"/>
-							<ChildItems>
-								<UsualGroup name="ГруппаИнструменты1" id="126">
+								<UsualGroup name="ГруппаПодключениеИСтатус" id="226">
 									<Group>Vertical</Group>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="ГруппаИнструменты1РасширеннаяПодсказка" id="127"/>
+									<ExtendedTooltip name="ГруппаПодключениеИСтатусРасширеннаяПодсказка" id="227"/>
 									<ChildItems>
-										<CheckBoxField name="ПолеИнструментExecuteQuery" id="128">
-											<DataPath>ИнструментВключен_ExecuteQuery</DataPath>
+										<UsualGroup name="ГруппаПодключение" id="1">
 											<Title>
 												<v8:item>
 													<v8:lang>ru</v8:lang>
-													<v8:content>execute_query</v8:content>
+													<v8:content>Подключение к серверу</v8:content>
 												</v8:item>
 											</Title>
-											<ToolTipRepresentation>Button</ToolTipRepresentation>
-											<CheckBoxType>Switcher</CheckBoxType>
-											<ExtendedTooltip name="ПолеИнструментExecuteQueryРасширеннаяПодсказка" id="129"/>
-											<Events>
-												<Event name="ПриИзменении">ИнструментПриИзменении</Event>
-											</Events>
-										</CheckBoxField>
-										<CheckBoxField name="ПолеИнструментGetEventLog" id="136">
-											<DataPath>ИнструментВключен_GetEventLog</DataPath>
-											<Title>
-												<v8:item>
-													<v8:lang>ru</v8:lang>
-													<v8:content>get_event_log</v8:content>
-												</v8:item>
-											</Title>
-											<ToolTipRepresentation>Button</ToolTipRepresentation>
-											<CheckBoxType>Switcher</CheckBoxType>
-											<ExtendedTooltip name="ПолеИнструментGetEventLogРасширеннаяПодсказка" id="137"/>
-											<Events>
-												<Event name="ПриИзменении">ИнструментПриИзменении</Event>
-											</Events>
-										</CheckBoxField>
-										<CheckBoxField name="ПолеИнструментFindReferences" id="144">
-											<DataPath>ИнструментВключен_FindReferences</DataPath>
-											<Title>
-												<v8:item>
-													<v8:lang>ru</v8:lang>
-													<v8:content>find_references_to_object</v8:content>
-												</v8:item>
-											</Title>
-											<ToolTipRepresentation>Button</ToolTipRepresentation>
-											<CheckBoxType>Switcher</CheckBoxType>
-											<ExtendedTooltip name="ПолеИнструментFindReferencesРасширеннаяПодсказка" id="145"/>
-											<Events>
-												<Event name="ПриИзменении">ИнструментПриИзменении</Event>
-											</Events>
-										</CheckBoxField>
-										<CheckBoxField name="ПолеИнструментSubmitDeanon" id="152">
-											<DataPath>ИнструментВключен_SubmitDeanon</DataPath>
-											<Title>
-												<v8:item>
-													<v8:lang>ru</v8:lang>
-													<v8:content>submit_for_deanonymization</v8:content>
-												</v8:item>
-											</Title>
-											<ToolTipRepresentation>Button</ToolTipRepresentation>
-											<CheckBoxType>Switcher</CheckBoxType>
-											<ExtendedTooltip name="ПолеИнструментSubmitDeanonРасширеннаяПодсказка" id="153"/>
-											<Events>
-												<Event name="ПриИзменении">ИнструментПриИзменении</Event>
-											</Events>
-										</CheckBoxField>
-										<CheckBoxField name="ПолеИнструментGetScreenshot" id="158">
-											<DataPath>ИнструментВключен_GetScreenshot</DataPath>
-											<Title>
-												<v8:item>
-													<v8:lang>ru</v8:lang>
-													<v8:content>get_screenshot</v8:content>
-												</v8:item>
-											</Title>
-											<ToolTipRepresentation>Button</ToolTipRepresentation>
-											<CheckBoxType>Switcher</CheckBoxType>
-											<ExtendedTooltip name="ПолеИнструментGetScreenshotРасширеннаяПодсказка" id="159"/>
-											<Events>
-												<Event name="ПриИзменении">ИнструментПриИзменении</Event>
-											</Events>
-										</CheckBoxField>
+											<Group>Vertical</Group>
+											<Representation>NormalSeparation</Representation>
+											<ExtendedTooltip name="ГруппаПодключениеРасширеннаяПодсказка" id="2"/>
+											<ChildItems>
+												<LabelDecoration name="ПустаяНадпись" id="21">
+													<Title>
+														<v8:item>
+															<v8:lang>ru</v8:lang>
+															<v8:content> </v8:content>
+														</v8:item>
+													</Title>
+													<ContextMenu name="ПустаяНадписьКонтекстноеМеню" id="22"/>
+													<ExtendedTooltip name="ПустаяНадписьРасширеннаяПодсказка" id="23"/>
+												</LabelDecoration>
+												<UsualGroup name="ГруппаРежимПодключения" id="39">
+													<Title>
+														<v8:item>
+															<v8:lang>ru</v8:lang>
+															<v8:content>Режим подключения</v8:content>
+														</v8:item>
+													</Title>
+													<Group>AlwaysHorizontal</Group>
+													<Representation>None</Representation>
+													<ExtendedTooltip name="ГруппаРежимПодключенияРасширеннаяПодсказка" id="40"/>
+													<ChildItems>
+														<RadioButtonField name="ПолеРежимПодключения" id="41">
+															<DataPath>РежимПодключения</DataPath>
+															<TitleLocation>None</TitleLocation>
+															<RadioButtonType>RadioButtons</RadioButtonType>
+															<ChoiceList>
+																<xr:Item>
+																	<xr:Presentation/>
+																	<xr:CheckState>0</xr:CheckState>
+																	<xr:Value xsi:type="FormChoiceListDesTimeValue">
+																		<Presentation>
+																			<v8:item>
+																				<v8:lang>ru</v8:lang>
+																				<v8:content>Прокси</v8:content>
+																			</v8:item>
+																		</Presentation>
+																		<Value xsi:type="xs:decimal">0</Value>
+																	</xr:Value>
+																</xr:Item>
+																<xr:Item>
+																	<xr:Presentation/>
+																	<xr:CheckState>0</xr:CheckState>
+																	<xr:Value xsi:type="FormChoiceListDesTimeValue">
+																		<Presentation>
+																			<v8:item>
+																				<v8:lang>ru</v8:lang>
+																				<v8:content>Встроенный сервер</v8:content>
+																			</v8:item>
+																		</Presentation>
+																		<Value xsi:type="xs:decimal">1</Value>
+																	</xr:Value>
+																</xr:Item>
+															</ChoiceList>
+															<ContextMenu name="ПолеРежимПодключенияКонтекстноеМеню" id="43"/>
+															<ExtendedTooltip name="ПолеРежимПодключенияРасширеннаяПодсказка" id="42"/>
+															<Events>
+																<Event name="ПриИзменении">ПриИзмененииРежимаПодключения</Event>
+															</Events>
+														</RadioButtonField>
+													</ChildItems>
+												</UsualGroup>
+												<UsualGroup name="ГруппаПроксиНастройки" id="44">
+													<Group>Vertical</Group>
+													<Representation>None</Representation>
+													<ExtendedTooltip name="ГруппаПроксиНастройкиРасширеннаяПодсказка" id="45"/>
+													<ChildItems>
+														<InputField name="АдресСервераПоле" id="3">
+															<DataPath>АдресСервера</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>ru</v8:lang>
+																	<v8:content>Адрес сервера</v8:content>
+																</v8:item>
+															</Title>
+															<Width>50</Width>
+															<ExtendedTooltip name="АдресСервераПолеРасширеннаяПодсказка" id="4"/>
+														</InputField>
+														<UsualGroup name="ГруппаКанал" id="32">
+															<Title>
+																<v8:item>
+																	<v8:lang>ru</v8:lang>
+																	<v8:content>Идентификатор канала</v8:content>
+																</v8:item>
+															</Title>
+															<Group>AlwaysHorizontal</Group>
+															<Representation>None</Representation>
+															<ExtendedTooltip name="ГруппаКаналРасширеннаяПодсказка" id="33"/>
+															<ChildItems>
+																<InputField name="ИдентификаторКаналаПоле" id="34">
+																	<DataPath>ИдентификаторКанала</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>ru</v8:lang>
+																			<v8:content>Channel ID</v8:content>
+																		</v8:item>
+																	</Title>
+																	<Width>40</Width>
+																	<ExtendedTooltip name="ИдентификаторКаналаПолеРасширеннаяПодсказка" id="35">
+																		<Title>
+																			<v8:item>
+																				<v8:lang>ru</v8:lang>
+																				<v8:content>Идентификатор канала для изоляции команд между разными клиентами</v8:content>
+																			</v8:item>
+																		</Title>
+																	</ExtendedTooltip>
+																	<ContextMenu name="ИдентификаторКаналаПолеКонтекстноеМеню" id="36"/>
+																	<Events>
+																		<Event name="ПриИзменении">ИдентификаторКаналаПриИзменении</Event>
+																	</Events>
+																</InputField>
+																<Button name="КнопкаСгенерироватьКанал" id="37">
+																	<Type>UsualButton</Type>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>ru</v8:lang>
+																			<v8:content>Сгенерировать</v8:content>
+																		</v8:item>
+																	</Title>
+																	<CommandName>Form.Command.СгенерироватьИдентификаторКанала</CommandName>
+																	<ExtendedTooltip name="КнопкаСгенерироватьКаналРасширеннаяПодсказка" id="38"/>
+																</Button>
+															</ChildItems>
+														</UsualGroup>
+													</ChildItems>
+												</UsualGroup>
+												<UsualGroup name="ГруппаВстроенныйСервер" id="46">
+													<Title>
+														<v8:item>
+															<v8:lang>ru</v8:lang>
+															<v8:content> </v8:content>
+														</v8:item>
+													</Title>
+													<Group>Vertical</Group>
+													<Representation>None</Representation>
+													<Visible>false</Visible>
+													<ExtendedTooltip name="ГруппаВстроенныйСерверРасширеннаяПодсказка" id="47"/>
+													<ChildItems>
+														<UsualGroup name="ГруппаАдресПорт" id="194">
+															<Title>
+																<v8:item>
+																	<v8:lang>ru</v8:lang>
+																	<v8:content> </v8:content>
+																</v8:item>
+															</Title>
+															<Group>Horizontal</Group>
+															<Representation>None</Representation>
+															<ShowTitle>false</ShowTitle>
+															<ExtendedTooltip name="ГруппаАдресПортРасширеннаяПодсказка" id="196"/>
+															<ChildItems>
+																<InputField name="ПолеАдресВстроенногоСервера" id="195">
+																	<DataPath>АдресВстроенногоСервераОтображение</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>ru</v8:lang>
+																			<v8:content>Адрес внутреннего сервера</v8:content>
+																		</v8:item>
+																	</Title>
+																	<ListChoiceMode>true</ListChoiceMode>
+																	<DropListButton>true</DropListButton>
+																	<Width>18</Width>
+																	<AutoMaxWidth>false</AutoMaxWidth>
+																	<MaxWidth>18</MaxWidth>
+																	<ExtendedTooltip name="ПолеАдресВстроенногоСервераРасширеннаяПодсказка" id="198"/>
+																	<Events>
+																		<Event name="ПриИзменении">АдресВстроенногоСервераПриИзменении</Event>
+																	</Events>
+																</InputField>
+																<InputField name="ПортВстроенногоСервераПоле" id="48">
+																	<DataPath>ПортВстроенногоСервера</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>ru</v8:lang>
+																			<v8:content> </v8:content>
+																		</v8:item>
+																	</Title>
+																	<EditFormat>
+																		<v8:item>
+																			<v8:lang>ru</v8:lang>
+																			<v8:content>ЧГ=</v8:content>
+																		</v8:item>
+																	</EditFormat>
+																	<Width>5</Width>
+																	<ExtendedTooltip name="ПортВстроенногоСервераПолеРасширеннаяПодсказка" id="49"/>
+																</InputField>
+																<Button name="КнопкаОбновитьАдреса" id="197">
+																	<Type>UsualButton</Type>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>ru</v8:lang>
+																			<v8:content>Обновить</v8:content>
+																		</v8:item>
+																	</Title>
+																	<ToolTip>
+																		<v8:item>
+																			<v8:lang>ru</v8:lang>
+																			<v8:content>Обновить список IP-адресов</v8:content>
+																		</v8:item>
+																	</ToolTip>
+																	<CommandName>Form.Command.КомандаОбновитьАдреса</CommandName>
+																	<ExtendedTooltip name="КнопкаОбновитьАдресаРасширеннаяПодсказка" id="201"/>
+																</Button>
+															</ChildItems>
+														</UsualGroup>
+														<UsualGroup name="ГруппаТокен" id="204">
+															<Group>AlwaysHorizontal</Group>
+															<Representation>None</Representation>
+															<ShowTitle>false</ShowTitle>
+															<ExtendedTooltip name="ГруппаТокенРасширеннаяПодсказка" id="208"/>
+															<ChildItems>
+																<InputField name="ПолеТокенВстроенногоСервера" id="205">
+																	<DataPath>ТокенВстроенногоСервера</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>ru</v8:lang>
+																			<v8:content>Токен доступа</v8:content>
+																		</v8:item>
+																	</Title>
+																	<Width>29</Width>
+																	<AutoMaxWidth>false</AutoMaxWidth>
+																	<MaxWidth>29</MaxWidth>
+																	<ExtendedTooltip name="ПолеТокенВстроенногоСервераРасширеннаяПодсказка" id="206">
+																		<Title>
+																			<v8:item>
+																				<v8:lang>ru</v8:lang>
+																				<v8:content>Если задан — входящие запросы требуют Authorization: Bearer &lt;token&gt;. Пусто = без аутентификации</v8:content>
+																			</v8:item>
+																		</Title>
+																	</ExtendedTooltip>
+																	<Events>
+																		<Event name="ПриИзменении">ТокенВстроенногоСервераПриИзменении</Event>
+																	</Events>
+																</InputField>
+																<Button name="КнопкаСгенерироватьТокен" id="207">
+																	<Type>UsualButton</Type>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>ru</v8:lang>
+																			<v8:content>Сгенерировать</v8:content>
+																		</v8:item>
+																	</Title>
+																	<CommandName>Form.Command.СгенерироватьТокенВстроенногоСервера</CommandName>
+																	<ExtendedTooltip name="КнопкаСгенерироватьТокенРасширеннаяПодсказка" id="209"/>
+																</Button>
+															</ChildItems>
+														</UsualGroup>
+														<RadioButtonField name="ПолеФорматОтветаВстроенный" id="50">
+															<DataPath>ФорматОтветаВстроенный</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>ru</v8:lang>
+																	<v8:content>Формат ответов</v8:content>
+																</v8:item>
+															</Title>
+															<RadioButtonType>RadioButtons</RadioButtonType>
+															<ChoiceList>
+																<xr:Item>
+																	<xr:Presentation/>
+																	<xr:CheckState>0</xr:CheckState>
+																	<xr:Value xsi:type="FormChoiceListDesTimeValue">
+																		<Presentation>
+																			<v8:item>
+																				<v8:lang>ru</v8:lang>
+																				<v8:content>JSON</v8:content>
+																			</v8:item>
+																		</Presentation>
+																		<Value xsi:type="xs:decimal">0</Value>
+																	</xr:Value>
+																</xr:Item>
+																<xr:Item>
+																	<xr:Presentation/>
+																	<xr:CheckState>0</xr:CheckState>
+																	<xr:Value xsi:type="FormChoiceListDesTimeValue">
+																		<Presentation>
+																			<v8:item>
+																				<v8:lang>ru</v8:lang>
+																				<v8:content>TOON</v8:content>
+																			</v8:item>
+																		</Presentation>
+																		<Value xsi:type="xs:decimal">1</Value>
+																	</xr:Value>
+																</xr:Item>
+															</ChoiceList>
+															<ContextMenu name="ПолеФорматОтветаВстроенныйКонтекстноеМеню" id="51"/>
+															<ExtendedTooltip name="ПолеФорматОтветаВстроенныйРасширеннаяПодсказка" id="52"/>
+															<Events>
+																<Event name="ПриИзменении">ФорматОтветаВстроенныйПриИзменении</Event>
+															</Events>
+														</RadioButtonField>
+														<CheckBoxField name="ФлагРазрешатьОпасныеОперацииСПодтверждением" id="53">
+															<DataPath>РазрешатьОпасныеОперацииСПодтверждением</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>ru</v8:lang>
+																	<v8:content>Разрешать опасные операции с подтверждением</v8:content>
+																</v8:item>
+															</Title>
+															<ExtendedTooltip name="ФлагРазрешатьОпасныеОперацииСПодтверждениемРасширеннаяПодсказка" id="54"/>
+														</CheckBoxField>
+														<UsualGroup name="ГруппаМCPИнструменты" id="124">
+															<Title>
+																<v8:item>
+																	<v8:lang>ru</v8:lang>
+																	<v8:content>MCP инструменты</v8:content>
+																</v8:item>
+															</Title>
+															<Group>AlwaysHorizontal</Group>
+															<Representation>None</Representation>
+															<Behavior>Collapsible</Behavior>
+															<Collapsed>true</Collapsed>
+															<ControlRepresentation>Picture</ControlRepresentation>
+															<ExtendedTooltip name="ГруппаМCPИнструментыРасширеннаяПодсказка" id="125"/>
+															<ChildItems>
+																<UsualGroup name="ГруппаИнструменты1" id="126">
+																	<Group>Vertical</Group>
+																	<Representation>None</Representation>
+																	<ShowTitle>false</ShowTitle>
+																	<ExtendedTooltip name="ГруппаИнструменты1РасширеннаяПодсказка" id="127"/>
+																	<ChildItems>
+																		<CheckBoxField name="ПолеИнструментExecuteQuery" id="128">
+																			<DataPath>ИнструментВключен_ExecuteQuery</DataPath>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>ru</v8:lang>
+																					<v8:content>execute_query</v8:content>
+																				</v8:item>
+																			</Title>
+																			<ToolTipRepresentation>Button</ToolTipRepresentation>
+																			<CheckBoxType>Switcher</CheckBoxType>
+																			<ExtendedTooltip name="ПолеИнструментExecuteQueryРасширеннаяПодсказка" id="129"/>
+																			<Events>
+																				<Event name="ПриИзменении">ИнструментПриИзменении</Event>
+																			</Events>
+																		</CheckBoxField>
+																		<CheckBoxField name="ПолеИнструментGetEventLog" id="136">
+																			<DataPath>ИнструментВключен_GetEventLog</DataPath>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>ru</v8:lang>
+																					<v8:content>get_event_log</v8:content>
+																				</v8:item>
+																			</Title>
+																			<ToolTipRepresentation>Button</ToolTipRepresentation>
+																			<CheckBoxType>Switcher</CheckBoxType>
+																			<ExtendedTooltip name="ПолеИнструментGetEventLogРасширеннаяПодсказка" id="137"/>
+																			<Events>
+																				<Event name="ПриИзменении">ИнструментПриИзменении</Event>
+																			</Events>
+																		</CheckBoxField>
+																		<CheckBoxField name="ПолеИнструментFindReferences" id="144">
+																			<DataPath>ИнструментВключен_FindReferences</DataPath>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>ru</v8:lang>
+																					<v8:content>find_references_to_object</v8:content>
+																				</v8:item>
+																			</Title>
+																			<ToolTipRepresentation>Button</ToolTipRepresentation>
+																			<CheckBoxType>Switcher</CheckBoxType>
+																			<ExtendedTooltip name="ПолеИнструментFindReferencesРасширеннаяПодсказка" id="145"/>
+																			<Events>
+																				<Event name="ПриИзменении">ИнструментПриИзменении</Event>
+																			</Events>
+																		</CheckBoxField>
+																		<CheckBoxField name="ПолеИнструментSubmitDeanon" id="152">
+																			<DataPath>ИнструментВключен_SubmitDeanon</DataPath>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>ru</v8:lang>
+																					<v8:content>submit_for_deanonymization</v8:content>
+																				</v8:item>
+																			</Title>
+																			<ToolTipRepresentation>Button</ToolTipRepresentation>
+																			<CheckBoxType>Switcher</CheckBoxType>
+																			<ExtendedTooltip name="ПолеИнструментSubmitDeanonРасширеннаяПодсказка" id="153"/>
+																			<Events>
+																				<Event name="ПриИзменении">ИнструментПриИзменении</Event>
+																			</Events>
+																		</CheckBoxField>
+																		<CheckBoxField name="ПолеИнструментGetScreenshot" id="158">
+																			<DataPath>ИнструментВключен_GetScreenshot</DataPath>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>ru</v8:lang>
+																					<v8:content>get_screenshot</v8:content>
+																				</v8:item>
+																			</Title>
+																			<ToolTipRepresentation>Button</ToolTipRepresentation>
+																			<CheckBoxType>Switcher</CheckBoxType>
+																			<ExtendedTooltip name="ПолеИнструментGetScreenshotРасширеннаяПодсказка" id="159"/>
+																			<Events>
+																				<Event name="ПриИзменении">ИнструментПриИзменении</Event>
+																			</Events>
+																		</CheckBoxField>
+																	</ChildItems>
+																</UsualGroup>
+																<UsualGroup name="ГруппаИнструменты2" id="134">
+																	<Group>Vertical</Group>
+																	<Representation>None</Representation>
+																	<ShowTitle>false</ShowTitle>
+																	<ExtendedTooltip name="ГруппаИнструменты2РасширеннаяПодсказка" id="135"/>
+																	<ChildItems>
+																		<CheckBoxField name="ПолеИнструментExecuteCode" id="130">
+																			<DataPath>ИнструментВключен_ExecuteCode</DataPath>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>ru</v8:lang>
+																					<v8:content>execute_code</v8:content>
+																				</v8:item>
+																			</Title>
+																			<ToolTipRepresentation>Button</ToolTipRepresentation>
+																			<CheckBoxType>Switcher</CheckBoxType>
+																			<ExtendedTooltip name="ПолеИнструментExecuteCodeРасширеннаяПодсказка" id="131"/>
+																			<Events>
+																				<Event name="ПриИзменении">ИнструментПриИзменении</Event>
+																			</Events>
+																		</CheckBoxField>
+																		<CheckBoxField name="ПолеИнструментGetObjectByLink" id="138">
+																			<DataPath>ИнструментВключен_GetObjectByLink</DataPath>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>ru</v8:lang>
+																					<v8:content>get_object_by_link</v8:content>
+																				</v8:item>
+																			</Title>
+																			<ToolTipRepresentation>Button</ToolTipRepresentation>
+																			<CheckBoxType>Switcher</CheckBoxType>
+																			<ExtendedTooltip name="ПолеИнструментGetObjectByLinkРасширеннаяПодсказка" id="139"/>
+																			<Events>
+																				<Event name="ПриИзменении">ИнструментПриИзменении</Event>
+																			</Events>
+																		</CheckBoxField>
+																		<CheckBoxField name="ПолеИнструментGetAccessRights" id="146">
+																			<DataPath>ИнструментВключен_GetAccessRights</DataPath>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>ru</v8:lang>
+																					<v8:content>get_access_rights</v8:content>
+																				</v8:item>
+																			</Title>
+																			<ToolTipRepresentation>Button</ToolTipRepresentation>
+																			<CheckBoxType>Switcher</CheckBoxType>
+																			<ExtendedTooltip name="ПолеИнструментGetAccessRightsРасширеннаяПодсказка" id="147"/>
+																			<Events>
+																				<Event name="ПриИзменении">ИнструментПриИзменении</Event>
+																			</Events>
+																		</CheckBoxField>
+																		<CheckBoxField name="ПолеИнструментRestart1cSession" id="170">
+																			<DataPath>ИнструментВключен_Restart1cSession</DataPath>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>ru</v8:lang>
+																					<v8:content>restart_1c_session</v8:content>
+																				</v8:item>
+																			</Title>
+																			<ToolTipRepresentation>Button</ToolTipRepresentation>
+																			<CheckBoxType>Switcher</CheckBoxType>
+																			<ExtendedTooltip name="ПолеИнструментRestart1cSessionРасширеннаяПодсказка" id="171"/>
+																			<Events>
+																				<Event name="ПриИзменении">ИнструментПриИзменении</Event>
+																			</Events>
+																		</CheckBoxField>
+																	</ChildItems>
+																</UsualGroup>
+																<UsualGroup name="ГруппаИнструменты3" id="142">
+																	<Group>Vertical</Group>
+																	<Representation>None</Representation>
+																	<ShowTitle>false</ShowTitle>
+																	<ExtendedTooltip name="ГруппаИнструменты3РасширеннаяПодсказка" id="143"/>
+																	<ChildItems>
+																		<CheckBoxField name="ПолеИнструментGetMetadata" id="132">
+																			<DataPath>ИнструментВключен_GetMetadata</DataPath>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>ru</v8:lang>
+																					<v8:content>get_metadata</v8:content>
+																				</v8:item>
+																			</Title>
+																			<ToolTipRepresentation>Button</ToolTipRepresentation>
+																			<CheckBoxType>Switcher</CheckBoxType>
+																			<ExtendedTooltip name="ПолеИнструментGetMetadataРасширеннаяПодсказка" id="133"/>
+																			<Events>
+																				<Event name="ПриИзменении">ИнструментПриИзменении</Event>
+																			</Events>
+																		</CheckBoxField>
+																		<CheckBoxField name="ПолеИнструментGetLinkOfObject" id="140">
+																			<DataPath>ИнструментВключен_GetLinkOfObject</DataPath>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>ru</v8:lang>
+																					<v8:content>get_link_of_object</v8:content>
+																				</v8:item>
+																			</Title>
+																			<ToolTipRepresentation>Button</ToolTipRepresentation>
+																			<CheckBoxType>Switcher</CheckBoxType>
+																			<ExtendedTooltip name="ПолеИнструментGetLinkOfObjectРасширеннаяПодсказка" id="141"/>
+																			<Events>
+																				<Event name="ПриИзменении">ИнструментПриИзменении</Event>
+																			</Events>
+																		</CheckBoxField>
+																		<CheckBoxField name="ПолеИнструментGetBslSyntaxHelp" id="148">
+																			<DataPath>ИнструментВключен_GetBslSyntaxHelp</DataPath>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>ru</v8:lang>
+																					<v8:content>get_bsl_syntax_help</v8:content>
+																				</v8:item>
+																			</Title>
+																			<ToolTipRepresentation>Button</ToolTipRepresentation>
+																			<CheckBoxType>Switcher</CheckBoxType>
+																			<ExtendedTooltip name="ПолеИнструментGetBslSyntaxHelpРасширеннаяПодсказка" id="149"/>
+																			<Events>
+																				<Event name="ПриИзменении">ИнструментПриИзменении</Event>
+																			</Events>
+																		</CheckBoxField>
+																		<CheckBoxField name="ПолеИнструментClose1cSession" id="172">
+																			<DataPath>ИнструментВключен_Close1cSession</DataPath>
+																			<Title>
+																				<v8:item>
+																					<v8:lang>ru</v8:lang>
+																					<v8:content>close_1c_session</v8:content>
+																				</v8:item>
+																			</Title>
+																			<ToolTipRepresentation>Button</ToolTipRepresentation>
+																			<CheckBoxType>Switcher</CheckBoxType>
+																			<ExtendedTooltip name="ПолеИнструментClose1cSessionРасширеннаяПодсказка" id="173"/>
+																			<Events>
+																				<Event name="ПриИзменении">ИнструментПриИзменении</Event>
+																			</Events>
+																		</CheckBoxField>
+																	</ChildItems>
+																</UsualGroup>
+															</ChildItems>
+														</UsualGroup>
+													</ChildItems>
+												</UsualGroup>
+												<UsualGroup name="ГруппаНастройкиПерезапуска" id="163">
+													<Title>
+														<v8:item>
+															<v8:lang>ru</v8:lang>
+															<v8:content>Параметры перезапуска сессии</v8:content>
+														</v8:item>
+													</Title>
+													<Group>Vertical</Group>
+													<Representation>None</Representation>
+													<ExtendedTooltip name="ГруппаНастройкиПерезапускаРасширеннаяПодсказка" id="164"/>
+													<ChildItems>
+														<UsualGroup name="ГруппаКонтроляСервера" id="222">
+															<ShowTitle>false</ShowTitle>
+															<Group>AlwaysHorizontal</Group>
+															<Representation>None</Representation>
+															<ExtendedTooltip name="ГруппаКонтроляСервераРасширеннаяПодсказка" id="223"/>
+															<ChildItems>
+																<CheckBoxField name="ПолеКонтролироватьСервер" id="210">
+																	<DataPath>КонтролироватьСервер</DataPath>
+																	<Title><v8:item><v8:lang>ru</v8:lang><v8:content>Проверять доступность серверной части</v8:content></v8:item></Title>
+																	<ExtendedTooltip name="ПолеКонтролироватьСерверПодсказка" id="211">
+																		<Title><v8:item><v8:lang>ru</v8:lang><v8:content>Обнаруживает потерю серверной части обработки, из-за которой инструменты MCP перестают работать. Автоперезапуск включается отдельно.</v8:content></v8:item></Title>
+																	</ExtendedTooltip>
+																	<Events><Event name="ПриИзменении">НастройкиКонтроляСервераПриИзменении</Event></Events>
+																</CheckBoxField>
+																<InputField name="ПолеИнтервалКонтроляСервера" id="212">
+																	<DataPath>ИнтервалКонтроляСервера</DataPath>
+																	<Title><v8:item><v8:lang>ru</v8:lang><v8:content>      Интервал проверки, с (15–3600)</v8:content></v8:item></Title>
+																	<HorizontalStretch>false</HorizontalStretch>
+																	<ExtendedTooltip name="ПолеИнтервалКонтроляСервераПодсказка" id="213"/>
+																	<Events><Event name="ПриИзменении">НастройкиКонтроляСервераПриИзменении</Event></Events>
+																</InputField>
+															</ChildItems>
+														</UsualGroup>
+														<CheckBoxField name="ПолеАвтоПерезапускПриПотереКонтекста" id="214">
+															<DataPath>АвтоПерезапускПриПотереКонтекста</DataPath>
+															<Title><v8:item><v8:lang>ru</v8:lang><v8:content>Перезапускать сеанс клиента 1С при потере серверной части</v8:content></v8:item></Title>
+															<ExtendedTooltip name="ПолеАвтоПерезапускПриПотереКонтекстаПодсказка" id="215">
+																<Title><v8:item><v8:lang>ru</v8:lang><v8:content>Будут закрыты все открытые формы текущего сеанса</v8:content></v8:item></Title>
+															</ExtendedTooltip>
+															<Events><Event name="ПриИзменении">НастройкиКонтроляСервераПриИзменении</Event></Events>
+														</CheckBoxField>
+														<InputField name="ПолеСтатусКонтроляСервера" id="216">
+															<DataPath>СтатусКонтроляСервера</DataPath>
+															<Title><v8:item><v8:lang>ru</v8:lang><v8:content>Статус серверной части</v8:content></v8:item></Title>
+															<ReadOnly>true</ReadOnly>
+															<ExtendedTooltip name="ПолеСтатусКонтроляСервераПодсказка" id="217"/>
+														</InputField>
+														<UsualGroup name="ГруппаАутентификацииПерезапуска" id="176">
+															<ShowTitle>false</ShowTitle>
+															<Group>AlwaysHorizontal</Group>
+															<Representation>None</Representation>
+															<ExtendedTooltip name="ГруппаАутентификацииПерезапускаРасширеннаяПодсказка" id="177"/>
+															<ChildItems>
+																<RadioButtonField name="РежимАутентификацииПерезапуска" id="165">
+																	<DataPath>РежимАутентификацииПерезапуска</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>ru</v8:lang>
+																			<v8:content>Аутентификация при перезапуске</v8:content>
+																		</v8:item>
+																	</Title>
+																	<RadioButtonType>RadioButtons</RadioButtonType>
+																	<ChoiceList>
+																		<xr:Item>
+																			<xr:Presentation/>
+																			<xr:CheckState>0</xr:CheckState>
+																			<xr:Value xsi:type="FormChoiceListDesTimeValue">
+																				<Presentation>
+																					<v8:item>
+																						<v8:lang>ru</v8:lang>
+																						<v8:content>Windows</v8:content>
+																					</v8:item>
+																				</Presentation>
+																				<Value xsi:type="xs:decimal">0</Value>
+																			</xr:Value>
+																		</xr:Item>
+																		<xr:Item>
+																			<xr:Presentation/>
+																			<xr:CheckState>0</xr:CheckState>
+																			<xr:Value xsi:type="FormChoiceListDesTimeValue">
+																				<Presentation>
+																					<v8:item>
+																						<v8:lang>ru</v8:lang>
+																						<v8:content>Пароль</v8:content>
+																					</v8:item>
+																				</Presentation>
+																				<Value xsi:type="xs:decimal">1</Value>
+																			</xr:Value>
+																		</xr:Item>
+																	</ChoiceList>
+																	<ContextMenu name="РежимАутентификацииПерезапускаКонтекстноеМеню" id="166"/>
+																	<ExtendedTooltip name="РежимАутентификацииПерезапускаРасширеннаяПодсказка" id="167"/>
+																	<Events>
+																		<Event name="ПриИзменении">РежимАутентификацииПерезапускаПриИзменении</Event>
+																	</Events>
+																</RadioButtonField>
+																<InputField name="ПарольПерезапуска" id="168">
+																	<DataPath>ПарольПерезапуска</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>ru</v8:lang>
+																			<v8:content>Пароль</v8:content>
+																		</v8:item>
+																	</Title>
+																	<TitleLocation>None</TitleLocation>
+																	<HorizontalStretch>false</HorizontalStretch>
+																	<OpenButton>true</OpenButton>
+																	<PasswordMode>true</PasswordMode>
+																	<ExtendedTooltip name="ПарольПерезапускаРасширеннаяПодсказка" id="169">
+																		<Title>
+																			<v8:item>
+																				<v8:lang>ru</v8:lang>
+																				<v8:content>Пароль текущего пользователя</v8:content>
+																			</v8:item>
+																		</Title>
+																	</ExtendedTooltip>
+																	<Events>
+																		<Event name="Opening">ПарольПерезапускаОткрытиеЗначения</Event>
+																	</Events>
+																</InputField>
+															</ChildItems>
+														</UsualGroup>
+														<UsualGroup name="ГруппаДопКлючаПерезапуска" id="178">
+															<ShowTitle>false</ShowTitle>
+															<Group>AlwaysHorizontal</Group>
+															<Representation>None</Representation>
+															<ExtendedTooltip name="ГруппаДопКлючаПерезапускаРасширеннаяПодсказка" id="179"/>
+															<ChildItems>
+																<InputField name="ПользовательскийКлючШифрования" id="180">
+																	<DataPath>ПользовательскийКлючШифрования</DataPath>
+																	<Width>21</Width>
+																	<HorizontalStretch>false</HorizontalStretch>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>ru</v8:lang>
+																			<v8:content>Доп. ключ шифрования</v8:content>
+																		</v8:item>
+																	</Title>
+																	<ExtendedTooltip name="ПользовательскийКлючШифрованияРасширеннаяПодсказка" id="181">
+																		<Title>
+																			<v8:item>
+																				<v8:lang>ru</v8:lang>
+																				<v8:content>Дополнительный ключ шифрования пароля, передаваемого между старой и новой сессией при перезапуске. Добавляется к базовому ключу — чем сложнее ключ, тем надёжнее защита пароля в файле параметров запуска.</v8:content>
+																			</v8:item>
+																		</Title>
+																	</ExtendedTooltip>
+																	<Events>
+																		<Event name="ПриИзменении">ПользовательскийКлючШифрованияПриИзменении</Event>
+																	</Events>
+																</InputField>
+																<Button name="КнопкаСгенерироватьКлюч" id="183">
+																	<Type>UsualButton</Type>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>ru</v8:lang>
+																			<v8:content>Сгенерировать</v8:content>
+																		</v8:item>
+																	</Title>
+																	<CommandName>Form.Command.СгенерироватьПользовательскийКлюч</CommandName>
+																	<ExtendedTooltip name="КнопкаСгенерироватьКлючРасширеннаяПодсказка" id="184"/>
+																</Button>
+															</ChildItems>
+														</UsualGroup>
+													</ChildItems>
+												</UsualGroup>
+												<UsualGroup name="ГруппаАвтоРазрешение" id="24">
+													<Title>
+														<v8:item>
+															<v8:lang>ru</v8:lang>
+															<v8:content>Автоматически разрешать операции</v8:content>
+														</v8:item>
+													</Title>
+													<Group>Vertical</Group>
+													<Representation>None</Representation>
+													<ExtendedTooltip name="ГруппаАвтоРазрешениеРасширеннаяПодсказка" id="25"/>
+													<ChildItems>
+														<CheckBoxField name="ФлагАвтоЗаписать" id="26">
+															<DataPath>АвтоРазрешитьЗаписать</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>ru</v8:lang>
+																	<v8:content>Записать</v8:content>
+																</v8:item>
+															</Title>
+															<ExtendedTooltip name="ФлагАвтоЗаписатьРасширеннаяПодсказка" id="27"/>
+														</CheckBoxField>
+														<CheckBoxField name="ФлагАвтоПривилегированныйРежим" id="28">
+															<DataPath>АвтоРазрешитьПривилегированныйРежим</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>ru</v8:lang>
+																	<v8:content>УстановитьПривилегированныйРежим</v8:content>
+																</v8:item>
+															</Title>
+															<ExtendedTooltip name="ФлагАвтоПривилегированныйРежимРасширеннаяПодсказка" id="29"/>
+														</CheckBoxField>
+													</ChildItems>
+												</UsualGroup>
+												<UsualGroup name="ГруппаУправлениеПодключением" id="5">
+													<Group>AlwaysHorizontal</Group>
+													<Representation>None</Representation>
+													<ExtendedTooltip name="ГруппаУправлениеПодключениемРасширеннаяПодсказка" id="6"/>
+													<ChildItems>
+														<Button name="КнопкаПодключиться" id="7">
+															<Type>UsualButton</Type>
+															<CommandName>Form.Command.Подключиться</CommandName>
+															<ExtendedTooltip name="КнопкаПодключитьсяРасширеннаяПодсказка" id="8"/>
+														</Button>
+														<Button name="КнопкаОтключиться" id="9">
+															<Type>UsualButton</Type>
+															<CommandName>Form.Command.Отключиться</CommandName>
+															<ExtendedTooltip name="КнопкаОтключитьсяРасширеннаяПодсказка" id="10"/>
+														</Button>
+														<UsualGroup name="ГруппаСтатус" id="11">
+															<Group>Horizontal</Group>
+															<Grouping>Horizontal</Grouping>
+															<Representation>NormalSeparation</Representation>
+															<ShowTitle>false</ShowTitle>
+															<ExtendedTooltip name="ГруппаСтатусРасширеннаяПодсказка" id="12"/>
+															<ChildItems>
+																<Decoration name="ИндикаторПодключения" id="13">
+																	<Type>Label</Type>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>ru</v8:lang>
+																			<v8:content>●</v8:content>
+																		</v8:item>
+																	</Title>
+																	<ExtendedTooltip name="ИндикаторПодключенияРасширеннаяПодсказка" id="14"/>
+																</Decoration>
+																<InputField name="СтатусПоле" id="15">
+																	<DataPath>Статус</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>ru</v8:lang>
+																			<v8:content>Статус</v8:content>
+																		</v8:item>
+																	</Title>
+																	<ReadOnly>true</ReadOnly>
+																	<Width>40</Width>
+																	<ExtendedTooltip name="СтатусПолеРасширеннаяПодсказка" id="16"/>
+																</InputField>
+															</ChildItems>
+														</UsualGroup>
+													</ChildItems>
+												</UsualGroup>
+											</ChildItems>
+										</UsualGroup>
 									</ChildItems>
 								</UsualGroup>
-								<UsualGroup name="ГруппаИнструменты2" id="134">
+								<UsualGroup name="ГруппаЛог" id="17">
+									<Title>
+										<v8:item>
+											<v8:lang>ru</v8:lang>
+											<v8:content>Журнал событий</v8:content>
+										</v8:item>
+									</Title>
 									<Group>Vertical</Group>
-									<Representation>None</Representation>
-									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="ГруппаИнструменты2РасширеннаяПодсказка" id="135"/>
+									<Representation>NormalSeparation</Representation>
+									<ExtendedTooltip name="ГруппаЛогРасширеннаяПодсказка" id="18"/>
 									<ChildItems>
-										<CheckBoxField name="ПолеИнструментExecuteCode" id="130">
-											<DataPath>ИнструментВключен_ExecuteCode</DataPath>
-											<Title>
-												<v8:item>
-													<v8:lang>ru</v8:lang>
-													<v8:content>execute_code</v8:content>
-												</v8:item>
-											</Title>
-											<ToolTipRepresentation>Button</ToolTipRepresentation>
-											<CheckBoxType>Switcher</CheckBoxType>
-											<ExtendedTooltip name="ПолеИнструментExecuteCodeРасширеннаяПодсказка" id="131"/>
-											<Events>
-												<Event name="ПриИзменении">ИнструментПриИзменении</Event>
-											</Events>
-										</CheckBoxField>
-										<CheckBoxField name="ПолеИнструментGetObjectByLink" id="138">
-											<DataPath>ИнструментВключен_GetObjectByLink</DataPath>
-											<Title>
-												<v8:item>
-													<v8:lang>ru</v8:lang>
-													<v8:content>get_object_by_link</v8:content>
-												</v8:item>
-											</Title>
-											<ToolTipRepresentation>Button</ToolTipRepresentation>
-											<CheckBoxType>Switcher</CheckBoxType>
-											<ExtendedTooltip name="ПолеИнструментGetObjectByLinkРасширеннаяПодсказка" id="139"/>
-											<Events>
-												<Event name="ПриИзменении">ИнструментПриИзменении</Event>
-											</Events>
-										</CheckBoxField>
-										<CheckBoxField name="ПолеИнструментGetAccessRights" id="146">
-											<DataPath>ИнструментВключен_GetAccessRights</DataPath>
-											<Title>
-												<v8:item>
-													<v8:lang>ru</v8:lang>
-													<v8:content>get_access_rights</v8:content>
-												</v8:item>
-											</Title>
-											<ToolTipRepresentation>Button</ToolTipRepresentation>
-											<CheckBoxType>Switcher</CheckBoxType>
-											<ExtendedTooltip name="ПолеИнструментGetAccessRightsРасширеннаяПодсказка" id="147"/>
-											<Events>
-												<Event name="ПриИзменении">ИнструментПриИзменении</Event>
-											</Events>
-										</CheckBoxField>
-										<CheckBoxField name="ПолеИнструментRestart1cSession" id="170">
-											<DataPath>ИнструментВключен_Restart1cSession</DataPath>
-											<Title>
-												<v8:item>
-													<v8:lang>ru</v8:lang>
-													<v8:content>restart_1c_session</v8:content>
-												</v8:item>
-											</Title>
-											<ToolTipRepresentation>Button</ToolTipRepresentation>
-											<CheckBoxType>Switcher</CheckBoxType>
-											<ExtendedTooltip name="ПолеИнструментRestart1cSessionРасширеннаяПодсказка" id="171"/>
-											<Events>
-												<Event name="ПриИзменении">ИнструментПриИзменении</Event>
-											</Events>
-										</CheckBoxField>
-									</ChildItems>
-								</UsualGroup>
-								<UsualGroup name="ГруппаИнструменты3" id="142">
-									<Group>Vertical</Group>
-									<Representation>None</Representation>
-									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="ГруппаИнструменты3РасширеннаяПодсказка" id="143"/>
-									<ChildItems>
-										<CheckBoxField name="ПолеИнструментGetMetadata" id="132">
-											<DataPath>ИнструментВключен_GetMetadata</DataPath>
-											<Title>
-												<v8:item>
-													<v8:lang>ru</v8:lang>
-													<v8:content>get_metadata</v8:content>
-												</v8:item>
-											</Title>
-											<ToolTipRepresentation>Button</ToolTipRepresentation>
-											<CheckBoxType>Switcher</CheckBoxType>
-											<ExtendedTooltip name="ПолеИнструментGetMetadataРасширеннаяПодсказка" id="133"/>
-											<Events>
-												<Event name="ПриИзменении">ИнструментПриИзменении</Event>
-											</Events>
-										</CheckBoxField>
-										<CheckBoxField name="ПолеИнструментGetLinkOfObject" id="140">
-											<DataPath>ИнструментВключен_GetLinkOfObject</DataPath>
-											<Title>
-												<v8:item>
-													<v8:lang>ru</v8:lang>
-													<v8:content>get_link_of_object</v8:content>
-												</v8:item>
-											</Title>
-											<ToolTipRepresentation>Button</ToolTipRepresentation>
-											<CheckBoxType>Switcher</CheckBoxType>
-											<ExtendedTooltip name="ПолеИнструментGetLinkOfObjectРасширеннаяПодсказка" id="141"/>
-											<Events>
-												<Event name="ПриИзменении">ИнструментПриИзменении</Event>
-											</Events>
-										</CheckBoxField>
-										<CheckBoxField name="ПолеИнструментGetBslSyntaxHelp" id="148">
-											<DataPath>ИнструментВключен_GetBslSyntaxHelp</DataPath>
-											<Title>
-												<v8:item>
-													<v8:lang>ru</v8:lang>
-													<v8:content>get_bsl_syntax_help</v8:content>
-												</v8:item>
-											</Title>
-											<ToolTipRepresentation>Button</ToolTipRepresentation>
-											<CheckBoxType>Switcher</CheckBoxType>
-											<ExtendedTooltip name="ПолеИнструментGetBslSyntaxHelpРасширеннаяПодсказка" id="149"/>
-											<Events>
-												<Event name="ПриИзменении">ИнструментПриИзменении</Event>
-											</Events>
-										</CheckBoxField>
-										<CheckBoxField name="ПолеИнструментClose1cSession" id="172">
-											<DataPath>ИнструментВключен_Close1cSession</DataPath>
-											<Title>
-												<v8:item>
-													<v8:lang>ru</v8:lang>
-													<v8:content>close_1c_session</v8:content>
-												</v8:item>
-											</Title>
-											<ToolTipRepresentation>Button</ToolTipRepresentation>
-											<CheckBoxType>Switcher</CheckBoxType>
-											<ExtendedTooltip name="ПолеИнструментClose1cSessionРасширеннаяПодсказка" id="173"/>
-											<Events>
-												<Event name="ПриИзменении">ИнструментПриИзменении</Event>
-											</Events>
-										</CheckBoxField>
+										<InputField name="ЛогПоле" id="19">
+											<DataPath>Лог</DataPath>
+											<TitleLocation>None</TitleLocation>
+											<ReadOnly>true</ReadOnly>
+											<MultiLine>true</MultiLine>
+											<Height>10</Height>
+											<Width>80</Width>
+											<ExtendedTooltip name="ЛогПолеРасширеннаяПодсказка" id="20"/>
+										</InputField>
+										<UsualGroup name="ГруппаЛогПанель" id="186">
+											<Group>AlwaysHorizontal</Group>
+											<Representation>None</Representation>
+											<ShowTitle>false</ShowTitle>
+											<ExtendedTooltip name="ГруппаЛогПанельРасширеннаяПодсказка" id="187"/>
+											<ChildItems>
+												<Button name="КнопкаОчиститьЖурнал" id="30">
+													<Type>UsualButton</Type>
+													<CommandName>Form.Command.ОчиститьЖурнал</CommandName>
+													<ExtendedTooltip name="КнопкаОчиститьЖурналРасширеннаяПодсказка" id="31"/>
+												</Button>
+												<LabelDecoration name="НадписьВерсия" id="188">
+													<Title>
+														<v8:item>
+															<v8:lang>ru</v8:lang>
+															<v8:content>v1.9.0</v8:content>
+														</v8:item>
+													</Title>
+													<ToolTip>
+														<v8:item>
+															<v8:lang>ru</v8:lang>
+															<v8:content>https://github.com/ROCTUP/1c-mcp-toolkit</v8:content>
+														</v8:item>
+													</ToolTip>
+													<AutoMaxWidth>false</AutoMaxWidth>
+													<HorizontalStretch>true</HorizontalStretch>
+													<HorizontalAlign>Right</HorizontalAlign>
+													<TextColor>web:Blue</TextColor>
+													<Hyperlink>true</Hyperlink>
+													<Events>
+														<Event name="Click">НадписьВерсияНажатие</Event>
+													</Events>
+													<ContextMenu name="НадписьВерсияКонтекстноеМеню" id="189"/>
+													<ExtendedTooltip name="НадписьВерсияРасширеннаяПодсказка" id="190"/>
+												</LabelDecoration>
+											</ChildItems>
+										</UsualGroup>
 									</ChildItems>
 								</UsualGroup>
 							</ChildItems>
 						</UsualGroup>
-					</ChildItems>
-				</UsualGroup>
-				<UsualGroup name="ГруппаНастройкиПерезапуска" id="163">
-					<Title>
-						<v8:item>
-							<v8:lang>ru</v8:lang>
-							<v8:content>Параметры перезапуска сессии</v8:content>
-						</v8:item>
-					</Title>
-					<Group>Vertical</Group>
-					<Representation>None</Representation>
-					<ExtendedTooltip name="ГруппаНастройкиПерезапускаРасширеннаяПодсказка" id="164"/>
-					<ChildItems>
-						<UsualGroup name="ГруппаАутентификацииПерезапуска" id="176">
-							<ShowTitle>false</ShowTitle>
-							<Group>AlwaysHorizontal</Group>
-							<Representation>None</Representation>
-							<ExtendedTooltip name="ГруппаАутентификацииПерезапускаРасширеннаяПодсказка" id="177"/>
-							<ChildItems>
-								<RadioButtonField name="РежимАутентификацииПерезапуска" id="165">
-									<DataPath>РежимАутентификацииПерезапуска</DataPath>
-									<Title>
-										<v8:item>
-											<v8:lang>ru</v8:lang>
-											<v8:content>Аутентификация при перезапуске</v8:content>
-										</v8:item>
-									</Title>
-									<RadioButtonType>RadioButtons</RadioButtonType>
-									<ChoiceList>
-										<xr:Item>
-											<xr:Presentation/>
-											<xr:CheckState>0</xr:CheckState>
-											<xr:Value xsi:type="FormChoiceListDesTimeValue">
-												<Presentation>
-													<v8:item>
-														<v8:lang>ru</v8:lang>
-														<v8:content>Windows</v8:content>
-													</v8:item>
-												</Presentation>
-												<Value xsi:type="xs:decimal">0</Value>
-											</xr:Value>
-										</xr:Item>
-										<xr:Item>
-											<xr:Presentation/>
-											<xr:CheckState>0</xr:CheckState>
-											<xr:Value xsi:type="FormChoiceListDesTimeValue">
-												<Presentation>
-													<v8:item>
-														<v8:lang>ru</v8:lang>
-														<v8:content>Пароль</v8:content>
-													</v8:item>
-												</Presentation>
-												<Value xsi:type="xs:decimal">1</Value>
-											</xr:Value>
-										</xr:Item>
-									</ChoiceList>
-									<ContextMenu name="РежимАутентификацииПерезапускаКонтекстноеМеню" id="166"/>
-									<ExtendedTooltip name="РежимАутентификацииПерезапускаРасширеннаяПодсказка" id="167"/>
-									<Events>
-										<Event name="ПриИзменении">РежимАутентификацииПерезапускаПриИзменении</Event>
-									</Events>
-								</RadioButtonField>
-								<InputField name="ПарольПерезапуска" id="168">
-									<DataPath>ПарольПерезапуска</DataPath>
-									<Title>
-										<v8:item>
-											<v8:lang>ru</v8:lang>
-											<v8:content>Пароль</v8:content>
-										</v8:item>
-									</Title>
-									<TitleLocation>None</TitleLocation>
-									<HorizontalStretch>false</HorizontalStretch>
-									<OpenButton>true</OpenButton>
-									<PasswordMode>true</PasswordMode>
-									<ExtendedTooltip name="ПарольПерезапускаРасширеннаяПодсказка" id="169">
-										<Title>
-											<v8:item>
-												<v8:lang>ru</v8:lang>
-												<v8:content>Пароль текущего пользователя</v8:content>
-											</v8:item>
-										</Title>
-									</ExtendedTooltip>
-									<Events>
-										<Event name="Opening">ПарольПерезапускаОткрытиеЗначения</Event>
-									</Events>
-								</InputField>
-							</ChildItems>
-						</UsualGroup>
-						<UsualGroup name="ГруппаДопКлючаПерезапуска" id="178">
-							<ShowTitle>false</ShowTitle>
-							<Group>AlwaysHorizontal</Group>
-							<Representation>None</Representation>
-							<ExtendedTooltip name="ГруппаДопКлючаПерезапускаРасширеннаяПодсказка" id="179"/>
-							<ChildItems>
-								<InputField name="ПользовательскийКлючШифрования" id="180">
-									<DataPath>ПользовательскийКлючШифрования</DataPath>
-									<Width>21</Width>
-									<HorizontalStretch>false</HorizontalStretch>
-									<Title>
-										<v8:item>
-											<v8:lang>ru</v8:lang>
-											<v8:content>Доп. ключ шифрования</v8:content>
-										</v8:item>
-									</Title>
-									<ExtendedTooltip name="ПользовательскийКлючШифрованияРасширеннаяПодсказка" id="181">
-										<Title>
-											<v8:item>
-												<v8:lang>ru</v8:lang>
-												<v8:content>Дополнительный ключ шифрования пароля, передаваемого между старой и новой сессией при перезапуске. Добавляется к базовому ключу — чем сложнее ключ, тем надёжнее защита пароля в файле параметров запуска.</v8:content>
-											</v8:item>
-										</Title>
-									</ExtendedTooltip>
-									<Events>
-										<Event name="ПриИзменении">ПользовательскийКлючШифрованияПриИзменении</Event>
-									</Events>
-								</InputField>
-								<Button name="КнопкаСгенерироватьКлюч" id="183">
-									<Type>UsualButton</Type>
-									<Title>
-										<v8:item>
-											<v8:lang>ru</v8:lang>
-											<v8:content>Сгенерировать</v8:content>
-										</v8:item>
-									</Title>
-									<CommandName>Form.Command.СгенерироватьПользовательскийКлюч</CommandName>
-									<ExtendedTooltip name="КнопкаСгенерироватьКлючРасширеннаяПодсказка" id="184"/>
-								</Button>
-							</ChildItems>
-						</UsualGroup>
-					</ChildItems>
-				</UsualGroup>
-				<UsualGroup name="ГруппаАвтоРазрешение" id="24">
-					<Title>
-						<v8:item>
-							<v8:lang>ru</v8:lang>
-							<v8:content>Автоматически разрешать операции</v8:content>
-						</v8:item>
-					</Title>
-					<Group>Vertical</Group>
-					<Representation>None</Representation>
-					<ExtendedTooltip name="ГруппаАвтоРазрешениеРасширеннаяПодсказка" id="25"/>
-					<ChildItems>
-						<CheckBoxField name="ФлагАвтоЗаписать" id="26">
-							<DataPath>АвтоРазрешитьЗаписать</DataPath>
-							<Title>
-								<v8:item>
-									<v8:lang>ru</v8:lang>
-									<v8:content>Записать</v8:content>
-								</v8:item>
-							</Title>
-							<ExtendedTooltip name="ФлагАвтоЗаписатьРасширеннаяПодсказка" id="27"/>
-						</CheckBoxField>
-						<CheckBoxField name="ФлагАвтоПривилегированныйРежим" id="28">
-							<DataPath>АвтоРазрешитьПривилегированныйРежим</DataPath>
-							<Title>
-								<v8:item>
-									<v8:lang>ru</v8:lang>
-									<v8:content>УстановитьПривилегированныйРежим</v8:content>
-								</v8:item>
-							</Title>
-							<ExtendedTooltip name="ФлагАвтоПривилегированныйРежимРасширеннаяПодсказка" id="29"/>
-						</CheckBoxField>
-					</ChildItems>
-				</UsualGroup>
-				<UsualGroup name="ГруппаКнопки" id="5">
-					<Group>AlwaysHorizontal</Group>
-					<Representation>None</Representation>
-					<ExtendedTooltip name="ГруппаКнопкиРасширеннаяПодсказка" id="6"/>
-					<ChildItems>
-						<Button name="КнопкаПодключиться" id="7">
-							<Type>UsualButton</Type>
-							<CommandName>Form.Command.Подключиться</CommandName>
-							<ExtendedTooltip name="КнопкаПодключитьсяРасширеннаяПодсказка" id="8"/>
-						</Button>
-						<Button name="КнопкаОтключиться" id="9">
-							<Type>UsualButton</Type>
-							<CommandName>Form.Command.Отключиться</CommandName>
-							<ExtendedTooltip name="КнопкаОтключитьсяРасширеннаяПодсказка" id="10"/>
-						</Button>
-					</ChildItems>
-				</UsualGroup>
-			</ChildItems>
-		</UsualGroup>
-		<UsualGroup name="ГруппаСтатус" id="11">
-			<Group>Horizontal</Group>
-			<Grouping>Horizontal</Grouping>
-			<Representation>NormalSeparation</Representation>
-			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="ГруппаСтатусРасширеннаяПодсказка" id="12"/>
-			<ChildItems>
-				<Decoration name="ИндикаторПодключения" id="13">
-					<Type>Label</Type>
-					<Title>
-						<v8:item>
-							<v8:lang>ru</v8:lang>
-							<v8:content>●</v8:content>
-						</v8:item>
-					</Title>
-					<ExtendedTooltip name="ИндикаторПодключенияРасширеннаяПодсказка" id="14"/>
-				</Decoration>
-				<InputField name="СтатусПоле" id="15">
-					<DataPath>Статус</DataPath>
-					<Title>
-						<v8:item>
-							<v8:lang>ru</v8:lang>
-							<v8:content>Статус</v8:content>
-						</v8:item>
-					</Title>
-					<ReadOnly>true</ReadOnly>
-					<Width>40</Width>
-					<ExtendedTooltip name="СтатусПолеРасширеннаяПодсказка" id="16"/>
-				</InputField>
-			</ChildItems>
-		</UsualGroup>
-		<UsualGroup name="ГруппаЛог" id="17">
-			<Title>
-				<v8:item>
-					<v8:lang>ru</v8:lang>
-					<v8:content>Журнал событий</v8:content>
-				</v8:item>
-			</Title>
-			<Group>Vertical</Group>
-			<Representation>NormalSeparation</Representation>
-			<ExtendedTooltip name="ГруппаЛогРасширеннаяПодсказка" id="18"/>
-			<ChildItems>
-				<InputField name="ЛогПоле" id="19">
-					<DataPath>Лог</DataPath>
-					<TitleLocation>None</TitleLocation>
-					<ReadOnly>true</ReadOnly>
-					<MultiLine>true</MultiLine>
-					<Height>10</Height>
-					<Width>80</Width>
-					<ExtendedTooltip name="ЛогПолеРасширеннаяПодсказка" id="20"/>
-				</InputField>
-				<UsualGroup name="ГруппаЛогПанель" id="186">
-					<Group>AlwaysHorizontal</Group>
-					<Representation>None</Representation>
-					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="ГруппаЛогПанельРасширеннаяПодсказка" id="187"/>
-					<ChildItems>
-						<Button name="КнопкаОчиститьЖурнал" id="30">
-							<Type>UsualButton</Type>
-							<CommandName>Form.Command.ОчиститьЖурнал</CommandName>
-							<ExtendedTooltip name="КнопкаОчиститьЖурналРасширеннаяПодсказка" id="31"/>
-						</Button>
-						<LabelDecoration name="НадписьВерсия" id="188">
-							<Title>
-								<v8:item>
-									<v8:lang>ru</v8:lang>
-									<v8:content>v1.8.0</v8:content>
-								</v8:item>
-							</Title>
-							<ToolTip>
-								<v8:item>
-									<v8:lang>ru</v8:lang>
-									<v8:content>https://github.com/ROCTUP/1c-mcp-toolkit</v8:content>
-								</v8:item>
-							</ToolTip>
-							<AutoMaxWidth>false</AutoMaxWidth>
-							<HorizontalStretch>true</HorizontalStretch>
-							<HorizontalAlign>Right</HorizontalAlign>
-							<TextColor>web:Blue</TextColor>
-							<Hyperlink>true</Hyperlink>
-							<Events>
-								<Event name="Click">НадписьВерсияНажатие</Event>
-							</Events>
-							<ContextMenu name="НадписьВерсияКонтекстноеМеню" id="189"/>
-							<ExtendedTooltip name="НадписьВерсияРасширеннаяПодсказка" id="190"/>
-						</LabelDecoration>
-					</ChildItems>
-				</UsualGroup>
-			</ChildItems>
-		</UsualGroup>
 					</ChildItems>
 				</Page>
 				<Page name="СтраницаАнонимизация" id="59">
@@ -1158,6 +1212,24 @@
 		</Pages>
 	</ChildItems>
 	<Attributes>
+		<Attribute name="КонтролироватьСервер" id="218">
+			<Type><v8:Type>xs:boolean</v8:Type></Type>
+		</Attribute>
+		<Attribute name="АвтоПерезапускПриПотереКонтекста" id="219">
+			<Type><v8:Type>xs:boolean</v8:Type></Type>
+		</Attribute>
+		<Attribute name="ИнтервалКонтроляСервера" id="220">
+			<Type>
+				<v8:Type>xs:decimal</v8:Type>
+				<v8:NumberQualifiers><v8:Digits>4</v8:Digits><v8:FractionDigits>0</v8:FractionDigits><v8:AllowedSign>Nonnegative</v8:AllowedSign></v8:NumberQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="СтатусКонтроляСервера" id="221">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers><v8:Length>0</v8:Length><v8:AllowedLength>Variable</v8:AllowedLength></v8:StringQualifiers>
+			</Type>
+		</Attribute>
 		<Attribute name="Объект" id="1">
 			<Type>
 				<v8:Type>cfg:ExternalDataProcessorObject.MCPToolkit</v8:Type>

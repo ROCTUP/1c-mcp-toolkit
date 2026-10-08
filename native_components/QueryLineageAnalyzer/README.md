@@ -41,7 +41,7 @@ native_components\QueryLineageAnalyzer\build_linux.bat
 
 ## Установка в обработку
 
-Скопировать DLL/SO нужной платформы в макет обработки под именем `Template.bin`:
+Скопировать DLL/SO, соответствующую ОС и разрядности процесса 1С, в макет обработки под именем `Template.bin`:
 
 ```bash
 # Windows x64
@@ -57,7 +57,7 @@ cp build_linux/QueryLineageAnalyzer.so \
   ../../1c/MCPToolkit/MCPToolkit/Templates/QueryLineageAnalyzer/Ext/Template.bin
 ```
 
-После обновления `Template.bin` нужно пересохранить обработку в конфигураторе 1С.
+После замены `Template.bin` необходимо пересобрать EPF и перезапустить клиентский сеанс 1С.
 
 ## API
 

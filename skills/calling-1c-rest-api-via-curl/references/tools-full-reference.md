@@ -29,6 +29,8 @@ Request rules:
 | `name_mask` | string | null | — | Case-insensitive search in name/synonym |
 | `limit` | integer | 100 | 1–1000 | Max objects in list mode |
 | `offset` | integer | 0 | 0–1000000 | Pagination offset in list mode |
+| `types_limit` | integer | 100 for a typed field | 1–200; single typed field only | Page size for the full list of allowed types; does not change the 20-type preview in `Тип` |
+| `types_offset` | integer | 0 for a typed field | 0–1000000; single typed field only | Offset in the allowed types list; continue with `data.types.next_offset` while `data.types.has_more=true` |
 | `sections` | string[] | null | Requires `filter`; incompatible with `attribute_mask` | Detail sections: `properties`, `forms`, `commands`, `layouts`, `predefined`, `movements`, `characteristics`. Note: `movements` only applies to `Документ` objects — silently ignored for other types |
 | `extension_name` | string | null | No whitespace-only | `null`=main config, `""`=list extensions, `"Name"`=extension objects |
 | `attribute_mask` | string | null | Incompatible with `sections` | Case-insensitive substring search across all attribute names/synonyms (реквизиты, измерения, ресурсы, реквизиты ТЧ). Returns same list contract as Mode 2. Compatible with `meta_type`, `name_mask`, `filter` (root object only), `extension_name`. `extension_name=""` takes priority (returns extension list, ignores `attribute_mask`). |
@@ -142,6 +144,17 @@ Response (detail):
 }
 ```
 
+#### Compact type descriptions in structures
+
+Object and tabular-section structures still return all fields. Each field's `Тип` contains at most **20 actual type representations**, including qualifiers such as `Число(15,3)`. It contains no count labels or truncation messages.
+
+- With at most 20 types, the representation and platform order stay unchanged.
+- With more than 20 types, `Тип` contains the first 20 representations in deterministic, case-insensitive sorted order.
+- Counters are decided **per array** (`Реквизиты`, `Измерения`, `Ресурсы`, each tabular section's `Реквизиты`, etc.). If any field has more than 20 types, **all rows of that array** get scalar `total_types_count` (all allowed types) and `shown_types_count` (types included in `Тип`). Otherwise neither column is emitted. Standard and user attributes in the same array share this decision.
+- For successfully read types, equal counters mean the full list is shown; unequal counters mean more types are available. Absent counters mean no field in that array was shortened. A row with `type_error` must not be interpreted as a complete or empty type list; its counters, when present, are `null`.
+
+These flat, uniform counter columns preserve eligibility for TOON tables; no nested type-page object is added to structure rows. Other existing fields such as `extension_marks` may independently affect TOON formatting. Fetch full type pages for a single field using [Mode 6](#mode-6-paginated-types-of-one-typed-field).
+
 ### Mode 3a: Collection element (filter with full path)
 
 Collection names use singular segment names: `Реквизит`, `Измерение`, `Ресурс`, `ТабличнаяЧасть`, `СтандартныйРеквизит`, `РеквизитАдресации`.
@@ -168,10 +181,22 @@ Response (collection element):
     "ПолноеИмя": "Справочник.Контрагенты.Реквизит.ИНН",
     "Имя": "ИНН",
     "Синоним": "ИНН",
-    "Тип": "Строка(12)"
+    "Тип": "Строка(12)",
+    "types": {
+      "count": 1,
+      "limit": 100,
+      "offset": 0,
+      "returned": 1,
+      "truncated": false,
+      "has_more": false,
+      "next_offset": 1,
+      "items": ["Строка(12)"]
+    }
   }
 }
 ```
+
+The `types` block is included for a typed field even when `types_limit` and `types_offset` are omitted. See [Mode 6](#mode-6-paginated-types-of-one-typed-field) for pagination. An element without a type description has no `types` block; addressing a whole tabular section returns its field structure instead.
 
 ### Extensions
 
@@ -261,6 +286,55 @@ Notes:
 - **Incompatible with `sections`** — returns error. Use round-trip instead: get `ПолноеИмя` from attribute search, then pass it to `filter` with `sections`.
 - Compatible with `meta_type` (restrict object types), `name_mask` (filter object names), `filter` (restrict to one root object), `extension_name` (specific extension).
 - `extension_name=""` (list extensions) takes priority — `attribute_mask` is ignored in that case.
+
+### Mode 6: Paginated types of one typed field
+
+Use an existing full field path in `filter`, such as `Справочник.Объект.Реквизит.Имя`, a register's `Измерение`/`Ресурс`, `СтандартныйРеквизит`, `РеквизитАдресации`, or `Документ.Объект.ТабличнаяЧасть.Товары.Реквизит.Имя`. The same contract applies inside a named extension; keep `extension_name` and `filter` unchanged between pages.
+
+The response has a fixed `data.Тип` preview (at most 20 types, following the structure rules) and a separate `data.types` page. Pagination changes only `types`, not the preview. The default page is **100 types starting at offset 0**, including when both new arguments are omitted. `total_types_count`/`shown_types_count` are structure-row counters; the addressed field reports its total in `data.types.count`.
+
+| Field in `data.types` | Meaning |
+|-----------------------|---------|
+| `count` | Total number of allowed types for this field |
+| `limit` | Effective page size |
+| `offset` | Requested offset |
+| `returned` | Number of entries in this page's `items` |
+| `truncated` | `returned < count`; this page alone does not contain the entire list |
+| `has_more` | `offset + returned < count`; more entries follow this page |
+| `next_offset` | `offset + returned`; use for the next request when `has_more=true` |
+| `items` | Array of full type representation strings, including qualifiers, in deterministic case-insensitive sorted order |
+
+**Stop on `has_more=false`, not on `truncated=false`.** The last page of a multi-page list still has `truncated=true`. An offset at or beyond `count` returns an empty `items` array, `returned=0`, `has_more=false`, and `next_offset` equal to the requested offset.
+
+```sh
+# First page of one field's full type list (POST).
+# Use a field that exists in the connected configuration.
+curl -sS --noproxy $BASE_HOST "$BASE_URL/api/get_metadata?channel=$CHANNEL" $J \
+  -d '{"filter":"Справочник.ВидыПроверок.Реквизит.Свойство1","types_limit":200,"types_offset":0}'
+
+# Next page (GET): 200 here is next_offset from the preceding response.
+curl -sS -G --noproxy $BASE_HOST "$BASE_URL/api/get_metadata?channel=$CHANNEL" \
+  --data-urlencode "filter=Справочник.ВидыПроверок.Реквизит.Свойство1" \
+  --data-urlencode "types_limit=200" \
+  --data-urlencode "types_offset=200"
+
+# Alternatively, fetch only what a shortened structure row has not shown.
+# 20 here is that row's shown_types_count; continue using types.next_offset.
+curl -sS --noproxy $BASE_HOST "$BASE_URL/api/get_metadata?channel=$CHANNEL" $J \
+  -d '{"filter":"Справочник.ВидыПроверок.Реквизит.Свойство1","types_limit":100,"types_offset":20}'
+```
+
+To collect a machine-readable full list, start at offset 0 and concatenate page `items`. Do not split `Тип` on commas: qualifiers such as `Число(15,3)` also contain commas. Starting at the structure row's `shown_types_count` is useful when the preview is already sufficient for the first 20 types and only the rest need inspection.
+
+`types` belongs to the **single-field response**, not to every row of `Реквизиты` or other structure arrays. In TOON mode, `data` is a string: decode TOON before reading `data.types`; in JSON mode it is an object. The response example in Mode 3a shows the decoded/JSON shape.
+
+Validation:
+
+- `types_limit` accepts 1–200; `types_offset` accepts 0–1000000. Omitted or JSON `null` values use the defaults for an addressed typed field. Explicit `types_offset=0` still counts as supplying a pagination argument; `types_limit=0` is invalid.
+- These arguments require a single typed field. Whole-object and whole-tabular-section structure requests, and elements without a type description, reject them.
+- They are incompatible with nonempty `attribute_mask`, `meta_type`, `name_mask`, and with `extension_name=""` (extension listing). A specific named extension is supported.
+- POST requires JSON numbers: booleans, numeric strings and fractional numbers are rejected; whole-valued numbers such as `100.0` are accepted. GET uses integer query-string values; different repeated values for the same type-pagination parameter are rejected. Send each parameter once.
+- Ordinary `limit`/`offset` do not paginate types and do not change the default type page. To change that page, use `types_limit`/`types_offset`.
 
 ---
 

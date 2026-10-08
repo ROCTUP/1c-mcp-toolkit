@@ -10,12 +10,14 @@ Provides endpoints for:
 Validates: Requirements 1.4, 2.1, 3.1, 4.1, 5.3, 5.4, 6.2, 6.3, 6.4
 """
 
+import asyncio
 import json
 import logging
 import os
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from typing import Any, Optional
 
+import anyio
 from starlette.applications import Starlette
 from starlette.responses import JSONResponse, Response
 from starlette.routing import Route
@@ -183,6 +185,22 @@ class MCPLoggingMiddleware(BaseHTTPMiddleware):
         return response
 
 
+COMMAND_CLEANUP_INTERVAL = 60.0
+
+
+async def cleanup_abandoned_commands() -> None:
+    """Safety net for commands left without an active result waiter."""
+    max_age = max(float(settings.timeout) * 2, 300.0)
+    while True:
+        await asyncio.sleep(COMMAND_CLEANUP_INTERVAL)
+        try:
+            removed = await channel_command_queue.cleanup_expired(max_age)
+            if removed:
+                logger.warning("Removed %d abandoned commands", removed)
+        except Exception:
+            logger.exception("Failed to clean up abandoned commands")
+
+
 @asynccontextmanager
 async def lifespan(app: Starlette):
     """Lifespan context manager for startup and shutdown events."""
@@ -194,7 +212,16 @@ async def lifespan(app: Starlette):
     
     # Start the MCP session manager
     async with mcp_server.session_manager.run():
-        yield
+        cleanup_task = asyncio.create_task(
+            cleanup_abandoned_commands(), name="command-queue-cleanup"
+        )
+        try:
+            yield
+        finally:
+            cleanup_task.cancel()
+            with anyio.CancelScope(shield=True):
+                with suppress(asyncio.CancelledError):
+                    await cleanup_task
     
     # Shutdown
     logger.info("1C MCP Toolkit Proxy shutting down")
@@ -228,6 +255,10 @@ class CommandResult(BaseModel):
     mime_type: Optional[str] = None
     window_rect: Optional[Any] = None
     grid_coords: Optional[Any] = None
+    overlays: Optional[Any] = None
+    overlay_failures: Optional[Any] = None
+    capture_complete: Optional[Any] = None
+    foreground_window: Optional[Any] = None
 
 
 class HealthResponse(BaseModel):
@@ -347,6 +378,10 @@ async def receive_result(request: Request) -> JSONResponse:
         "mime_type",                 # get_screenshot: MIME type of the image
         "window_rect",               # get_screenshot: captured window rectangle
         "grid_coords",               # get_screenshot: grid line coordinates
+        "overlays",
+        "overlay_failures",
+        "capture_complete",
+        "foreground_window",
     )
     for key in optional_meta_fields:
         value = getattr(result, key, None)
