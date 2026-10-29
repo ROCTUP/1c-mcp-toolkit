@@ -1,0 +1,6 @@
+// kind: code
+// expect: confirm
+// reason: C_UNKNOWN_TYPE
+// risk: R_UNKNOWN_EFFECT
+// class: 12
+Результат = Новый ХранилищеЗначения(1);

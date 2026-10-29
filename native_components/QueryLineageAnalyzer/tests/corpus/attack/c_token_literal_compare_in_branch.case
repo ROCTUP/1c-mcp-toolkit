@@ -1,0 +1,8 @@
+// kind: code
+// expect: confirm
+// reason: C_FUNC_OVER_PROTECTED
+// reason: C_IMPLICIT_FLOW
+// class: 12
+Если "[str-00001]" = "x" Тогда
+    Результат = 1;
+КонецЕсли;

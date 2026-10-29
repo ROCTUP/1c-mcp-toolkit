@@ -1,0 +1,8 @@
+// kind: code
+// expect: confirm
+// reason: C_UNKNOWN_IDENT
+// reason: C_IMPLICIT_FLOW
+// class: 12
+Если Параметр Тогда
+    Результат = 1;
+КонецЕсли;

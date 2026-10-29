@@ -63,6 +63,15 @@ h1, h2, h3, h4, h5, h6 {
 a {
   color: #0066cc;
 }
+.inert-link {
+  color: #444;
+  text-decoration: underline dotted;
+  word-break: break-all;
+}
+a.inert-open {
+  font-size: 11px;
+  white-space: nowrap;
+}
 p {
   margin: 0.5em 0;
 }
@@ -74,9 +83,23 @@ ul, ol {
 </head>
 <body>
 <div id="content"></div>
+<div id="inertflag" style="display:none">{{INERT_MODE}}</div>
 <div id="src" style="display:none">{{HTML_ESCAPED_CONTENT}}</div>
 <script>
 (function () {
+
+  // Inert mode (strict protection): links and images are rendered as plain text, nothing is clickable
+  // except the explicit "open link" action, which the host form confirms. Anything but "0" is inert.
+  var inertNode = document.getElementById("inertflag");
+  var inertText = inertNode ? (inertNode.textContent || inertNode.innerText || "") : "";
+  var INERT = inertText.replace(/^\s+|\s+$/g, "") !== "0";
+
+  function inertLinkHTML(label, url) {
+    // markup characters are percent-escaped so that later markdown and autolink passes cannot alter the href
+    var enc = url.replace(/%/g, "%25").replace(/_/g, "%5F").replace(/\*/g, "%2A").replace(/~/g, "%7E").replace(/:/g, "%3A");
+    return '<span class="inert-link">' + (label ? label + " (" + url + ")" : url) + "</span> " +
+      '<a class="inert-open" href="mcptoolkit-open-link:' + enc + '">[\u041E\u0442\u043A\u0440\u044B\u0442\u044C\u0020\u0441\u0441\u044B\u043B\u043A\u0443\u2026]</a>';
+  }
 
   function escapeHTML(str) {
     return (str || "")
@@ -117,6 +140,8 @@ ul, ol {
     var label = text.slice(startIndex + 1, labelEnd);
     var url = text.slice(labelEnd + 2, urlEnd).replace(/^\s+|\s+$/g, "");
     if (!/^https?:\/\/[^\s]+$/i.test(url)) return null;
+
+    if (INERT) return { endIndex: urlEnd + 1, html: inertLinkHTML(label, url) };
 
     return {
       endIndex: urlEnd + 1,
@@ -215,6 +240,7 @@ ul, ol {
 
     // Autolinks (ES5: use capture group instead of lookbehind)
     md = md.replace(/(^|[^"'(>])(https?:\/\/[^\s<]+[^\s<.,;:!?'")\]])/g, function(_m, prefix, url) {
+      if (INERT) return prefix + inertLinkHTML("", url);
       return prefix + '<a href="' + url + '" target="_blank" rel="noopener noreferrer nofollow">' + url + "</a>";
     });
 

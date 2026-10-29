@@ -1,0 +1,8 @@
+// kind: code
+// expect: confirm
+// reason: C_UNKNOWN_IDENT
+// reason: C_UNKNOWN_RECEIVER
+// risk: R_UNKNOWN_EFFECT
+// class: 12
+Объект = Справочники.Контрагенты.НайтиПоНаименованию("x");
+Результат = 1;

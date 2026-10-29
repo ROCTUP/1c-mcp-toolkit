@@ -1,0 +1,8 @@
+// kind: code
+// expect: confirm
+// reason: C_COMMON_MODULE
+// risk: R_UNKNOWN_EFFECT
+// risk: R_DEFERRED
+// class: 12
+ФоновыеЗадания.Выполнить("Модуль.Процедура", Новый Массив);
+Результат = 1;

@@ -1,0 +1,5 @@
+// kind: query
+// expect: confirm
+// reason: Q_PARSE_EXPECTED
+ВЫБРАТЬ Контрагенты.ИНН КАК Из
+ИЗ Справочник.Контрагенты КАК Контрагенты

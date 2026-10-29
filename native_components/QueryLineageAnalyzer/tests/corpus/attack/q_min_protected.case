@@ -1,0 +1,6 @@
+// kind: query
+// expect: confirm
+// reason: Q_MINMAX_PROTECTED
+// reason: Q_AGGREGATE_ROWSET
+ВЫБРАТЬ МИНИМУМ(Контрагенты.Наименование) КАК Показатель
+ИЗ Справочник.Контрагенты КАК Контрагенты

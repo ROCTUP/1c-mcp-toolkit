@@ -1,0 +1,221 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<AutoCommandBar name="ФормаКоманднаяПанель" id="-1"/>
+	<Events>
+		<Event name="OnOpen">ПриОткрытии</Event>
+		<Event name="OnCreateAtServer">ПриСозданииНаСервере</Event>
+	</Events>
+	<ChildItems>
+		<LabelDecoration name="ДекорацияКлассЗащиты" id="101">
+			<TextColor>web:Red</TextColor>
+			<Title formatted="false">
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Внимание: действие затрагивает защиту данных. Подтверждайте, только если понимаете последствия.</v8:content>
+				</v8:item>
+			</Title>
+			<ContextMenu name="ДекорацияКлассЗащитыКонтекстноеМеню" id="102"/>
+			<ExtendedTooltip name="ДекорацияКлассЗащитыРасширеннаяПодсказка" id="103"/>
+		</LabelDecoration>
+		<LabelDecoration name="ДекорацияТекстНеРаспознан" id="104">
+			<Title formatted="false">
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Код не распознан — показан исходный текст</v8:content>
+				</v8:item>
+			</Title>
+			<ContextMenu name="ДекорацияТекстНеРаспознанКонтекстноеМеню" id="105"/>
+			<ExtendedTooltip name="ДекорацияТекстНеРаспознанРасширеннаяПодсказка" id="106"/>
+		</LabelDecoration>
+		<InputField name="ПолеПричины" id="107">
+			<DataPath>Причины</DataPath>
+			<ReadOnly>true</ReadOnly>
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Причины (по кодам и позициям)</v8:content>
+				</v8:item>
+			</Title>
+			<TitleLocation>Top</TitleLocation>
+			<Width>70</Width>
+			<AutoMaxWidth>false</AutoMaxWidth>
+			<Height>3</Height>
+			<HorizontalStretch>true</HorizontalStretch>
+			<MultiLine>true</MultiLine>
+			<ContextMenu name="ПолеПричиныКонтекстноеМеню" id="108"/>
+			<ExtendedTooltip name="ПолеПричиныРасширеннаяПодсказка" id="109"/>
+		</InputField>
+		<InputField name="ПолеРиски" id="110">
+			<DataPath>Риски</DataPath>
+			<ReadOnly>true</ReadOnly>
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Риски</v8:content>
+				</v8:item>
+			</Title>
+			<TitleLocation>Top</TitleLocation>
+			<Width>70</Width>
+			<AutoMaxWidth>false</AutoMaxWidth>
+			<Height>3</Height>
+			<HorizontalStretch>true</HorizontalStretch>
+			<MultiLine>true</MultiLine>
+			<ContextMenu name="ПолеРискиКонтекстноеМеню" id="111"/>
+			<ExtendedTooltip name="ПолеРискиРасширеннаяПодсказка" id="112"/>
+		</InputField>
+		<InputField name="ПолеОбоснование" id="113">
+			<DataPath>Обоснование</DataPath>
+			<ReadOnly>true</ReadOnly>
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Обоснование от клиента (не проверено)</v8:content>
+				</v8:item>
+			</Title>
+			<TitleLocation>Top</TitleLocation>
+			<Width>70</Width>
+			<AutoMaxWidth>false</AutoMaxWidth>
+			<Height>3</Height>
+			<HorizontalStretch>true</HorizontalStretch>
+			<MultiLine>true</MultiLine>
+			<ContextMenu name="ПолеОбоснованиеКонтекстноеМеню" id="114"/>
+			<ExtendedTooltip name="ПолеОбоснованиеРасширеннаяПодсказка" id="115"/>
+		</InputField>
+		<InputField name="ПолеТекстКПодтверждению" id="116">
+			<DataPath>ТекстКПодтверждению</DataPath>
+			<ReadOnly>true</ReadOnly>
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Текст к подтверждению</v8:content>
+				</v8:item>
+			</Title>
+			<TitleLocation>Top</TitleLocation>
+			<Width>70</Width>
+			<AutoMaxWidth>false</AutoMaxWidth>
+			<Height>12</Height>
+			<HorizontalStretch>true</HorizontalStretch>
+			<MultiLine>true</MultiLine>
+			<Font faceName="Courier New" height="10" bold="false" italic="false" underline="false" strikeout="false" kind="Absolute" scale="100"/>
+			<ContextMenu name="ПолеТекстКПодтверждениюКонтекстноеМеню" id="117"/>
+			<ExtendedTooltip name="ПолеТекстКПодтверждениюРасширеннаяПодсказка" id="118"/>
+		</InputField>
+		<InputField name="ПолеОсталосьСекунд" id="119">
+			<DataPath>ОсталосьСекунд</DataPath>
+			<ReadOnly>true</ReadOnly>
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Осталось секунд</v8:content>
+				</v8:item>
+			</Title>
+			<TitleLocation>Top</TitleLocation>
+			<Width>10</Width>
+			<ContextMenu name="ПолеОсталосьСекундКонтекстноеМеню" id="120"/>
+			<ExtendedTooltip name="ПолеОсталосьСекундРасширеннаяПодсказка" id="121"/>
+		</InputField>
+		<UsualGroup name="ГруппаКнопки" id="122">
+			<Group>AlwaysHorizontal</Group>
+			<Representation>None</Representation>
+			<ExtendedTooltip name="ГруппаКнопкиРасширеннаяПодсказка" id="123"/>
+			<ChildItems>
+				<Button name="КнопкаПодтвердить" id="124">
+					<Type>UsualButton</Type>
+					<CommandName>Form.Command.Подтвердить</CommandName>
+					<TextColor>web:Green</TextColor>
+					<ExtendedTooltip name="КнопкаПодтвердитьРасширеннаяПодсказка" id="125"/>
+				</Button>
+				<Button name="КнопкаОтклонить" id="126">
+					<Type>UsualButton</Type>
+					<CommandName>Form.Command.Отклонить</CommandName>
+					<TextColor>web:Red</TextColor>
+					<ExtendedTooltip name="КнопкаОтклонитьРасширеннаяПодсказка" id="127"/>
+				</Button>
+			</ChildItems>
+		</UsualGroup>
+	</ChildItems>
+	<Attributes>
+		<Attribute name="Инструмент" id="1">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="ТекстКПодтверждению" id="2">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="ТекстРаспознан" id="3">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="Причины" id="4">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="Риски" id="5">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="КлассЗащиты" id="6">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="Обоснование" id="7">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="ОсталосьСекунд" id="8">
+			<Type>
+				<v8:Type>xs:decimal</v8:Type>
+				<v8:NumberQualifiers>
+					<v8:Digits>10</v8:Digits>
+					<v8:FractionDigits>0</v8:FractionDigits>
+					<v8:AllowedSign>Nonnegative</v8:AllowedSign>
+				</v8:NumberQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="Режим" id="9">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+	</Attributes>
+	<Commands>
+		<Command name="Подтвердить" id="1">
+			<Action>Подтвердить</Action>
+		</Command>
+		<Command name="Отклонить" id="2">
+			<Action>Отклонить</Action>
+		</Command>
+	</Commands>
+</Form>

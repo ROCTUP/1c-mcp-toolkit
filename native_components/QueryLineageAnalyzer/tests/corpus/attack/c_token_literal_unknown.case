@@ -1,0 +1,5 @@
+// kind: code
+// expect: confirm
+// reason: C_TOKEN_UNKNOWN
+// class: 12
+Результат = "[str-09999]";

@@ -1,0 +1,6 @@
+// kind: code
+// expect: confirm
+// reason: C_UNKNOWN_INDEX
+// reason: C_UNLABELED_RESULT
+// class: 12
+Результат = Новый Запрос("ВЫБРАТЬ 1").Выполнить().Выгрузить()[0][0];

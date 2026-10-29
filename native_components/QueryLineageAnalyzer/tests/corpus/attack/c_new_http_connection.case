@@ -1,0 +1,8 @@
+// kind: code
+// expect: confirm
+// reason: C_PARSE
+// risk: R_CREDENTIALS
+// risk: R_UNKNOWN_EFFECT
+// class: 12
+Соединение = Новый HTTPСоединение("example.invalid");
+Результат = 1;

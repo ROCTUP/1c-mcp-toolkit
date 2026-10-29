@@ -1,0 +1,10 @@
+// kind: code
+// expect: confirm
+// reason: C_PARSE
+// risk: R_UNKNOWN_EFFECT
+// class: 12
+&НаСервере
+Функция Что()
+    Возврат 1;
+КонецФункции
+Результат = Что();

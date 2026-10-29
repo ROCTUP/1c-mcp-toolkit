@@ -1,0 +1,8 @@
+// kind: code
+// expect: confirm
+// reason: C_RAISE
+// risk: R_WRITE
+// risk: R_UNKNOWN_EFFECT
+// class: 12
+ВызватьИсключение "стоп";
+ЗаписьЖурналаРегистрации("Событие", УровеньЖурналаРегистрации.Информация);

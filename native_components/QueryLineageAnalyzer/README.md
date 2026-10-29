@@ -67,3 +67,7 @@ cp build_linux/QueryLineageAnalyzer.so \
 |--------|----------|--------|--------|-------------|
 | `AnalyzeSources` | `АнализироватьИсточники` | `queryText`, `schemaJson` | `string` | Обогащает `schema` полем `sources` |
 | `Version` | `Версия` | - | `string` | Версия компоненты |
+| `CheckQuery` | `ПроверитьЗапрос` | `queryText`, `policyJson` | `string` | Строгая проверка запроса: JSON с вердиктом, причинами, каноническим текстом и метками колонок |
+| `CheckCode` | `ПроверитьКод` | `code`, `policyJson` | `string` | Строгая проверка кода BSL: JSON с вердиктом, причинами, рисками, каноническим кодом и метками путей `Результат` (`result_labels`); формат описан в `src/bsl/check_code.h` |
+
+Тесты: `ctest --test-dir build_tests -C Release` (сборка с `-DQUERY_LINEAGE_BUILD_TESTS=ON`, см. раздел «Сборка»); наборы включают проверку запросов и кода (`CheckQuery`, `CheckCode`) и корпусы.

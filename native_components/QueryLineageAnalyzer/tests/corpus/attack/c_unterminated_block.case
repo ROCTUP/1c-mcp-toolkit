@@ -1,0 +1,7 @@
+// kind: code
+// expect: confirm
+// reason: C_PARSE
+// risk: R_UNKNOWN_EFFECT
+// class: 12
+Если Истина Тогда
+    Результат = 1;

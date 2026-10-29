@@ -1,0 +1,7 @@
+// kind: query
+// expect: confirm
+// reason: Q_COMPARE_PROTECTED
+// class: parser
+ВЫБРАТЬ Контрагенты.Ссылка КАК Объект
+FROM Справочник.Контрагенты AS Контрагенты
+ГДЕ Контрагенты.ИНН < "5"

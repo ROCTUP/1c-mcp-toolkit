@@ -1,0 +1,8 @@
+// kind: code
+// expect: confirm
+// reason: C_UNKNOWN_IDENT
+// risk: R_UNKNOWN_EFFECT
+// risk: R_WRITE
+// class: 12
+Адрес = ПоместитьВоВременноеХранилище(1, Новый УникальныйИдентификатор);
+Результат = 1;

@@ -1,0 +1,7 @@
+// kind: query
+// expect: confirm
+// reason: Q_FUNC_OVER_PROTECTED
+// reason: Q_COMPARE_PROTECTED
+ВЫБРАТЬ Контрагенты.Ссылка КАК Объект
+ИЗ Справочник.Контрагенты КАК Контрагенты
+ГДЕ Контрагенты.ИНН = &МСПТокен1 + "1"

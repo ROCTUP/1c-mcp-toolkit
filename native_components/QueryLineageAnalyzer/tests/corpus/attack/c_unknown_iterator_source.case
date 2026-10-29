@@ -1,0 +1,8 @@
+// kind: code
+// expect: confirm
+// reason: C_UNKNOWN_IDENT
+// reason: C_UNKNOWN_RECEIVER
+// class: 12
+Для Каждого Элемент Из НеизвестныйИсточник Цикл
+    Результат = 1;
+КонецЦикла;

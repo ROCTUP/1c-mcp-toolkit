@@ -1,0 +1,8 @@
+// kind: code
+// expect: confirm
+// reason: C_UNKNOWN_METHOD
+// risk: R_UNKNOWN_EFFECT
+// class: 12
+З = Новый Запрос("ВЫБРАТЬ 1");
+З.Выполнить().НеизвестныйМетод();
+Результат = 1;

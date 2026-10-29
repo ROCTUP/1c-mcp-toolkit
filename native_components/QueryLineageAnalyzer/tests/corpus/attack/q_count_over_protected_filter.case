@@ -1,0 +1,8 @@
+// kind: query
+// expect: confirm
+// reason: Q_LIKE_PROTECTED
+// reason: Q_AGGREGATE_ROWSET
+// class: 2
+ВЫБРАТЬ КОЛИЧЕСТВО(*) КАК Количество
+ИЗ Справочник.Контрагенты КАК Контрагенты
+ГДЕ Контрагенты.Наименование ПОДОБНО "А%"

@@ -1,0 +1,5 @@
+// kind: code
+// expect: confirm
+// risk: R_WRITE
+ЗаписьЖурналаРегистрации("x");
+Результат = 1;

@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
@@ -7,6 +7,11 @@
 		</v8:item>
 	</Title>
 	<AutoCommandBar name="ФормаКоманднаяПанель" id="-1"/>
+	<Events>
+		<Event name="OnOpen">ПриОткрытии</Event>
+		<Event name="BeforeClose">ПередЗакрытием</Event>
+		<Event name="OnCreateAtServer">ПриСозданииНаСервере</Event>
+	</Events>
 	<ChildItems>
 		<UsualGroup name="ГруппаКомандПравил" id="7">
 			<Group>AlwaysHorizontal</Group>
@@ -49,76 +54,83 @@
 			<ChildItems>
 				<CheckBoxField name="ФлагАгрессивнаяАнонимизация" id="88">
 					<DataPath>АгрессивнаяАнонимизация</DataPath>
-					<TitleLocation>Right</TitleLocation>
 					<Title>
 						<v8:item>
 							<v8:lang>ru</v8:lang>
 							<v8:content>Агрессивная анонимизация</v8:content>
 						</v8:item>
 					</Title>
+					<TitleLocation>Right</TitleLocation>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>ru</v8:lang>
 							<v8:content>Анонимизировать все строковые поля и представления ссылок, не отмеченные явно как «Нет»</v8:content>
 						</v8:item>
 					</ToolTip>
+					<CheckBoxType>Auto</CheckBoxType>
+					<ContextMenu name="ФлагАгрессивнаяАнонимизацияКонтекстноеМеню" id="102"/>
+					<ExtendedTooltip name="ФлагАгрессивнаяАнонимизацияРасширеннаяПодсказка" id="89"/>
 					<Events>
 						<Event name="OnChange">ФлагАгрессивнаяАнонимизацияПриИзменении</Event>
 					</Events>
-					<ExtendedTooltip name="ФлагАгрессивнаяАнонимизацияРасширеннаяПодсказка" id="89"/>
 				</CheckBoxField>
 				<CheckBoxField name="ФлагПодтверждениеАнонимизации" id="100">
 					<DataPath>ПодтверждениеАнонимизации</DataPath>
-					<TitleLocation>Right</TitleLocation>
 					<Title>
 						<v8:item>
 							<v8:lang>ru</v8:lang>
 							<v8:content>Подтверждение анонимизации</v8:content>
 						</v8:item>
 					</Title>
+					<TitleLocation>Right</TitleLocation>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>ru</v8:lang>
 							<v8:content>Перед отправкой ответа агенту показывать окно сравнения оригинала и анонимизированных данных</v8:content>
 						</v8:item>
 					</ToolTip>
+					<CheckBoxType>Auto</CheckBoxType>
+					<ContextMenu name="ФлагПодтверждениеАнонимизацииКонтекстноеМеню" id="103"/>
+					<ExtendedTooltip name="ФлагПодтверждениеАнонимизацииРасширеннаяПодсказка" id="101"/>
 					<Events>
 						<Event name="OnChange">ФлагПодтверждениеАнонимизацияПриИзменении</Event>
 					</Events>
-					<ExtendedTooltip name="ФлагПодтверждениеАнонимизацииРасширеннаяПодсказка" id="101"/>
 				</CheckBoxField>
 				<LabelDecoration name="НадписьРазделитель" id="91">
-					<Title>
+					<Title formatted="false">
 						<v8:item>
 							<v8:lang>ru</v8:lang>
 							<v8:content>  |  </v8:content>
 						</v8:item>
 					</Title>
+					<ContextMenu name="НадписьРазделительКонтекстноеМеню" id="104"/>
 					<ExtendedTooltip name="НадписьРазделительРасширеннаяПодсказка" id="92"/>
 				</LabelDecoration>
 				<InputField name="ПолеИсточникНабора" id="5">
 					<DataPath>ИсточникНабора</DataPath>
+					<ReadOnly>true</ReadOnly>
 					<Title>
 						<v8:item>
 							<v8:lang>ru</v8:lang>
 							<v8:content>Источник набора</v8:content>
 						</v8:item>
 					</Title>
-					<ReadOnly>true</ReadOnly>
 					<Width>50</Width>
+					<ContextMenu name="ПолеИсточникНабораКонтекстноеМеню" id="105"/>
 					<ExtendedTooltip name="ПолеИсточникНабораРасширеннаяПодсказка" id="6"/>
 				</InputField>
 			</ChildItems>
 		</UsualGroup>
 		<LabelDecoration name="НадписьОписание" id="1">
-			<Title>
+			<AutoMaxWidth>false</AutoMaxWidth>
+			<HorizontalStretch>true</HorizontalStretch>
+			<Title formatted="false">
 				<v8:item>
 					<v8:lang>ru</v8:lang>
 					<v8:content>Правила анонимизации применяются к execute_query, execute_code, get_object_by_link, find_references_to_object, get_event_log и get_access_rights. Подробное описание в документации.</v8:content>
 				</v8:item>
 			</Title>
-			<HorizontalStretch>true</HorizontalStretch>
-			<AutoMaxWidth>false</AutoMaxWidth>
+			<ContextMenu name="НадписьОписаниеКонтекстноеМеню" id="106"/>
 			<ExtendedTooltip name="НадписьОписаниеРасширеннаяПодсказка" id="2"/>
 		</LabelDecoration>
 		<UsualGroup name="ГруппаПоискаИФильтра" id="37">
@@ -137,6 +149,7 @@
 					</Title>
 					<HorizontalStretch>true</HorizontalStretch>
 					<ClearButton>true</ClearButton>
+					<ContextMenu name="ПолеПоискаКонтекстноеМеню" id="107"/>
 					<ExtendedTooltip name="ПолеПоискаРасширеннаяПодсказка" id="40"/>
 					<Events>
 						<Event name="OnChange">ПолеПоискаПриИзменении</Event>
@@ -150,13 +163,15 @@
 							<v8:content>Отмеченные</v8:content>
 						</v8:item>
 					</Title>
+					<TitleLocation>Right</TitleLocation>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>ru</v8:lang>
 							<v8:content>Показать только поля с установленной отметкой</v8:content>
 						</v8:item>
 					</ToolTip>
-					<TitleLocation>Right</TitleLocation>
+					<CheckBoxType>Auto</CheckBoxType>
+					<ContextMenu name="КнопкаТолькоОтмеченныеКонтекстноеМеню" id="108"/>
 					<ExtendedTooltip name="КнопкаТолькоОтмеченныеРасширеннаяПодсказка" id="42"/>
 					<Events>
 						<Event name="OnChange">ФильтрТолькоОтмеченныхПриИзменении</Event>
@@ -170,13 +185,15 @@
 							<v8:content>В словаре</v8:content>
 						</v8:item>
 					</Title>
+					<TitleLocation>Right</TitleLocation>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>ru</v8:lang>
 							<v8:content>Показать только поля с флагом "Использовать в словаре"</v8:content>
 						</v8:item>
 					</ToolTip>
-					<TitleLocation>Right</TitleLocation>
+					<CheckBoxType>Auto</CheckBoxType>
+					<ContextMenu name="КнопкаТолькоВСловареКонтекстноеМеню" id="109"/>
 					<ExtendedTooltip name="КнопкаТолькоВСловареРасширеннаяПодсказка" id="94"/>
 					<Events>
 						<Event name="OnChange">ФильтрТолькоВСловареПриИзменении</Event>
@@ -190,6 +207,12 @@
 							<v8:content>Анонимизировать</v8:content>
 						</v8:item>
 					</Title>
+					<ToolTip>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Фильтр по значению поля Анонимизировать: Все — без фильтра, Да — явно задано "Да", Нет — явно задано "Нет", Не задано — значение пустое</v8:content>
+						</v8:item>
+					</ToolTip>
 					<RadioButtonType>RadioButtons</RadioButtonType>
 					<ChoiceList>
 						<xr:Item>
@@ -245,12 +268,7 @@
 							</xr:Value>
 						</xr:Item>
 					</ChoiceList>
-					<ToolTip>
-						<v8:item>
-							<v8:lang>ru</v8:lang>
-							<v8:content>Фильтр по значению поля Анонимизировать: Все — без фильтра, Да — явно задано "Да", Нет — явно задано "Нет", Не задано — значение пустое</v8:content>
-						</v8:item>
-					</ToolTip>
+					<ContextMenu name="ПолеФильтрАнонимизироватьКонтекстноеМеню" id="110"/>
 					<ExtendedTooltip name="ПолеФильтрАнонимизироватьРасширеннаяПодсказка" id="52"/>
 					<Events>
 						<Event name="OnChange">ФильтрАнонимизироватьПриИзменении</Event>
@@ -282,20 +300,42 @@
 			<Representation>Tree</Representation>
 			<ChangeRowSet>false</ChangeRowSet>
 			<ChangeRowOrder>false</ChangeRowOrder>
+			<Width>90</Width>
+			<Height>22</Height>
 			<RowSelectionMode>Row</RowSelectionMode>
 			<HorizontalLines>false</HorizontalLines>
 			<VerticalLines>false</VerticalLines>
-			<AutoInsertNewRow>false</AutoInsertNewRow>
 			<SearchOnInput>Use</SearchOnInput>
 			<DataPath>ДеревоПравил</DataPath>
-			<TitleLocation>None</TitleLocation>
-			<Height>22</Height>
-			<Width>90</Width>
 			<ContextMenu name="ТаблицаДеревоПравилКонтекстноеМеню" id="20"/>
 			<AutoCommandBar name="ТаблицаДеревоПравилКоманднаяПанель" id="21">
 				<Autofill>false</Autofill>
 			</AutoCommandBar>
 			<ExtendedTooltip name="ТаблицаДеревоПравилРасширеннаяПодсказка" id="22"/>
+			<SearchStringAddition name="ТаблицаДеревоПравилСтрокаПоиска" id="111">
+				<AdditionSource>
+					<Item>ТаблицаДеревоПравил</Item>
+					<Type>SearchStringRepresentation</Type>
+				</AdditionSource>
+				<ContextMenu name="ТаблицаДеревоПравилСтрокаПоискаКонтекстноеМеню" id="112"/>
+				<ExtendedTooltip name="ТаблицаДеревоПравилСтрокаПоискаРасширеннаяПодсказка" id="113"/>
+			</SearchStringAddition>
+			<ViewStatusAddition name="ТаблицаДеревоПравилСостояниеПросмотра" id="114">
+				<AdditionSource>
+					<Item>ТаблицаДеревоПравил</Item>
+					<Type>ViewStatusRepresentation</Type>
+				</AdditionSource>
+				<ContextMenu name="ТаблицаДеревоПравилСостояниеПросмотраКонтекстноеМеню" id="115"/>
+				<ExtendedTooltip name="ТаблицаДеревоПравилСостояниеПросмотраРасширеннаяПодсказка" id="116"/>
+			</ViewStatusAddition>
+			<SearchControlAddition name="ТаблицаДеревоПравилУправлениеПоиском" id="117">
+				<AdditionSource>
+					<Item>ТаблицаДеревоПравил</Item>
+					<Type>SearchControl</Type>
+				</AdditionSource>
+				<ContextMenu name="ТаблицаДеревоПравилУправлениеПоискомКонтекстноеМеню" id="118"/>
+				<ExtendedTooltip name="ТаблицаДеревоПравилУправлениеПоискомРасширеннаяПодсказка" id="119"/>
+			</SearchControlAddition>
 			<Events>
 				<Event name="OnActivateRow">ДеревоПравилПриАктивизацииСтроки</Event>
 			</Events>
@@ -314,9 +354,9 @@
 						<CheckBoxField name="ДеревоПравилИспользовать" id="25">
 							<DataPath>ДеревоПравил.Использовать</DataPath>
 							<TitleLocation>None</TitleLocation>
+							<EditMode>EnterOnInput</EditMode>
 							<ShowInHeader>false</ShowInHeader>
 							<ThreeState>true</ThreeState>
-							<EditMode>EnterOnInput</EditMode>
 							<ContextMenu name="ДеревоПравилИспользоватьКонтекстноеМеню" id="26"/>
 							<ExtendedTooltip name="ДеревоПравилИспользоватьРасширеннаяПодсказка" id="27"/>
 							<Events>
@@ -332,8 +372,8 @@
 						</PictureField>
 						<InputField name="ДеревоПравилПредставление" id="28">
 							<DataPath>ДеревоПравил.Представление</DataPath>
-							<TitleLocation>None</TitleLocation>
 							<ReadOnly>true</ReadOnly>
+							<TitleLocation>None</TitleLocation>
 							<Width>55</Width>
 							<ContextMenu name="ДеревоПравилПредставлениеКонтекстноеМеню" id="29"/>
 							<ExtendedTooltip name="ДеревоПравилПредставлениеРасширеннаяПодсказка" id="30"/>
@@ -342,13 +382,13 @@
 				</ColumnGroup>
 				<InputField name="ДеревоПравилКлассТипа" id="97">
 					<DataPath>ДеревоПравил.КлассТипа</DataPath>
+					<ReadOnly>true</ReadOnly>
 					<Title>
 						<v8:item>
 							<v8:lang>ru</v8:lang>
 							<v8:content>Тип</v8:content>
 						</v8:item>
 					</Title>
-					<ReadOnly>true</ReadOnly>
 					<Width>12</Width>
 					<ContextMenu name="ДеревоПравилКлассТипаКонтекстноеМеню" id="98"/>
 					<ExtendedTooltip name="ДеревоПравилКлассТипаРасширеннаяПодсказка" id="99"/>
@@ -362,11 +402,10 @@
 						</v8:item>
 					</Title>
 					<Width>18</Width>
+					<DropListButton>true</DropListButton>
+					<ChoiceButton>false</ChoiceButton>
 					<ListChoiceMode>true</ListChoiceMode>
 					<TextEdit>false</TextEdit>
-					<ChoiceButton>false</ChoiceButton>
-					<DropListButton>true</DropListButton>
-					<ChoiceListButton>true</ChoiceListButton>
 					<ChoiceList>
 						<xr:Item>
 							<xr:Presentation/>
@@ -395,6 +434,7 @@
 							</xr:Value>
 						</xr:Item>
 					</ChoiceList>
+					<ChoiceListButton>true</ChoiceListButton>
 					<ContextMenu name="ДеревоПравилАнонимизироватьКонтекстноеМеню" id="32"/>
 					<ExtendedTooltip name="ДеревоПравилАнонимизироватьРасширеннаяПодсказка" id="33"/>
 					<Events>
@@ -409,8 +449,8 @@
 							<v8:content>В словарь</v8:content>
 						</v8:item>
 					</Title>
-					<Width>8</Width>
 					<EditMode>EnterOnInput</EditMode>
+					<CheckBoxType>Auto</CheckBoxType>
 					<ContextMenu name="ДеревоПравилИспользоватьДляСловаряКонтекстноеМеню" id="54"/>
 					<ExtendedTooltip name="ДеревоПравилИспользоватьДляСловаряРасширеннаяПодсказка" id="55"/>
 					<Events>
@@ -425,25 +465,29 @@
 							<v8:content>Категория</v8:content>
 						</v8:item>
 					</Title>
-					<Width>8</Width>
 					<EditMode>EnterOnInput</EditMode>
-					<ChoiceButton>false</ChoiceButton>
+					<Width>8</Width>
 					<DropListButton>true</DropListButton>
-					<ChoiceListButton>true</ChoiceListButton>
+					<ChoiceButton>false</ChoiceButton>
 					<ChoiceList>
 						<xr:Item>
 							<xr:Presentation/>
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
 								<Presentation/>
-								<Value xsi:type="xs:string"></Value>
+								<Value xsi:type="xs:string"/>
 							</xr:Value>
 						</xr:Item>
 						<xr:Item>
 							<xr:Presentation/>
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>ORG</v8:content></v8:item></Presentation>
+								<Presentation>
+									<v8:item>
+										<v8:lang>ru</v8:lang>
+										<v8:content>ORG</v8:content>
+									</v8:item>
+								</Presentation>
 								<Value xsi:type="xs:string">ORG</Value>
 							</xr:Value>
 						</xr:Item>
@@ -451,7 +495,12 @@
 							<xr:Presentation/>
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>PER</v8:content></v8:item></Presentation>
+								<Presentation>
+									<v8:item>
+										<v8:lang>ru</v8:lang>
+										<v8:content>PER</v8:content>
+									</v8:item>
+								</Presentation>
 								<Value xsi:type="xs:string">PER</Value>
 							</xr:Value>
 						</xr:Item>
@@ -459,7 +508,12 @@
 							<xr:Presentation/>
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>LOC</v8:content></v8:item></Presentation>
+								<Presentation>
+									<v8:item>
+										<v8:lang>ru</v8:lang>
+										<v8:content>LOC</v8:content>
+									</v8:item>
+								</Presentation>
 								<Value xsi:type="xs:string">LOC</Value>
 							</xr:Value>
 						</xr:Item>
@@ -467,7 +521,12 @@
 							<xr:Presentation/>
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>STR</v8:content></v8:item></Presentation>
+								<Presentation>
+									<v8:item>
+										<v8:lang>ru</v8:lang>
+										<v8:content>STR</v8:content>
+									</v8:item>
+								</Presentation>
 								<Value xsi:type="xs:string">STR</Value>
 							</xr:Value>
 						</xr:Item>
@@ -475,7 +534,12 @@
 							<xr:Presentation/>
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>INN</v8:content></v8:item></Presentation>
+								<Presentation>
+									<v8:item>
+										<v8:lang>ru</v8:lang>
+										<v8:content>INN</v8:content>
+									</v8:item>
+								</Presentation>
 								<Value xsi:type="xs:string">INN</Value>
 							</xr:Value>
 						</xr:Item>
@@ -483,7 +547,12 @@
 							<xr:Presentation/>
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>KPP</v8:content></v8:item></Presentation>
+								<Presentation>
+									<v8:item>
+										<v8:lang>ru</v8:lang>
+										<v8:content>KPP</v8:content>
+									</v8:item>
+								</Presentation>
 								<Value xsi:type="xs:string">KPP</Value>
 							</xr:Value>
 						</xr:Item>
@@ -491,7 +560,12 @@
 							<xr:Presentation/>
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>OGRN</v8:content></v8:item></Presentation>
+								<Presentation>
+									<v8:item>
+										<v8:lang>ru</v8:lang>
+										<v8:content>OGRN</v8:content>
+									</v8:item>
+								</Presentation>
 								<Value xsi:type="xs:string">OGRN</Value>
 							</xr:Value>
 						</xr:Item>
@@ -499,7 +573,12 @@
 							<xr:Presentation/>
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>SNILS</v8:content></v8:item></Presentation>
+								<Presentation>
+									<v8:item>
+										<v8:lang>ru</v8:lang>
+										<v8:content>SNILS</v8:content>
+									</v8:item>
+								</Presentation>
 								<Value xsi:type="xs:string">SNILS</Value>
 							</xr:Value>
 						</xr:Item>
@@ -507,7 +586,12 @@
 							<xr:Presentation/>
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>PASSPORT</v8:content></v8:item></Presentation>
+								<Presentation>
+									<v8:item>
+										<v8:lang>ru</v8:lang>
+										<v8:content>PASSPORT</v8:content>
+									</v8:item>
+								</Presentation>
 								<Value xsi:type="xs:string">PASSPORT</Value>
 							</xr:Value>
 						</xr:Item>
@@ -515,7 +599,12 @@
 							<xr:Presentation/>
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>PHONE</v8:content></v8:item></Presentation>
+								<Presentation>
+									<v8:item>
+										<v8:lang>ru</v8:lang>
+										<v8:content>PHONE</v8:content>
+									</v8:item>
+								</Presentation>
 								<Value xsi:type="xs:string">PHONE</Value>
 							</xr:Value>
 						</xr:Item>
@@ -523,7 +612,12 @@
 							<xr:Presentation/>
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>EMAIL</v8:content></v8:item></Presentation>
+								<Presentation>
+									<v8:item>
+										<v8:lang>ru</v8:lang>
+										<v8:content>EMAIL</v8:content>
+									</v8:item>
+								</Presentation>
 								<Value xsi:type="xs:string">EMAIL</Value>
 							</xr:Value>
 						</xr:Item>
@@ -531,7 +625,12 @@
 							<xr:Presentation/>
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>DATE</v8:content></v8:item></Presentation>
+								<Presentation>
+									<v8:item>
+										<v8:lang>ru</v8:lang>
+										<v8:content>DATE</v8:content>
+									</v8:item>
+								</Presentation>
 								<Value xsi:type="xs:string">DATE</Value>
 							</xr:Value>
 						</xr:Item>
@@ -539,7 +638,12 @@
 							<xr:Presentation/>
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>BIK</v8:content></v8:item></Presentation>
+								<Presentation>
+									<v8:item>
+										<v8:lang>ru</v8:lang>
+										<v8:content>BIK</v8:content>
+									</v8:item>
+								</Presentation>
 								<Value xsi:type="xs:string">BIK</Value>
 							</xr:Value>
 						</xr:Item>
@@ -547,7 +651,12 @@
 							<xr:Presentation/>
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>ACC</v8:content></v8:item></Presentation>
+								<Presentation>
+									<v8:item>
+										<v8:lang>ru</v8:lang>
+										<v8:content>ACC</v8:content>
+									</v8:item>
+								</Presentation>
 								<Value xsi:type="xs:string">ACC</Value>
 							</xr:Value>
 						</xr:Item>
@@ -555,7 +664,12 @@
 							<xr:Presentation/>
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>SWIFT</v8:content></v8:item></Presentation>
+								<Presentation>
+									<v8:item>
+										<v8:lang>ru</v8:lang>
+										<v8:content>SWIFT</v8:content>
+									</v8:item>
+								</Presentation>
 								<Value xsi:type="xs:string">SWIFT</Value>
 							</xr:Value>
 						</xr:Item>
@@ -563,7 +677,12 @@
 							<xr:Presentation/>
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>IBAN</v8:content></v8:item></Presentation>
+								<Presentation>
+									<v8:item>
+										<v8:lang>ru</v8:lang>
+										<v8:content>IBAN</v8:content>
+									</v8:item>
+								</Presentation>
 								<Value xsi:type="xs:string">IBAN</Value>
 							</xr:Value>
 						</xr:Item>
@@ -571,11 +690,17 @@
 							<xr:Presentation/>
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>CARD</v8:content></v8:item></Presentation>
+								<Presentation>
+									<v8:item>
+										<v8:lang>ru</v8:lang>
+										<v8:content>CARD</v8:content>
+									</v8:item>
+								</Presentation>
 								<Value xsi:type="xs:string">CARD</Value>
 							</xr:Value>
 						</xr:Item>
 					</ChoiceList>
+					<ChoiceListButton>true</ChoiceListButton>
 					<ContextMenu name="ДеревоПравилКатегорияТокенаКонтекстноеМеню" id="57"/>
 					<ExtendedTooltip name="ДеревоПравилКатегорияТокенаРасширеннаяПодсказка" id="58"/>
 					<Events>
@@ -585,209 +710,285 @@
 			</ChildItems>
 		</Table>
 		<UsualGroup name="ГруппаRegexПравил" id="84">
-			<Group>Vertical</Group>
 			<Title>
 				<v8:item>
 					<v8:lang>ru</v8:lang>
 					<v8:content>Regex-правила анонимизации</v8:content>
 				</v8:item>
 			</Title>
+			<Group>Vertical</Group>
 			<Behavior>Collapsible</Behavior>
 			<ControlRepresentation>Picture</ControlRepresentation>
 			<ExtendedTooltip name="ГруппаRegexПравилРасширеннаяПодсказка" id="85"/>
 			<ChildItems>
-		<UsualGroup name="ГруппаКомандRegex" id="62">
-			<Group>AlwaysHorizontal</Group>
-			<Representation>None</Representation>
-			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="ГруппаКомандRegexРасширеннаяПодсказка" id="63"/>
-			<ChildItems>
-				<Button name="КнопкаДобавитьRegexПравило" id="64">
-					<Type>UsualButton</Type>
-					<CommandName>Form.Command.ДобавитьRegexПравило</CommandName>
-					<ExtendedTooltip name="КнопкаДобавитьRegexПравилоРасширеннаяПодсказка" id="65"/>
-				</Button>
-				<Button name="КнопкаУдалитьRegexПравило" id="66">
-					<Type>UsualButton</Type>
-					<CommandName>Form.Command.УдалитьRegexПравило</CommandName>
-					<ExtendedTooltip name="КнопкаУдалитьRegexПравилоРасширеннаяПодсказка" id="67"/>
-				</Button>
-			</ChildItems>
-		</UsualGroup>
-		<Table name="ТаблицаRegexПравил" id="68">
-			<ChangeRowSet>true</ChangeRowSet>
-			<ChangeRowOrder>true</ChangeRowOrder>
-			<RowSelectionMode>Row</RowSelectionMode>
-			<AutoInsertNewRow>false</AutoInsertNewRow>
-			<DataPath>ТаблицаRegexПравил</DataPath>
-			<TitleLocation>None</TitleLocation>
-			<Height>10</Height>
-			<Width>90</Width>
-			<ContextMenu name="ТаблицаRegexПравилКонтекстноеМеню" id="69"/>
-			<AutoCommandBar name="ТаблицаRegexПравилКоманднаяПанель" id="70">
-				<Autofill>false</Autofill>
-			</AutoCommandBar>
-			<ExtendedTooltip name="ТаблицаRegexПравилРасширеннаяПодсказка" id="71"/>
-			<Events>
-				<Event name="OnEditEnd">ТаблицаRegexПравилШаблонПриОкончанииРедактирования</Event>
-			</Events>
-			<ChildItems>
-				<CheckBoxField name="ТаблицаRegexПравилВключено" id="72">
-					<DataPath>ТаблицаRegexПравил.Включено</DataPath>
-					<Title>
-						<v8:item>
-							<v8:lang>ru</v8:lang>
-							<v8:content>Вкл</v8:content>
-						</v8:item>
-					</Title>
-					<Width>4</Width>
-					<EditMode>EnterOnInput</EditMode>
-					<ContextMenu name="ТаблицаRegexПравилВключеноКонтекстноеМеню" id="73"/>
-					<ExtendedTooltip name="ТаблицаRegexПравилВключеноРасширеннаяПодсказка" id="74"/>
+				<UsualGroup name="ГруппаКомандRegex" id="62">
+					<Group>AlwaysHorizontal</Group>
+					<Representation>None</Representation>
+					<ShowTitle>false</ShowTitle>
+					<ExtendedTooltip name="ГруппаКомандRegexРасширеннаяПодсказка" id="63"/>
+					<ChildItems>
+						<Button name="КнопкаДобавитьRegexПравило" id="64">
+							<Type>UsualButton</Type>
+							<CommandName>Form.Command.ДобавитьRegexПравило</CommandName>
+							<ExtendedTooltip name="КнопкаДобавитьRegexПравилоРасширеннаяПодсказка" id="65"/>
+						</Button>
+						<Button name="КнопкаУдалитьRegexПравило" id="66">
+							<Type>UsualButton</Type>
+							<CommandName>Form.Command.УдалитьRegexПравило</CommandName>
+							<ExtendedTooltip name="КнопкаУдалитьRegexПравилоРасширеннаяПодсказка" id="67"/>
+						</Button>
+					</ChildItems>
+				</UsualGroup>
+				<Table name="ТаблицаRegexПравил" id="68">
+					<Width>90</Width>
+					<Height>10</Height>
+					<RowSelectionMode>Row</RowSelectionMode>
+					<DataPath>ТаблицаRegexПравил</DataPath>
+					<RowFilter xsi:nil="true"/>
+					<ContextMenu name="ТаблицаRegexПравилКонтекстноеМеню" id="69"/>
+					<AutoCommandBar name="ТаблицаRegexПравилКоманднаяПанель" id="70">
+						<Autofill>false</Autofill>
+					</AutoCommandBar>
+					<ExtendedTooltip name="ТаблицаRegexПравилРасширеннаяПодсказка" id="71"/>
+					<SearchStringAddition name="ТаблицаRegexПравилСтрокаПоиска" id="120">
+						<AdditionSource>
+							<Item>ТаблицаRegexПравил</Item>
+							<Type>SearchStringRepresentation</Type>
+						</AdditionSource>
+						<ContextMenu name="ТаблицаRegexПравилСтрокаПоискаКонтекстноеМеню" id="121"/>
+						<ExtendedTooltip name="ТаблицаRegexПравилСтрокаПоискаРасширеннаяПодсказка" id="122"/>
+					</SearchStringAddition>
+					<ViewStatusAddition name="ТаблицаRegexПравилСостояниеПросмотра" id="123">
+						<AdditionSource>
+							<Item>ТаблицаRegexПравил</Item>
+							<Type>ViewStatusRepresentation</Type>
+						</AdditionSource>
+						<ContextMenu name="ТаблицаRegexПравилСостояниеПросмотраКонтекстноеМеню" id="124"/>
+						<ExtendedTooltip name="ТаблицаRegexПравилСостояниеПросмотраРасширеннаяПодсказка" id="125"/>
+					</ViewStatusAddition>
+					<SearchControlAddition name="ТаблицаRegexПравилУправлениеПоиском" id="126">
+						<AdditionSource>
+							<Item>ТаблицаRegexПравил</Item>
+							<Type>SearchControl</Type>
+						</AdditionSource>
+						<ContextMenu name="ТаблицаRegexПравилУправлениеПоискомКонтекстноеМеню" id="127"/>
+						<ExtendedTooltip name="ТаблицаRegexПравилУправлениеПоискомРасширеннаяПодсказка" id="128"/>
+					</SearchControlAddition>
 					<Events>
-						<Event name="OnChange">ТаблицаRegexПравилПриИзменении</Event>
+						<Event name="OnEditEnd">ТаблицаRegexПравилШаблонПриОкончанииРедактирования</Event>
 					</Events>
-				</CheckBoxField>
-				<InputField name="ТаблицаRegexПравилШаблон" id="75">
-					<DataPath>ТаблицаRegexПравил.Шаблон</DataPath>
-					<Title>
-						<v8:item>
-							<v8:lang>ru</v8:lang>
-							<v8:content>Шаблон (PCRE2)</v8:content>
-						</v8:item>
-					</Title>
-					<Width>40</Width>
-					<EditMode>EnterOnInput</EditMode>
-					<ContextMenu name="ТаблицаRegexПравилШаблонКонтекстноеМеню" id="76"/>
-					<ExtendedTooltip name="ТаблицаRegexПравилШаблонРасширеннаяПодсказка" id="77"/>
-					<Events>
-						<Event name="OnChange">ТаблицаRegexПравилПриИзменении</Event>
-					</Events>
-				</InputField>
-				<InputField name="ТаблицаRegexПравилКатегорияТокена" id="78">
-					<DataPath>ТаблицаRegexПравил.КатегорияТокена</DataPath>
-					<Title>
-						<v8:item>
-							<v8:lang>ru</v8:lang>
-							<v8:content>Категория</v8:content>
-						</v8:item>
-					</Title>
-					<Width>10</Width>
-					<EditMode>EnterOnInput</EditMode>
-					<ChoiceList>
-						<xr:Item>
-							<xr:Presentation/>
-							<xr:CheckState>0</xr:CheckState>
-							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>ORG</v8:content></v8:item></Presentation>
-								<Value xsi:type="xs:string">ORG</Value>
-							</xr:Value>
-						</xr:Item>
-						<xr:Item>
-							<xr:Presentation/>
-							<xr:CheckState>0</xr:CheckState>
-							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>PER</v8:content></v8:item></Presentation>
-								<Value xsi:type="xs:string">PER</Value>
-							</xr:Value>
-						</xr:Item>
-						<xr:Item>
-							<xr:Presentation/>
-							<xr:CheckState>0</xr:CheckState>
-							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>INN</v8:content></v8:item></Presentation>
-								<Value xsi:type="xs:string">INN</Value>
-							</xr:Value>
-						</xr:Item>
-						<xr:Item>
-							<xr:Presentation/>
-							<xr:CheckState>0</xr:CheckState>
-							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>EMAIL</v8:content></v8:item></Presentation>
-								<Value xsi:type="xs:string">EMAIL</Value>
-							</xr:Value>
-						</xr:Item>
-						<xr:Item>
-							<xr:Presentation/>
-							<xr:CheckState>0</xr:CheckState>
-							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>PHONE</v8:content></v8:item></Presentation>
-								<Value xsi:type="xs:string">PHONE</Value>
-							</xr:Value>
-						</xr:Item>
-						<xr:Item>
-							<xr:Presentation/>
-							<xr:CheckState>0</xr:CheckState>
-							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>SNILS</v8:content></v8:item></Presentation>
-								<Value xsi:type="xs:string">SNILS</Value>
-							</xr:Value>
-						</xr:Item>
-						<xr:Item>
-							<xr:Presentation/>
-							<xr:CheckState>0</xr:CheckState>
-							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>PASSPORT</v8:content></v8:item></Presentation>
-								<Value xsi:type="xs:string">PASSPORT</Value>
-							</xr:Value>
-						</xr:Item>
-						<xr:Item>
-							<xr:Presentation/>
-							<xr:CheckState>0</xr:CheckState>
-							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>BIK</v8:content></v8:item></Presentation>
-								<Value xsi:type="xs:string">BIK</Value>
-							</xr:Value>
-						</xr:Item>
-						<xr:Item>
-							<xr:Presentation/>
-							<xr:CheckState>0</xr:CheckState>
-							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>OGRN</v8:content></v8:item></Presentation>
-								<Value xsi:type="xs:string">OGRN</Value>
-							</xr:Value>
-						</xr:Item>
-						<xr:Item>
-							<xr:Presentation/>
-							<xr:CheckState>0</xr:CheckState>
-							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>KPP</v8:content></v8:item></Presentation>
-								<Value xsi:type="xs:string">KPP</Value>
-							</xr:Value>
-						</xr:Item>
-						<xr:Item>
-							<xr:Presentation/>
-							<xr:CheckState>0</xr:CheckState>
-							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation><v8:item><v8:lang>ru</v8:lang><v8:content>STR</v8:content></v8:item></Presentation>
-								<Value xsi:type="xs:string">STR</Value>
-							</xr:Value>
-						</xr:Item>
-					</ChoiceList>
-					<ContextMenu name="ТаблицаRegexПравилКатегорияТокенаКонтекстноеМеню" id="79"/>
-					<ExtendedTooltip name="ТаблицаRegexПравилКатегорияТокенаРасширеннаяПодсказка" id="80"/>
-					<Events>
-						<Event name="OnChange">ТаблицаRegexПравилПриИзменении</Event>
-					</Events>
-				</InputField>
-				<InputField name="ТаблицаRegexПравилОписание" id="81">
-					<DataPath>ТаблицаRegexПравил.Описание</DataPath>
-					<Title>
-						<v8:item>
-							<v8:lang>ru</v8:lang>
-							<v8:content>Описание</v8:content>
-						</v8:item>
-					</Title>
-					<Width>30</Width>
-					<EditMode>EnterOnInput</EditMode>
-					<ContextMenu name="ТаблицаRegexПравилОписаниеКонтекстноеМеню" id="82"/>
-					<ExtendedTooltip name="ТаблицаRegexПравилОписаниеРасширеннаяПодсказка" id="83"/>
-					<Events>
-						<Event name="OnChange">ТаблицаRegexПравилПриИзменении</Event>
-					</Events>
-				</InputField>
-			</ChildItems>
-		</Table>
+					<ChildItems>
+						<CheckBoxField name="ТаблицаRegexПравилВключено" id="72">
+							<DataPath>ТаблицаRegexПравил.Включено</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Вкл</v8:content>
+								</v8:item>
+							</Title>
+							<EditMode>EnterOnInput</EditMode>
+							<CheckBoxType>Auto</CheckBoxType>
+							<ContextMenu name="ТаблицаRegexПравилВключеноКонтекстноеМеню" id="73"/>
+							<ExtendedTooltip name="ТаблицаRegexПравилВключеноРасширеннаяПодсказка" id="74"/>
+							<Events>
+								<Event name="OnChange">ТаблицаRegexПравилПриИзменении</Event>
+							</Events>
+						</CheckBoxField>
+						<InputField name="ТаблицаRegexПравилШаблон" id="75">
+							<DataPath>ТаблицаRegexПравил.Шаблон</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Шаблон (PCRE2)</v8:content>
+								</v8:item>
+							</Title>
+							<EditMode>EnterOnInput</EditMode>
+							<Width>40</Width>
+							<ContextMenu name="ТаблицаRegexПравилШаблонКонтекстноеМеню" id="76"/>
+							<ExtendedTooltip name="ТаблицаRegexПравилШаблонРасширеннаяПодсказка" id="77"/>
+							<Events>
+								<Event name="OnChange">ТаблицаRegexПравилПриИзменении</Event>
+							</Events>
+						</InputField>
+						<InputField name="ТаблицаRegexПравилКатегорияТокена" id="78">
+							<DataPath>ТаблицаRegexПравил.КатегорияТокена</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Категория</v8:content>
+								</v8:item>
+							</Title>
+							<EditMode>EnterOnInput</EditMode>
+							<Width>10</Width>
+							<ChoiceList>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation>
+											<v8:item>
+												<v8:lang>ru</v8:lang>
+												<v8:content>ORG</v8:content>
+											</v8:item>
+										</Presentation>
+										<Value xsi:type="xs:string">ORG</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation>
+											<v8:item>
+												<v8:lang>ru</v8:lang>
+												<v8:content>PER</v8:content>
+											</v8:item>
+										</Presentation>
+										<Value xsi:type="xs:string">PER</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation>
+											<v8:item>
+												<v8:lang>ru</v8:lang>
+												<v8:content>INN</v8:content>
+											</v8:item>
+										</Presentation>
+										<Value xsi:type="xs:string">INN</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation>
+											<v8:item>
+												<v8:lang>ru</v8:lang>
+												<v8:content>EMAIL</v8:content>
+											</v8:item>
+										</Presentation>
+										<Value xsi:type="xs:string">EMAIL</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation>
+											<v8:item>
+												<v8:lang>ru</v8:lang>
+												<v8:content>PHONE</v8:content>
+											</v8:item>
+										</Presentation>
+										<Value xsi:type="xs:string">PHONE</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation>
+											<v8:item>
+												<v8:lang>ru</v8:lang>
+												<v8:content>SNILS</v8:content>
+											</v8:item>
+										</Presentation>
+										<Value xsi:type="xs:string">SNILS</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation>
+											<v8:item>
+												<v8:lang>ru</v8:lang>
+												<v8:content>PASSPORT</v8:content>
+											</v8:item>
+										</Presentation>
+										<Value xsi:type="xs:string">PASSPORT</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation>
+											<v8:item>
+												<v8:lang>ru</v8:lang>
+												<v8:content>BIK</v8:content>
+											</v8:item>
+										</Presentation>
+										<Value xsi:type="xs:string">BIK</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation>
+											<v8:item>
+												<v8:lang>ru</v8:lang>
+												<v8:content>OGRN</v8:content>
+											</v8:item>
+										</Presentation>
+										<Value xsi:type="xs:string">OGRN</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation>
+											<v8:item>
+												<v8:lang>ru</v8:lang>
+												<v8:content>KPP</v8:content>
+											</v8:item>
+										</Presentation>
+										<Value xsi:type="xs:string">KPP</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation>
+											<v8:item>
+												<v8:lang>ru</v8:lang>
+												<v8:content>STR</v8:content>
+											</v8:item>
+										</Presentation>
+										<Value xsi:type="xs:string">STR</Value>
+									</xr:Value>
+								</xr:Item>
+							</ChoiceList>
+							<ContextMenu name="ТаблицаRegexПравилКатегорияТокенаКонтекстноеМеню" id="79"/>
+							<ExtendedTooltip name="ТаблицаRegexПравилКатегорияТокенаРасширеннаяПодсказка" id="80"/>
+							<Events>
+								<Event name="OnChange">ТаблицаRegexПравилПриИзменении</Event>
+							</Events>
+						</InputField>
+						<InputField name="ТаблицаRegexПравилОписание" id="81">
+							<DataPath>ТаблицаRegexПравил.Описание</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Описание</v8:content>
+								</v8:item>
+							</Title>
+							<EditMode>EnterOnInput</EditMode>
+							<Width>30</Width>
+							<ContextMenu name="ТаблицаRegexПравилОписаниеКонтекстноеМеню" id="82"/>
+							<ExtendedTooltip name="ТаблицаRegexПравилОписаниеРасширеннаяПодсказка" id="83"/>
+							<Events>
+								<Event name="OnChange">ТаблицаRegexПравилПриИзменении</Event>
+							</Events>
+						</InputField>
+					</ChildItems>
+				</Table>
 			</ChildItems>
 		</UsualGroup>
 	</ChildItems>
@@ -858,6 +1059,11 @@
 		<Attribute name="ФильтрАнонимизировать" id="9">
 			<Type>
 				<v8:Type>xs:decimal</v8:Type>
+				<v8:NumberQualifiers>
+					<v8:Digits>0</v8:Digits>
+					<v8:FractionDigits>0</v8:FractionDigits>
+					<v8:AllowedSign>Any</v8:AllowedSign>
+				</v8:NumberQualifiers>
 			</Type>
 		</Attribute>
 		<Attribute name="ИсточникНабораБазовый" id="8">
@@ -1145,9 +1351,4 @@
 			<Representation>Picture</Representation>
 		</Command>
 	</Commands>
-	<Events>
-		<Event name="ПриСозданииНаСервере">ПриСозданииНаСервере</Event>
-		<Event name="ПриОткрытии">ПриОткрытии</Event>
-		<Event name="ПередЗакрытием">ПередЗакрытием</Event>
-	</Events>
 </Form>

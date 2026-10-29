@@ -1,0 +1,9 @@
+// kind: code
+// expect: confirm
+// reason: C_UNKNOWN_METHOD
+// reason: C_UNKNOWN_INDEX
+// risk: R_UNKNOWN_EFFECT
+// class: 12
+Список = Новый СписокЗначений;
+Список.Добавить(1);
+Результат = Список[0];

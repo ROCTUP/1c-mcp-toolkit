@@ -1,0 +1,8 @@
+// kind: code
+// expect: confirm
+// reason: C_PARSE
+// risk: R_UNKNOWN_EFFECT
+// risk: R_CREDENTIALS
+// class: 12
+Объект = Новый COMОбъект("Scripting.FileSystemObject");
+Результат = 1;

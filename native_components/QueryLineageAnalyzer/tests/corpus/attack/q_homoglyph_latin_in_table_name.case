@@ -1,0 +1,5 @@
+// kind: query
+// expect: confirm
+// reason: Q_PARSE_MIXED_SCRIPT
+ВЫБРАТЬ Контрагенты.Ссылка КАК Объект
+ИЗ Справочник.Kонтрагенты КАК Контрагенты
