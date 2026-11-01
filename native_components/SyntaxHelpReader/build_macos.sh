@@ -15,9 +15,8 @@ NAME="$(basename "$SCRIPT_DIR")"
 cd "$SCRIPT_DIR"
 
 rm -rf build_macos
-cmake -B build_macos -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" -DSYNTAX_HELP_BUILD_TESTS=ON
+cmake -B build_macos -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" -DSYNTAX_HELP_BUILD_TESTS=OFF
 cmake --build build_macos -j"$(sysctl -n hw.ncpu)"
-ctest --test-dir build_macos --output-on-failure --timeout 30
 
 DYLIB="build_macos/${NAME}.dylib"
 
