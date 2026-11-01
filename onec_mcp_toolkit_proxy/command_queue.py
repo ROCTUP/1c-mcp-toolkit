@@ -31,6 +31,10 @@ class Command:
     params: Dict[str, Any]
     created_at: datetime = field(default_factory=datetime.utcnow)
     result_event: asyncio.Event = field(default_factory=asyncio.Event)
+    deadline: Optional[float] = None
+    consumer: Any = None
+    queued_at_monotonic: float = field(default_factory=lambda: time.monotonic())
+    dispatched_at_monotonic: Optional[float] = None
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert command to dictionary for JSON serialization."""
@@ -74,13 +78,14 @@ class CommandQueue:
         async with self._lock:
             return self._add_command(tool, params)
 
-    def _add_command(self, tool: str, params: Dict[str, Any]) -> str:
+    def _add_command(self, tool: str, params: Dict[str, Any], timeout: Optional[float] = None) -> str:
         """Publish without suspension; all queue state belongs to one event loop."""
         command_id = str(uuid.uuid4())
         command = Command(
             id=command_id,
             tool=tool,
-            params=params
+            params=params,
+            deadline=time.monotonic() + timeout if timeout is not None else None,
         )
         
         self._pending[command_id] = command
@@ -101,6 +106,10 @@ class CommandQueue:
         """
         deadline = time.monotonic() + timeout if timeout and timeout > 0 else None
         while True:
+            # A blocked event loop can resume this poll after its HTTP client
+            # has timed out. Leave an undelivered command for the next poll.
+            if deadline is not None and time.monotonic() >= deadline:
+                return None
             if self._queue:
                 _, command = self._queue.popitem(last=False)
                 if not self._queue:
@@ -132,6 +141,10 @@ class CommandQueue:
                 return False
             
             command = self._pending[command_id]
+            # A late worker response must not overwrite an accepted cancellation
+            # (or any other terminal result) before the waiting task resumes.
+            if command.result_event.is_set():
+                return False
             self._results[command_id] = result
             command.result_event.set()
             return True
@@ -157,6 +170,9 @@ class CommandQueue:
             raise KeyError(f"Command {command_id} not found") from None
         self._waiters.add(command_id)
         try:
+            now = time.monotonic()
+            command.deadline = min(command.deadline, now + timeout) if command.deadline is not None else now + timeout
+            timeout = max(0, command.deadline - now)
             await asyncio.wait_for(command.result_event.wait(), timeout=timeout)
             if command_id not in self._pending:
                 raise KeyError(f"Command {command_id} removed while waiting")
@@ -246,8 +262,44 @@ class ChannelCommandQueue:
         
         # Default channel always exists
         self._channels["default"] = CommandQueue()
+
+    def invalidate_consumer(self, consumer):
+        queue = self._channels.get(consumer.channel)
+        if queue:
+            for command in list(queue._pending.values()):
+                if command.consumer is consumer:
+                    queue._queue.pop(command.id, None)
+                    queue._results[command.id] = {'success': False, 'error': '1C channel owner changed'}
+                    command.result_event.set()
+
+    def get_command(self, command_id):
+        queue = self._channels.get(self._command_index.get(command_id))
+        return queue._pending.get(command_id) if queue else None
+
+    def channel_status(self, channel: str, now: float) -> Dict[str, Any]:
+        """Non-suspending snapshot of pending commands in exactly one channel."""
+        snapshot = {
+            'queued_count': 0, 'oldest_queued_seconds': None,
+            'awaiting_result_count': 0, 'oldest_awaiting_result_seconds': None,
+        }
+        queue = self._channels.get(channel)
+        if queue is None:
+            return snapshot
+        for command in queue._pending.values():
+            if (self._command_index.get(command.id) != channel or command.result_event.is_set()
+                    or (command.deadline is not None and command.deadline <= now)):
+                continue
+            if command.dispatched_at_monotonic is None:
+                group, started = 'queued', command.queued_at_monotonic
+            else:
+                group, started = 'awaiting_result', command.dispatched_at_monotonic
+            age = round(max(0, now - started), 3)
+            snapshot[group + '_count'] += 1
+            oldest = 'oldest_' + group + '_seconds'
+            snapshot[oldest] = age if snapshot[oldest] is None else max(snapshot[oldest], age)
+        return snapshot
     
-    async def add_command(self, channel: str, tool: str, params: Dict[str, Any]) -> str:
+    async def add_command(self, channel: str, tool: str, params: Dict[str, Any], timeout: Optional[float] = None) -> str:
         """
         Add a command to a channel's queue.
         
@@ -270,13 +322,27 @@ class ChannelCommandQueue:
             queue = self._channels[channel]
         
             # Publish the command and its routing index in one non-suspending step.
-            command_id = queue._add_command(tool, params)
+            from .consumer_registry import current_consumer, check_current
+            check_current()
+            command_id = queue._add_command(tool, params, timeout)
+            queue._pending[command_id].consumer = current_consumer.get()
             self._command_index[command_id] = channel
         
         logger.info(f"Command {command_id} added to channel '{channel}'")
         return command_id
+
+    def command_states(self, channel: str, command_ids: List[str]) -> List[Dict[str, Any]]:
+        """Non-suspending channel-scoped snapshot; absent/foreign IDs reveal no state."""
+        queue = self._channels.get(channel)
+        now = time.monotonic()
+        result = []
+        for command_id in command_ids:
+            command = queue._pending.get(command_id) if queue is not None else None
+            remaining = max(0, int((command.deadline - now) * 1000)) if command and command.deadline is not None else 0
+            result.append({"id": command_id, "active": bool(command and remaining > 0), "remaining_ms": remaining})
+        return result
     
-    async def get_next_command(self, channel: str, timeout: Optional[float] = None) -> Optional[Command]:
+    async def get_next_command(self, channel: str, timeout: Optional[float] = None, consumer=None) -> Optional[Command]:
         """
         Get the next command from a channel's queue.
         
@@ -324,6 +390,23 @@ class ChannelCommandQueue:
             # Check that command is still in index (not cancelled)
             async with self._lock:
                 if command.id in self._command_index:
+                    if consumer is not None:
+                        from .consumer_registry import consumer_registry, ConsumerChanged
+                        try:
+                            consumer_registry.check(consumer)
+                            if command.consumer is not consumer and not (consumer.mode == 'legacy' and command.consumer is None):
+                                raise ConsumerChanged('Command belongs to another consumer')
+                        except ConsumerChanged:
+                            if not command.result_event.is_set():
+                                queue._queue[command.id] = command
+                                queue._queue.move_to_end(command.id, last=False)
+                                queue._available.set()
+                            raise
+                    if command.result_event.is_set():
+                        continue
+                    # Only accepted delivery counts; a rejected owner can requeue it.
+                    if command.dispatched_at_monotonic is None:
+                        command.dispatched_at_monotonic = time.monotonic()
                     return command
             
             # Command was cancelled by timeout - skip, get next

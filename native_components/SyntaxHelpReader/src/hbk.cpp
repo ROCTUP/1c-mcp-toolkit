@@ -672,7 +672,7 @@ std::vector<std::string> HbkIndex::BuildSearchTerms(
 
 std::pair<int, int> HbkIndex::ScoreKeywordAgainstTerms(
     const std::string& keyword_norm,
-    const std::vector<std::string>& terms) {
+    const std::vector<std::string>& terms) const {
 
     std::optional<std::pair<int, int>> best;
 
@@ -704,7 +704,7 @@ std::pair<int, int> HbkIndex::ScoreKeywordAgainstTerms(
 std::pair<HbkIndex::Score, size_t> HbkIndex::ScoreCandidate(
     const IndexedTopic& topic,
     const std::vector<std::string>& keywords_norm,
-    bool match_all) {
+    bool match_all) const {
 
     Score score;
     score.breadcrumb_len  = static_cast<int>(topic.breadcrumb.size());
@@ -915,7 +915,8 @@ void HbkIndex::BuildHtmlPathIndex() {
 //  ReadHtml
 // ============================================================================
 
-std::string HbkIndex::ReadHtml(const IndexedTopic& topic) {
+std::string HbkIndex::ReadHtml(const IndexedTopic& topic, const std::atomic_bool* cancel) const {
+    CheckSearchCancelled(cancel);
     if (topic.html_path.empty() || !topic.file_storage) return "";
     // Strip leading '/'
     std::string entry = topic.html_path;
@@ -940,6 +941,7 @@ std::string HbkIndex::ReadHtml(const IndexedTopic& topic) {
     if (!buf) return "";
     std::string result(static_cast<const char*>(buf), out_size);
     mz_free(buf);
+    CheckSearchCancelled(cancel);
     return result;
 }
 
@@ -949,7 +951,7 @@ std::string HbkIndex::ReadHtml(const IndexedTopic& topic) {
 
 std::string HbkIndex::ResolveLinkToBreadcrumb(const std::string& link,
                                                 const std::string& base_html_path,
-                                                const std::string& source_path) {
+                                                const std::string& source_path) const {
     static const std::string V8HELP = "v8help://";
     std::string cleaned = StripLinkSuffixes(link);
     // strip leading/trailing whitespace
@@ -1020,7 +1022,7 @@ std::string HbkIndex::ResolveLinkToBreadcrumb(const std::string& link,
 //  JSON helpers
 // ============================================================================
 
-std::string HbkIndex::JsonEscape(const std::string& s) {
+std::string HbkIndex::JsonEscape(const std::string& s) const {
     std::string out;
     out.reserve(s.size() + 8);
     for (unsigned char c : s) {
@@ -1045,7 +1047,7 @@ std::string HbkIndex::JsonEscape(const std::string& s) {
 }
 
 std::string HbkIndex::MakeResultJson(const std::vector<std::string>& candidates,
-                                      const std::string* content) {
+                                      const std::string* content) const {
     std::string out = "{\"candidates\":[";
     for (size_t i = 0; i < candidates.size(); ++i) {
         if (i) out += ',';
@@ -1069,16 +1071,18 @@ std::string HbkIndex::MakeResultJson(const std::vector<std::string>& candidates,
 //  MergeTopicGroupContent
 // ============================================================================
 
-std::string HbkIndex::MergeTopicGroupContent(const std::vector<size_t>& indices) {
+std::string HbkIndex::MergeTopicGroupContent(const std::vector<size_t>& indices, const std::atomic_bool* cancel) const {
+    CheckSearchCancelled(cancel);
     std::vector<std::string> contents;
     std::set<std::string> seen;
 
     for (size_t idx : indices) {
+        CheckSearchCancelled(cancel);
         const IndexedTopic& t = all_topics_[idx];
-        std::string html = ReadHtml(t);
+        std::string html = ReadHtml(t, cancel);
         if (html.empty() || seen.count(html)) continue;
         seen.insert(html);
-        std::string md = HtmlToMarkdown(html, *this, t.html_path, t.source_path);
+        std::string md = HtmlToMarkdown(html, *this, t.html_path, t.source_path, cancel);
         if (md.empty() || seen.count(md)) continue;
         seen.insert(md);
         contents.push_back(md);
@@ -1089,6 +1093,7 @@ std::string HbkIndex::MergeTopicGroupContent(const std::vector<size_t>& indices)
 
     std::string result;
     for (size_t i = 0; i < contents.size(); ++i) {
+        CheckSearchCancelled(cancel);
         if (i) result += "\n\n";
         result += "<!-- variant " + std::to_string(i + 1) + " -->\n";
         result += contents[i];
@@ -1100,12 +1105,15 @@ std::string HbkIndex::MergeTopicGroupContent(const std::vector<size_t>& indices)
 //  CollectChildren
 // ============================================================================
 
-std::vector<std::string> HbkIndex::CollectChildren(const std::vector<size_t>& indices) {
+std::vector<std::string> HbkIndex::CollectChildren(const std::vector<size_t>& indices, const std::atomic_bool* cancel) const {
+    CheckSearchCancelled(cancel);
     std::vector<std::string> result;
     for (size_t idx : indices) {
+        CheckSearchCancelled(cancel);
         const IndexedTopic& t = all_topics_[idx];
         if (!t.is_container) continue;
         for (const std::string& child_bc : t.direct_children_bc) {
+        CheckSearchCancelled(cancel);
             bool dup = false;
             for (const auto& ex : result)
                 if (ex == child_bc) { dup = true; break; }
@@ -1119,13 +1127,14 @@ std::vector<std::string> HbkIndex::CollectChildren(const std::vector<size_t>& in
 //  Search
 // ============================================================================
 
-std::string HbkIndex::Search(const std::vector<std::string>& keywords, bool match_all) {
+std::string HbkIndex::Search(const std::vector<std::string>& keywords, bool match_all, const std::atomic_bool* cancel) const {
+    CheckSearchCancelled(cancel);
     // Step 0: topic: prefix → exact match via GetTopic
     if (keywords.size() == 1) {
         const std::string& kw = keywords[0];
         static const std::string TOPIC_PREFIX = "topic:";
         if (kw.substr(0, TOPIC_PREFIX.size()) == TOPIC_PREFIX) {
-            return GetTopic(kw.substr(TOPIC_PREFIX.size()));
+            return GetTopic(kw.substr(TOPIC_PREFIX.size()), cancel);
         }
     }
 
@@ -1134,14 +1143,15 @@ std::string HbkIndex::Search(const std::vector<std::string>& keywords, bool matc
         std::string target = Normalize(keywords[0]);
         std::map<std::string, std::vector<size_t>> exact_grouped;
         for (size_t i = 0; i < all_topics_.size(); ++i) {
+        CheckSearchCancelled(cancel);
             if (Normalize(all_topics_[i].breadcrumb) == target)
                 exact_grouped[all_topics_[i].breadcrumb].push_back(i);
         }
         if (exact_grouped.size() == 1) {
             const auto& [bc, indices] = *exact_grouped.begin();
-            std::string content = MergeTopicGroupContent(indices);
+            std::string content = MergeTopicGroupContent(indices, cancel);
             if (!content.empty()) return MakeResultJson({bc}, &content);
-            std::vector<std::string> children = CollectChildren(indices);
+            std::vector<std::string> children = CollectChildren(indices, cancel);
             if (!children.empty()) return MakeResultJson(children, nullptr);
             return MakeResultJson({bc}, nullptr);
         }
@@ -1152,6 +1162,7 @@ std::string HbkIndex::Search(const std::vector<std::string>& keywords, bool matc
     // mirrors Python: prepared_keywords = [normalize_search_text(kw).lstrip("#") for kw in keywords if normalize_search_text(kw)]
     std::vector<std::string> prepared;
     for (const auto& kw : keywords) {
+        CheckSearchCancelled(cancel);
         std::string n = Normalize(kw);
         while (!n.empty() && n[0] == '#') n = n.substr(1);
         if (!n.empty()) prepared.push_back(n);
@@ -1161,6 +1172,7 @@ std::string HbkIndex::Search(const std::vector<std::string>& keywords, bool matc
     // Step 2: score all candidates
     std::vector<std::pair<Score, size_t>> scored;
     for (size_t i = 0; i < all_topics_.size(); ++i) {
+        CheckSearchCancelled(cancel);
         auto [score, matched] = ScoreCandidate(all_topics_[i], prepared, match_all);
         if (matched) scored.push_back({score, i});
     }
@@ -1177,6 +1189,7 @@ std::string HbkIndex::Search(const std::vector<std::string>& keywords, bool matc
     std::vector<std::string> order;
     std::set<std::string> seen;
     for (const auto& [score, idx] : scored) {
+        CheckSearchCancelled(cancel);
         const std::string& bc = all_topics_[idx].breadcrumb;
         if (!seen.count(bc)) { seen.insert(bc); order.push_back(bc); }
         grouped[bc].push_back(idx);
@@ -1186,9 +1199,9 @@ std::string HbkIndex::Search(const std::vector<std::string>& keywords, bool matc
 
     if (candidates.size() == 1) {
         const std::vector<size_t>& indices = grouped[candidates[0]];
-        std::string content = MergeTopicGroupContent(indices);
+        std::string content = MergeTopicGroupContent(indices, cancel);
         if (!content.empty()) return MakeResultJson(candidates, &content);
-        std::vector<std::string> children = CollectChildren(indices);
+        std::vector<std::string> children = CollectChildren(indices, cancel);
         if (!children.empty()) return MakeResultJson(children, nullptr);
         return MakeResultJson(candidates, nullptr);
     }
@@ -1199,11 +1212,13 @@ std::string HbkIndex::Search(const std::vector<std::string>& keywords, bool matc
 //  GetTopic
 // ============================================================================
 
-std::string HbkIndex::GetTopic(const std::string& exact_breadcrumb) {
+std::string HbkIndex::GetTopic(const std::string& exact_breadcrumb, const std::atomic_bool* cancel) const {
+    CheckSearchCancelled(cancel);
     std::string target = Normalize(exact_breadcrumb);
 
     std::map<std::string, std::vector<size_t>> grouped;
     for (size_t i = 0; i < all_topics_.size(); ++i) {
+        CheckSearchCancelled(cancel);
         if (Normalize(all_topics_[i].breadcrumb) == target) {
             grouped[all_topics_[i].breadcrumb].push_back(i);
         }
@@ -1215,9 +1230,9 @@ std::string HbkIndex::GetTopic(const std::string& exact_breadcrumb) {
 
     if (grouped.size() == 1) {
         const auto& [bc, indices] = *grouped.begin();
-        std::string content = MergeTopicGroupContent(indices);
+        std::string content = MergeTopicGroupContent(indices, cancel);
         if (!content.empty()) return MakeResultJson({bc}, &content);
-        std::vector<std::string> children = CollectChildren(indices);
+        std::vector<std::string> children = CollectChildren(indices, cancel);
         if (!children.empty()) return MakeResultJson(children, nullptr);
         return MakeResultJson({bc}, nullptr);
     }

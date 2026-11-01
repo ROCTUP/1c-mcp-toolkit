@@ -2,6 +2,7 @@
 
 #include "pending_requests.h"
 #include "sse_stream.h"
+#include "event_queue.h"
 
 #include <string>
 #include <functional>
@@ -33,6 +34,9 @@ public:
     // Start HTTP server bound to bind_address:port (bind_address e.g. "0.0.0.0", "127.0.0.1",
     // or a concrete interface IPv4). Empty bind_address is treated as "0.0.0.0".
     bool Start(int port, const std::string& bind_address, ExternalEventCallback callback);
+    bool StartQueued(int port, const std::string& bind_address);
+    // timeout_ms is validated by Native API; callers must use [0, MaxWaitMs].
+    std::string WaitNextEvent(int timeout_ms);
 
     // Stop HTTP server
     bool Stop();
@@ -42,7 +46,7 @@ public:
     std::string GetLocalAddresses();
 
     bool IsRunning() const { return running_.load(); }
-    int GetPort() const { return port_; }
+    int GetPort() const { return port_.load(); }
 
     // Response methods (called from 1C thread via component)
     bool SendResponse(const std::string& request_id, int status_code,
@@ -50,7 +54,13 @@ public:
     bool SendSSEEvent(const std::string& request_id, const std::string& event_data,
                       const std::string& headers_json, const std::string& event_type = "message");
     bool CloseSSEStream(const std::string& request_id);
+    std::string SendResponseAndWait(const std::string& request_id, int status_code,
+        const std::string& headers_json, const std::string& body, int timeout_ms);
+    std::string SendSSEEventAndWait(const std::string& request_id, const std::string& event_data,
+        const std::string& headers_json, const std::string& event_type, int timeout_ms);
     std::string GetRequestBody(const std::string& request_id);
+    // Comma-separated internal request UUIDs, at most 16; empty input probes v1.
+    std::string GetRequestStates(const std::string& request_ids);
 
     // Properties
     int GetRequestTimeout() const { return request_timeout_sec_.load(); }
@@ -63,6 +73,12 @@ public:
 #endif
 
 private:
+    bool StartLocked(int port, const std::string& bind_address, ExternalEventCallback callback, bool queued);
+    bool StopLocked();
+    bool Deliver(const std::string& kind, const std::shared_ptr<PendingRequest>& request);
+    void NotifyClosed(const std::string& id);
+    static bool ExpirePendingLocked(PendingRequest& req);
+    std::shared_ptr<PendingRequest> Admit(const httplib::Request& req, httplib::Response& res, bool counted);
     // Route handlers
     void HandleMCPPost(const httplib::Request& req, httplib::Response& res);
     void HandleMCPGet(const httplib::Request& req, httplib::Response& res);
@@ -74,10 +90,11 @@ private:
     std::shared_ptr<PendingRequest> CreatePendingRequest(const httplib::Request& req);
 
     // Helper: build JSON for ExternalEvent data
-    std::string BuildEventJson(const std::shared_ptr<PendingRequest>& req);
+    std::string BuildEventJson(const std::shared_ptr<PendingRequest>& req, size_t* budget_offset = nullptr);
 
     // Helper: build event JSON for legacy SSE /mcp/message requests (full body, no truncation)
-    std::string BuildLegacyMessageEventJson(const httplib::Request& req, const std::string& id);
+    std::string BuildLegacyMessageEventJson(const httplib::Request& req, const std::string& id,
+                                           size_t* budget_offset = nullptr);
 
     // Helper: parse query string to JSON {"key":["val1","val2"]}
     static std::string QueryToJson(const httplib::Request& req);
@@ -105,7 +122,7 @@ private:
     static std::string WStringToUTF8(const std::wstring& s);
 
     // Wait for 1C decision on a request (blocks the httplib thread)
-    // Returns true if SSE mode was entered (cleanup deferred to close callback)
+    // Returns true when HTTP response owns cleanup (SSE or terminal REST).
     bool WaitForResponse(std::shared_ptr<PendingRequest> req, httplib::Response& res);
 
     // Wait for 1C decision on SSE connect (blocks, then enters keepalive)
@@ -124,8 +141,13 @@ private:
     std::unique_ptr<httplib::Server> server_;
     std::thread server_thread_;
     std::atomic<bool> running_{false};
-    std::atomic<bool> stopped_{false};
-    int port_ = 0;
+    std::atomic<bool> stopped_{true};
+    std::atomic<int> port_{0};
+    // Never held by HTTP callbacks or WaitNextEvent. Start/Stop may join HTTP threads.
+    std::mutex lifecycle_mutex_;
+    std::mutex admission_mutex_;
+    std::atomic<bool> queued_{false}; // immutable from thread launch through join
+    EventQueue events_;
 
     PendingRequestStore store_;
     ExternalEventCallback event_callback_;

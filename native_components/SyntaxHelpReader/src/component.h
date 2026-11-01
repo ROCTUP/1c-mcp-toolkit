@@ -5,6 +5,7 @@
 #include "IMemoryManager.h"
 
 #include "hbk.h"
+#include "search_executor.h"
 
 #include <string>
 
@@ -13,7 +14,7 @@ namespace syntax_help {
 class SyntaxHelpReaderComponent : public IComponentBase {
 public:
     SyntaxHelpReaderComponent() = default;
-    ~SyntaxHelpReaderComponent() override = default;
+    ~SyntaxHelpReaderComponent() override;
 
     // IInitDoneBase
     bool ADDIN_API Init(void* disp) override;
@@ -50,6 +51,15 @@ private:
         eMethodSearch,          // Поиск(keywords_json: String, match_all: Bool) → String (JSON)
         eMethodGetTopic,        // ПолучитьТему(breadcrumb: String) → String (JSON)
         eMethodVersion,         // Версия() → String
+        eMethodGetCapabilities,
+        eMethodStartSearchExecutor,
+        eMethodSubmitSearch,
+        eMethodGetSearchStates,
+        eMethodReadSearchResult,
+        eMethodAcknowledgeSearch,
+        eMethodCancelSearch,
+        eMethodBeginShutdown,
+        eMethodGetShutdownState,
         eMethodLast
     };
 
@@ -68,13 +78,16 @@ private:
 
     // JSON array of strings → vector<string>
     static std::vector<std::string> ParseJsonStringArray(const std::string& json);
+    static std::vector<std::string> ParseStrictStringArray(const std::string& json);
     static bool SkipWs(const std::string& s, size_t& pos);
     static bool ParseJsonStr(const std::string& s, size_t& pos, std::string& out);
 
     IAddInDefBase* addin_base_  = nullptr;
     IMemoryManager* mem_manager_ = nullptr;
 
-    HbkIndex index_;
+    std::mutex api_mutex_;
+    std::shared_ptr<const HbkIndex> index_;
+    std::unique_ptr<SearchExecutor> executor_;
 
     static const wchar_t* method_names_en_[];
     static const wchar_t* method_names_ru_[];

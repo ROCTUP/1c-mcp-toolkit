@@ -9,6 +9,8 @@
 
 namespace mcp {
 
+struct ResponseCompletion;
+
 // Thread-safe SSE event queue with keepalive support
 struct SSEStream {
     // Event queue
@@ -23,9 +25,13 @@ struct SSEStream {
     // Control flags
     std::atomic<bool> closed{false};
     std::atomic<bool> client_disconnected{false};
+    // Attached under queue_mutex, including to an already running legacy stream.
+    std::shared_ptr<ResponseCompletion> completion;
+    std::atomic<bool> drained{false};
 
     // Push an SSE event to the queue
-    void PushEvent(const std::string& event_data, const std::string& event_type = "message");
+    bool PushEvent(const std::string& event_data, const std::string& event_type = "message",
+                   std::shared_ptr<ResponseCompletion> terminal = nullptr);
 
     // Signal stream closure
     void Close();

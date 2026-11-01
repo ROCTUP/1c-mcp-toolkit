@@ -7,8 +7,8 @@ cd /src/build_linux
 cmake .. -DCMAKE_BUILD_TYPE=Release -DMCPHTTPTRANSPORT_SMOKE_TEST=ON
 cmake --build . -- -j$(nproc)
 
-echo '--- Smoke test ---'
-./mcp_smoke_test
+echo '--- Native tests ---'
+ctest --output-on-failure
 
 echo '--- Verify exports ---'
 EXPORTS=$(nm -D /src/build_linux/MCPHttpTransport.so | grep -cE 'GetClassNames|GetClassObject|DestroyObject|SetPlatformCapabilities')

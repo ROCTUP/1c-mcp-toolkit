@@ -6,7 +6,7 @@ from typing import Callable, Dict, List, Optional, Tuple
 
 import ahocorasick
 
-from .token_mapper import TOKEN_RE as _TOKEN_RE
+from .technical_fragments import protected_spans
 from .anonymization_defaults import DICT_APPLY_KEY_SUBSTRINGS
 
 logger = logging.getLogger(__name__)
@@ -95,9 +95,7 @@ class DictionaryMatcher:
             return text
 
         # Build token spans for "outside tokens" check
-        token_spans: List[Tuple[int, int]] = [
-            (m.start(), m.end()) for m in _TOKEN_RE.finditer(text)
-        ]
+        token_spans = protected_spans(text)
 
         def _overlaps_token(s: int, e: int) -> bool:
             for ts, te in token_spans:

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:v8="http://v8.1c.ru/8.1/data/core" version="2.20">
+	<Template uuid="9f0bc78a-63ca-4f90-b66f-0d5ea9b195c6">
+		<Properties>
+			<Name>MCPToolkitLauncher</Name>
+			<Synonym>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Запуск MCP Toolkit из базы</v8:content>
+				</v8:item>
+			</Synonym>
+			<Comment/>
+			<TemplateType>BinaryData</TemplateType>
+		</Properties>
+	</Template>
+</MetaDataObject>

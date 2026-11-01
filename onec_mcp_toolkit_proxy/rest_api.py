@@ -31,9 +31,48 @@ from .tools import (
     SubmitForDeanonymizationParams,
     GetScreenshotParams,
 )
-from .channel_registry import ChannelRegistry, DEFAULT_CHANNEL
+from .channel_registry import ChannelRegistry, DEFAULT_CHANNEL, CHANNEL_ID_PATTERN
+from .anonymizer.registry import AnonymizerRegistry
+from .anonymizer.token_mapper import TOKEN_RE
 
 logger = logging.getLogger(__name__)
+
+
+async def deanonymize_handler(request: Request) -> JSONResponse:
+    """Restore text locally; this route is deliberately not an MCP tool."""
+    def reply(value, status=200):
+        return JSONResponse(value, status_code=status, headers={"Cache-Control": "no-store"})
+
+    if not settings.deanonymization_api_enabled:
+        return reply({"success": False, "error": "Not Found"}, 404)
+    if request.method != "POST":
+        return reply({"success": False, "error": "Method not allowed"}, 405)
+    if request.headers.get("content-type", "").split(";", 1)[0].strip().lower() != "application/json":
+        return reply({"success": False, "error": "Content-Type must be application/json"}, 415)
+    # Never use scope['channel']: ChannelMiddleware can bind it to an MCP session.
+    channels = request.query_params.getlist("channel")
+    channel = channels[0] if channels else DEFAULT_CHANNEL
+    if len(channels) > 1 or not CHANNEL_ID_PATTERN.fullmatch(channel):
+        return reply({"success": False, "error": "Invalid channel"}, 400)
+    try:
+        body, parse_error = await _parse_json_body_with_encoding_detection(request)
+        if parse_error:
+            return reply({"success": False, "error": "Expected a JSON object"}, 400)
+        if set(body) != {"text"} or not isinstance(body["text"], str):
+            return reply({"success": False, "error": "Expected only the string field text"}, 422)
+        # No awaits between selecting the current owner and reading its mapping.
+        anon = AnonymizerRegistry.get_if_exists(channel)
+        if anon is None:
+            unresolved = {}
+            for match in TOKEN_RE.finditer(body["text"]):
+                unresolved.setdefault(match.group(0).upper(), match.group(0))
+            text, missing = body["text"], list(unresolved.values())
+        else:
+            text, missing = anon.mapper.detokenize_with_unresolved(body["text"])
+        return reply({"success": True, "text": text, "unresolved_tokens": missing})
+    except Exception:
+        # Neither input nor restored data belongs in an error or command journal.
+        return reply({"success": False, "error": "Text restoration failed"}, 500)
 
 
 def _get_channel(request: Request) -> str:

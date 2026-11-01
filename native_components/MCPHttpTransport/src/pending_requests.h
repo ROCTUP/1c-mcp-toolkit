@@ -20,6 +20,25 @@ enum class RequestState {
 // Forward declaration
 struct SSEStream;
 
+// One terminal response; timeout only ends the caller's wait, not HTTP ownership.
+struct ResponseCompletion {
+    std::mutex mutex;
+    std::condition_variable cv;
+    std::string result = "pending";
+    void Complete(bool success) {
+        std::lock_guard<std::mutex> lock(mutex);
+        if (result != "pending") return;
+        result = success ? "sent" : "failed";
+        cv.notify_all();
+    }
+    std::string Wait(int timeout_ms) {
+        std::unique_lock<std::mutex> lock(mutex);
+        if (!cv.wait_for(lock, std::chrono::milliseconds(timeout_ms),
+                         [this] { return result != "pending"; })) return "timeout";
+        return result;
+    }
+};
+
 // Represents a single pending HTTP request waiting for 1C decision
 struct PendingRequest {
     std::string id;
@@ -42,9 +61,11 @@ struct PendingRequest {
 
     // SSE stream (filled by SendSSEEvent when entering SSE mode)
     std::shared_ptr<SSEStream> sse_stream;
+    std::shared_ptr<ResponseCompletion> completion;
 
     // Timestamp for timeout
     std::chrono::steady_clock::time_point created_at;
+    std::chrono::steady_clock::time_point deadline;
 
     PendingRequest() : created_at(std::chrono::steady_clock::now()) {}
 };

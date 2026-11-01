@@ -21,6 +21,7 @@ DEFAULT_ANONYMIZATION_TOOLS = (
 # Technical top-level response keys whose values stay unchanged.
 # Prevents rewriting service metadata on the first response level.
 TOP_LEVEL_SKIP_KEYS = frozenset({
+    "base",
     "success", "truncated", "has_more", "count", "limit",
     "returned", "offset", "next_offset", "last_date",
     "next_same_second_offset",

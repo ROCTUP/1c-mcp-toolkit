@@ -14,6 +14,7 @@ Validates: Requirements 2.1, 3.1, 4.1, Event Log 1.1
 """
 
 import asyncio
+import anyio
 import json
 import logging
 import unicodedata
@@ -301,6 +302,49 @@ mcp = FastMCP(
 
 
 async def _execute_1c_command(tool: str, params: Dict[str, Any], channel: str = "default", timeout: Optional[float] = None) -> Dict[str, Any]:
+    from .consumer_registry import consumer_registry, current_consumer, ConsumerChanged
+    duration = float(timeout if timeout is not None else settings.timeout)
+    async def bound_call():
+        # Bound the initial wait only; dictionary commands have their own timeouts.
+        with anyio.fail_after(duration):
+            owner = await consumer_registry.wait(channel)
+        token = current_consumer.set(owner)
+        try:
+            if owner.mode == 'server_host':
+                from .consumer_registry import HOST_TOOLS
+                if tool not in HOST_TOOLS:
+                    reason = {
+                        'get_screenshot': 'нет клиентского интерфейса для захвата экрана',
+                        'restart_1c_session': 'нет клиентского сеанса для закрытия или перезапуска',
+                        'close_1c_session': 'нет клиентского сеанса для закрытия или перезапуска',
+                        'submit_for_deanonymization': 'нет пользовательского интерфейса для подтверждения деанонимизации',
+                    }.get(tool, 'эта команда не поддерживается при серверном запуске')
+                    return {'success': False, 'error': f'Инструмент {tool} недоступен: обработка работает на сервере 1С, {reason}.'}
+                if tool == 'execute_code' and params.get('execution_context') == 'client':
+                    return {'success': False, 'error': 'execute_code с execution_context="client" недоступен: обработка работает на сервере 1С. Поддерживается только execution_context="server".'}
+                if tool not in owner.tools:
+                    return {'success': False, 'error': f'Инструмент {tool} недоступен в текущем серверном подключении.'}
+                if owner.anon_confirm and tool not in ('get_metadata', 'get_link_of_object', 'get_bsl_syntax_help'):
+                    return {'success': False, 'error': 'Для передачи данных требуется подтверждение анонимизации в клиентском режиме.'}
+                if tool != "get_bsl_syntax_help":
+                    (await AnonymizerRegistry.get_async(channel)).mapper.validate_tokens(params)
+            result = await _execute_bound_1c_command(tool, params, channel, duration)
+            consumer_registry.check(owner)
+            return result
+        finally:
+            current_consumer.reset(token)
+    try:
+        return await bound_call()
+    except (TimeoutError, asyncio.TimeoutError):
+        return {'success': False, 'error': 'Timeout waiting for the 1C consumer or its response'}
+    except (ConsumerChanged, ValueError):
+        return {'success': False, 'error': '1C owner changed or anonymization token is unknown; request fresh data'}
+    except Exception:
+        logger.exception('Failed to finalize 1C command')
+        return {'success': False, 'error': 'Proxy could not safely process the command; no source data returned'}
+
+
+async def _execute_bound_1c_command(tool: str, params: Dict[str, Any], channel: str = "default", timeout: Optional[float] = None) -> Dict[str, Any]:
     """
     Execute a command on the 1C client and wait for the result.
 
@@ -331,16 +375,21 @@ async def _execute_1c_command(tool: str, params: Dict[str, Any], channel: str = 
             "1C processing might be disconnected or slow."
         )
     
-    # Determine if anonymization should be applied for this tool
+    from .consumer_registry import current_consumer
+    owner = current_consumer.get()
+    server_help = owner is not None and owner.mode == 'server_host' and tool == 'get_bsl_syntax_help'
+
+    # Documentation is literal in server-host mode; ordinary clients retain their policy.
     _do_anon = (
         settings.anonymization_enabled
+        and not server_help
         and tool in settings.anonymization_tools
     )
     requested_schema = bool(params.get("include_schema", False)) if tool == "execute_query" else False
 
     # De-tokenize params before sending to 1C
     if _do_anon:
-        anon = AnonymizerRegistry.get(channel)
+        anon = await AnonymizerRegistry.get_async(channel)
         await AnonymizerRegistry.ensure_dictionary_loaded(channel)
         params = anon.detokenize_params_for_tool(params, tool)
         # Request-boundary eviction: prune AFTER detokenization so tokens this
@@ -349,6 +398,14 @@ async def _execute_1c_command(tool: str, params: Dict[str, Any], channel: str = 
         # regardless of tool or whether params existed. No-op when cap is 0.
         anon.prune()
 
+    if not _do_anon:
+        from .consumer_registry import current_consumer
+        owner = current_consumer.get()
+        if owner is not None and owner.mode == 'server_host' and not server_help:
+            anon = await AnonymizerRegistry.get_async(channel)
+            params = anon.detokenize_params_for_tool(params, tool)
+            anon.prune()
+
     params_for_1c = dict(params)
     if _do_anon and tool == "execute_query":
         # Schema is needed internally for anonymization even when the agent did not
@@ -356,9 +413,11 @@ async def _execute_1c_command(tool: str, params: Dict[str, Any], channel: str = 
         params_for_1c["include_schema"] = True
 
     # Add command to channel queue
-    command_id = await channel_command_queue.add_command(channel, tool, params_for_1c)
+    # Preparation does not consume the timeout of the command itself.
+    command_id = await channel_command_queue.add_command(channel, tool, params_for_1c, timeout=effective_timeout)
     logger.info(f"Command {command_id} added to channel '{channel}': tool={tool}")
-    
+
+    source_metadata = {}
     try:
         # Wait for result with timeout (non-blocking for other operations)
         # Validates: Requirement 6.3 - timeout doesn't block proxy for other operations
@@ -367,6 +426,10 @@ async def _execute_1c_command(tool: str, params: Dict[str, Any], channel: str = 
             timeout=effective_timeout
         )
         logger.info(f"Command {command_id} completed successfully on channel '{channel}'")
+        from .consumer_registry import check_current
+        check_current()
+        if isinstance(result, dict) and "base" in result:
+            source_metadata = {"base": result["base"]}
 
         # Anonymize response before formatting
         if _do_anon:
@@ -378,6 +441,12 @@ async def _execute_1c_command(tool: str, params: Dict[str, Any], channel: str = 
         elif _do_anon and tool == "execute_query" and requested_schema and isinstance(result, dict):
             result = _strip_internal_execute_query_schema_fields(result)
 
+        from .consumer_registry import current_consumer
+        owner = current_consumer.get()
+        if owner is not None and owner.mode == 'server_host' and tool == 'get_object_by_link' and isinstance(result, dict):
+            result = dict(result)
+            result.pop('schema', None)
+
         # Format result based on configuration (Requirement 2.1, 2.2, 5.1, 5.2, 5.3)
         return format_tool_result(result, settings.response_format)
     except asyncio.TimeoutError:
@@ -388,20 +457,30 @@ async def _execute_1c_command(tool: str, params: Dict[str, Any], channel: str = 
             "error": f"Таймаут ожидания ответа от 1С на канале '{channel}' (>{effective_timeout}с). "
                      "Убедитесь, что клиент 1С подключён с тем же channel ID. / "
                      f"Timeout waiting for 1C response on channel '{channel}' (>{effective_timeout}s). "
-                     "Make sure 1C client is connected with the same channel ID."
+                     "Make sure 1C client is connected with the same channel ID.",
+            **source_metadata,
         }
     except KeyError as e:
         logger.error(f"Command {command_id} not found: {e}")
         return {
             "success": False,
-            "error": f"Команда не найдена: {e} / Command not found: {e}"
+            "error": f"Команда не найдена: {e} / Command not found: {e}",
+            **source_metadata,
         }
     except Exception as e:
         # Catch any unexpected errors
+        from .consumer_registry import current_consumer
+        owner = current_consumer.get()
+        if owner is not None and owner.mode == 'server_host':
+            if source_metadata:
+                logger.exception('Failed to finalize the received 1C result')
+                return {"success": False, "error": "Proxy could not safely process the command; no source data returned", **source_metadata}
+            raise
         logger.exception(f"Unexpected error executing command {command_id}: {e}")
         return {
             "success": False,
-            "error": f"Внутренняя ошибка прокси: {str(e)} / Internal proxy error: {str(e)}"
+            "error": f"Внутренняя ошибка прокси: {str(e)} / Internal proxy error: {str(e)}",
+            **source_metadata,
         }
 
 
@@ -1571,7 +1650,11 @@ async def get_screenshot(
                 if result.get("foreground_window") is not None:
                     layers["foreground_window"] = result["foreground_window"]
                 parts.append(TextContent(type="text", text=json.dumps(layers)))
+            if "base" in result:
+                parts.append(TextContent(type="text", text=json.dumps({"base": result["base"]}, ensure_ascii=False)))
             return parts
+        if "base" in result:
+            return [image, TextContent(type="text", text=json.dumps({"base": result["base"]}, ensure_ascii=False))]
         return image
     return result
 
@@ -1650,6 +1733,25 @@ def _apply_anonymization_notice_to_tools() -> None:
             tool.description = (tool.description or "") + notice
 
 _apply_anonymization_notice_to_tools()
+
+
+@mcp._mcp_server.list_tools()
+async def _list_channel_tools():
+    from .consumer_registry import consumer_registry
+    channel = _get_channel_from_context(mcp.get_context())
+    owner = consumer_registry.consumers.get(channel)
+    tools = await mcp.list_tools()
+    if owner and owner.retired and owner.mode == 'server_host':
+        return []
+    if owner and not owner.retired and owner.mode == 'server_host':
+        tools = [tool.model_copy(deep=True) for tool in tools if tool.name in owner.tools]
+        for tool in tools:
+            if tool.name == 'execute_code':
+                tool.inputSchema['properties']['execution_context']['enum'] = ['server']
+            if settings.anonymization_enabled and tool.name in settings.anonymization_tools:
+                description = (tool.description or '').split('\n\nNOTE: Anonymization is enabled for this tool.')[0]
+                tool.description = description + '\nAnonymization tokens use [CATEGORY-GENERATION-NNNNN]. Pass tokens unchanged in subsequent requests. Request fresh data after a restart; tokens from another generation are rejected.'
+    return tools
 
 
 def get_mcp_server() -> FastMCP:

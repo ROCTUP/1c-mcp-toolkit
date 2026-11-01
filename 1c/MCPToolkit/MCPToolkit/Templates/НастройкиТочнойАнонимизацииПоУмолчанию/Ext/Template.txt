@@ -1,0 +1,5458 @@
+﻿{
+  "version": 2,
+  "rules": [
+    {
+      "source_path": "Справочник.Банки.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Банки.Код",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Банки.КоррСчет",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Банки.Город",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Справочник.Банки.Адрес",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Справочник.Банки.Телефоны",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "Справочник.Банки.СВИФТБИК",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Банки.Страна",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Справочник.БанковскиеКартыКонтрагентов.ИмяДержателяКарты",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "Справочник.БанковскиеСчета.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.БанковскиеСчета.НомерСчета",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.БанковскиеСчета.Банк",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.БанковскиеСчета.НомерИДатаРазрешения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Справочник.БанковскиеСчета.ПодразделениеОрганизации",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.БанковскиеСчета.БанкДляРасчетов",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.БанковскиеСчета.ТекстНазначения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.БанковскиеСчета.СчетБанк",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.БанковскиеСчета.ИдентификаторЦифровогоСчета",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ДоговорыКонтрагентов.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "Справочник.ДоговорыКонтрагентов.Комментарий",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "Справочник.ДоговорыКонтрагентов.Организация",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "Справочник.ДоговорыКонтрагентов.Руководитель",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.ДоговорыКонтрагентов.ЗаРуководителяПоПриказу",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ДоговорыКонтрагентов.ДолжностьРуководителя",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ДоговорыКонтрагентов.РуководительКонтрагента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.ДоговорыКонтрагентов.ЗаРуководителяКонтрагентаПоПриказу",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ДоговорыКонтрагентов.ДолжностьРуководителяКонтрагента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ДоговорыКонтрагентов.ТелефонПоставщика",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "Справочник.ДоговорыКонтрагентов.НаименованиеОператораПеревода",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ДоговорыКонтрагентов.ИННОператораПеревода",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "Справочник.ДоговорыКонтрагентов.АдресОператораПеревода",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Справочник.ДоговорыКонтрагентов.ТелефонОператораПеревода",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "Справочник.ДоговорыКонтрагентов.ТелефонПлатежногоАгента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "Справочник.ДоговорыКонтрагентов.ТелефонОператораПоПриемуПлатежей",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "Справочник.ДоговорыКонтрагентов.ОперацияПлатежногоАгента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ДоговорыКонтрагентов.ДополнительныеРеквизиты.Значение",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ДоговорыКонтрагентов.ДополнительныеРеквизиты.ТекстоваяСтрока",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ДоговорыКонтрагентов.ДополнительныеСоглашения.Комментарий",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ДоговорыКонтрагентовПрисоединенныеФайлы.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "Справочник.ДоговорыКонтрагентовПрисоединенныеФайлы.Автор",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.ДоговорыКонтрагентовПрисоединенныеФайлы.Изменил",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.ДоговорыКонтрагентовПрисоединенныеФайлы.Описание",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ДоговорыКонтрагентовПрисоединенныеФайлы.ПутьКФайлу",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ДоговорыКонтрагентовПрисоединенныеФайлы.Редактирует",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.ЗначенияСвойствОбъектов.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ЗначенияСвойствОбъектовИерархия.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.НаименованиеПолное",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.СтранаРегистрации",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.ГоловнойКонтрагент",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.ИНН",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "INN"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.КПП",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "KPP"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.КодПоОКПО",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.ДокументУдостоверяющийЛичность",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.ОсновнойБанковскийСчет",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ACC"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.ОсновноеКонтактноеЛицо",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.Комментарий",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.ДополнительнаяИнформация",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.РасширенноеПредставлениеИНН",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "INN"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.РасширенноеПредставлениеКПП",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "KPP"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.НалоговыйНомер",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.РегистрационныйНомер",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.КодГосударственногоОргана",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.СвидетельствоСерияНомер",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.НаименованиеНерезидентаРус",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.Ответственный",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.КодОКАТОДляТаможни",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.КонтактнаяИнформация.Представление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.КонтактнаяИнформация.ЗначенияПолей",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.КонтактнаяИнформация.Страна",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.КонтактнаяИнформация.Регион",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.КонтактнаяИнформация.Город",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.КонтактнаяИнформация.АдресЭП",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "EMAIL"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.КонтактнаяИнформация.ДоменноеИмяСервера",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.КонтактнаяИнформация.НомерТелефона",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.КонтактнаяИнформация.НомерТелефонаБезКодов",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.КонтактнаяИнформация.Значение",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.ДополнительныеРеквизиты.Значение",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.ДополнительныеРеквизиты.ТекстоваяСтрока",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.ИсторияКПП.КПП",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "KPP"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.ИсторияНаименований.НаименованиеПолное",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.ИсторияКонтактнойИнформации.Представление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.ИсторияКонтактнойИнформации.ЗначенияПолей",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Контрагенты.ИсторияКонтактнойИнформации.Значение",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.КонтрагентыПрисоединенныеФайлы.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.КонтрагентыПрисоединенныеФайлы.Автор",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.КонтрагентыПрисоединенныеФайлы.Изменил",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.КонтрагентыПрисоединенныеФайлы.Описание",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.КонтрагентыПрисоединенныеФайлы.Редактирует",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.ОбразованиеФизическихЛиц.Серия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ОбразованиеФизическихЛиц.Номер",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ОбразованиеФизическихЛиц.ДатаВыдачи",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Справочник.ОбразованиеФизическихЛиц.Квалификация",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ОбразованиеФизическихЛиц.Начало",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ОбразованиеФизическихЛиц.Окончание",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ОбразованиеФизическихЛиц.НаименованиеКурса",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ОбразованиеФизическихЛиц.Основание",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ОбразованиеФизическихЛиц.ДополнительныеРеквизиты.Значение",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ОбразованиеФизическихЛиц.ДополнительныеРеквизиты.ТекстоваяСтрока",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "Справочник.Организации.ГоловнаяОрганизация",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "Справочник.Организации.КПП",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "KPP"
+    },
+    {
+      "source_path": "Справочник.Организации.КодНалоговогоОргана",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.ИНН",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "INN"
+    },
+    {
+      "source_path": "Справочник.Организации.ДополнительныйКодФСС",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.КодНалоговогоОрганаПолучателя",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.СвидетельствоНаименованиеОргана",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.СвидетельствоКодОргана",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.ОсновнойБанковскийСчет",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ACC"
+    },
+    {
+      "source_path": "Справочник.Организации.КодОрганаПФР",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.УдалитьКодПоОКАТО",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.КодОрганаФСГС",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.КодПоОКПО",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.НаименованиеНалоговогоОргана",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.КодПодчиненностиФСС",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.ИПРегистрационныйНомерПФР",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.КрупнейшийНалогоплательщикКПП",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "KPP"
+    },
+    {
+      "source_path": "Справочник.Организации.КрупнейшийНалогоплательщикНаименованиеНалоговогоОргана",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.НаименованиеПолное",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "Справочник.Организации.НаименованиеСокращенное",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "Справочник.Организации.РегистрационныйНомерТФОМС",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.ИПРегистрационныйНомерТФОМС",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.НаименованиеТерриториальногоОрганаПФР",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.НаименованиеТерриториальногоОрганаФСС",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.ИПРегистрационныйНомерФСС",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.УдалитьИПКодПодчиненностиФСС",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.ОбменКаталогОтправкиДанныхОтчетности",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.ОбменКаталогПрограммыЭлектроннойПочты",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.КодОКОНХ",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.ОбменКодАбонента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.ОГРН",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "OGRN"
+    },
+    {
+      "source_path": "Справочник.Организации.НаименованиеИнострОрганизации",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "Справочник.Организации.СтранаРегистрации",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Справочник.Организации.КодВСтранеРегистрации",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.СтранаПостоянногоМестонахождения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Справочник.Организации.РегистрационныйНомерФСС",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.РегистрацияВНалоговомОргане",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.КрупнейшийНалогоплательщикРегистрацияВНалоговомОргане",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.УдалитьТерриториальныеУсловияПФР",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.РегистрационныйНомерПФР",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.УчетнаяЗаписьОбмена",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.КодОКВЭД",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.ЦифровойИндексОбособленногоПодразделения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.НаименованиеОКВЭД",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.НаименованиеОКВЭД2",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.ТерриториальныеУсловияПФР",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.КодОКОПФ",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.НаименованиеОКОПФ",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.КодОКФС",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.ДополнительныеУсловияПоУмолчанию",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.НаименованиеОсновногоВидаДеятельностиНФО",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.НаименованиеИныхВидовДеятельностиНФО",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.ФамилияИП",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.Организации.ИмяИП",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.Организации.ОтчествоИП",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.Организации.НаименованиеОКФС",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.ДополнительныеКодыОКВЭД2",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.НаименованиеРегистрирующегоОргана",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.РегистрационныйНомерСФР",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.ИПРегистрационныйНомерСФР",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.ЗаголовокСчетаПоУмолчанию",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.КонтактнаяИнформация.Представление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.КонтактнаяИнформация.Значение",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.КонтактнаяИнформация.ЗначенияПолей",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.КонтактнаяИнформация.Страна",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Справочник.Организации.КонтактнаяИнформация.Регион",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Справочник.Организации.КонтактнаяИнформация.Город",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Справочник.Организации.КонтактнаяИнформация.АдресЭП",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "EMAIL"
+    },
+    {
+      "source_path": "Справочник.Организации.КонтактнаяИнформация.ДоменноеИмяСервера",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.КонтактнаяИнформация.НомерТелефона",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "Справочник.Организации.КонтактнаяИнформация.НомерТелефонаБезКодов",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "Справочник.Организации.ДополнительныеРеквизиты.Значение",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.ДополнительныеРеквизиты.ТекстоваяСтрока",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.ИсторияНаименований.НаименованиеСокращенное",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "Справочник.Организации.ИсторияНаименований.НаименованиеПолное",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "Справочник.Организации.ИсторияНаименований.ФамилияИП",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.Организации.ИсторияНаименований.ИмяИП",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.Организации.ИсторияНаименований.ОтчествоИП",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.Организации.ИсторияКонтактнойИнформации.Представление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.ИсторияКонтактнойИнформации.ЗначенияПолей",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.ИсторияКонтактнойИнформации.Значение",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ОрганизацииПрисоединенныеФайлы.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ОрганизацииПрисоединенныеФайлы.Автор",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.ОрганизацииПрисоединенныеФайлы.Изменил",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.ОрганизацииПрисоединенныеФайлы.Описание",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ОрганизацииПрисоединенныеФайлы.Редактирует",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.Пользователи.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.Пользователи.Подразделение",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Пользователи.ФизическоеЛицо",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.Пользователи.Комментарий",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Пользователи.ДополнительныеРеквизиты.Значение",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Пользователи.ДополнительныеРеквизиты.ТекстоваяСтрока",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.РодственникиФизическихЛиц.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.РодственникиФизическихЛиц.ДатаРождения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Справочник.РодственникиФизическихЛиц.НаименованиеСлужебное",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.РодственникиФизическихЛиц.СНИЛС",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "SNILS"
+    },
+    {
+      "source_path": "Справочник.РодственникиФизическихЛиц.Фамилия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.РодственникиФизическихЛиц.Имя",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.РодственникиФизическихЛиц.Отчество",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.РодственникиФизическихЛиц.ДополнительныеРеквизиты.Значение",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.РодственникиФизическихЛиц.ДополнительныеРеквизиты.ТекстоваяСтрока",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Сотрудники.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.Сотрудники.ФизическоеЛицо",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.Сотрудники.ГоловнаяОрганизация",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "Справочник.Сотрудники.УточнениеНаименования",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.Сотрудники.УдалитьОрганизация",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "Справочник.Сотрудники.ГоловнойСотрудник",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.Сотрудники.ДополнительныеРеквизиты.Значение",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Сотрудники.ДополнительныеРеквизиты.ТекстоваяСтрока",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛица.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛица.ДатаРождения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛица.ИНН",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "INN"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛица.СтраховойНомерПФР",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛица.МестоРождения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛица.ФИО",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛица.УточнениеНаименования",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛица.НаименованиеСлужебное",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛица.Фамилия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛица.Имя",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛица.Отчество",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛица.Инициалы",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛица.КонтактнаяИнформация.Представление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛица.КонтактнаяИнформация.Значение",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛица.КонтактнаяИнформация.ЗначенияПолей",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛица.КонтактнаяИнформация.Страна",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛица.КонтактнаяИнформация.Регион",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛица.КонтактнаяИнформация.Город",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛица.КонтактнаяИнформация.АдресЭП",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "EMAIL"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛица.КонтактнаяИнформация.ДоменноеИмяСервера",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛица.КонтактнаяИнформация.НомерТелефона",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛица.КонтактнаяИнформация.НомерТелефонаБезКодов",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛицаПрисоединенныеФайлы.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛицаПрисоединенныеФайлы.Автор",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛицаПрисоединенныеФайлы.Изменил",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛицаПрисоединенныеФайлы.Описание",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛицаПрисоединенныеФайлы.Редактирует",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.АктПроверкиСтраховыхВзносов.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ВедомостьНаВыплатуЗарплаты.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ВедомостьНаВыплатуЗарплатыВБанк.Состав.НомерЛицевогоСчета",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ВедомостьНаВыплатуЗарплатыВБанк.Зарплата.НомерЛицевогоСчета",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ВедомостьНаВыплатуЗарплатыВКассу.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ДанныеОКорректировкеСведенийЗастрахованныхЛицСЗВ_КОРР.Сотрудники.СтраховойНомерПФР",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ДанныеОКорректировкеСведенийЗастрахованныхЛицСЗВ_КОРР.Сотрудники.Фамилия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ДанныеОКорректировкеСведенийЗастрахованныхЛицСЗВ_КОРР.Сотрудники.Имя",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ДанныеОКорректировкеСведенийЗастрахованныхЛицСЗВ_КОРР.Сотрудники.Отчество",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ДанныеОКорректировкеСведенийЗастрахованныхЛицСЗВ_КОРР.Сотрудники.ДатаРождения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.ДепонированиеЗарплаты.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ДокументЭДОБЗК.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ЗаявкаНаЗакрытиеЛицевыхСчетовСотрудников.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ЗаявкаНаОткрытиеЛицевыхСчетовСотрудников.Сотрудники.АдресЭлектроннойПочты",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "EMAIL"
+    },
+    {
+      "source_path": "Документ.ЗаявкаНаОткрытиеЛицевыхСчетовСотрудников.Сотрудники.НомерМобильногоТелефона",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "Документ.ЗаявкаНаОткрытиеЛицевыхСчетовСотрудников.Сотрудники.НомерМобильногоТелефонаПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "Документ.ЗаявкаНаОткрытиеЛицевыхСчетовСотрудников.Сотрудники.ДокументСерия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ЗаявкаНаОткрытиеЛицевыхСчетовСотрудников.Сотрудники.ДокументНомер",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ЗаявкаНаОткрытиеЛицевыхСчетовСотрудников.Сотрудники.ДокументДатаВыдачи",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.ЗаявкаНаОткрытиеЛицевыхСчетовСотрудников.Сотрудники.ДокументСрокДействия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ЗаявкаНаОткрытиеЛицевыхСчетовСотрудников.Сотрудники.ДокументКемВыдан",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ЗаявкаНаОткрытиеЛицевыхСчетовСотрудников.Сотрудники.ДокументКодПодразделения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ЗаявкаНаОткрытиеЛицевыхСчетовСотрудников.Сотрудники.ДокументНомерСерия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ЗаявкаНаОткрытиеЛицевыхСчетовСотрудников.Сотрудники.ДатаРождения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.ЗаявкаНаОткрытиеЛицевыхСчетовСотрудников.Сотрудники.МестоРождения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ЗаявкаНаОткрытиеЛицевыхСчетовСотрудников.Сотрудники.МестоРожденияПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ЗаявкаНаОткрытиеЛицевыхСчетовСотрудников.Сотрудники.АдресДляИнформирования",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.ЗаявкаНаОткрытиеЛицевыхСчетовСотрудников.Сотрудники.АдресДляИнформированияПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.ЗаявкаНаОткрытиеЛицевыхСчетовСотрудников.Сотрудники.АдресПоПрописке",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.ЗаявкаНаОткрытиеЛицевыхСчетовСотрудников.Сотрудники.АдресМестаПроживанияПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.ЗаявкаНаОткрытиеЛицевыхСчетовСотрудников.Сотрудники.ТелефонДомашний",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "Документ.ЗаявкаНаОткрытиеЛицевыхСчетовСотрудников.Сотрудники.ТелефонДомашнийПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "Документ.ЗаявкаНаОткрытиеЛицевыхСчетовСотрудников.Сотрудники.ТелефонРабочий",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "Документ.ЗаявкаНаОткрытиеЛицевыхСчетовСотрудников.Сотрудники.ТелефонРабочийПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "Документ.ЗаявкаНаОткрытиеЛицевыхСчетовСотрудников.Сотрудники.Фамилия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ЗаявкаНаОткрытиеЛицевыхСчетовСотрудников.Сотрудники.Имя",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ЗаявкаНаОткрытиеЛицевыхСчетовСотрудников.Сотрудники.Отчество",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ЗаявкаНаОткрытиеЛицевыхСчетовСотрудников.Сотрудники.СтраховойНомерПФР",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ЗаявлениеВФССОВозмещенииВыплатРодителямДетейИнвалидов.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ЗаявлениеОПодтвержденииПраваНаЗачетАвансовПоНДФЛ.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ЗаявленияОПредоставленииСведенийОТрудовойДеятельности.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ИзвещениеОПриемеИлиУвольненииДляВоенкомата.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ИзмененияСведенийСотрудниковДляВоенкомата.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.НачислениеЗарплаты.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.НачислениеОценочныхОбязательствПоОтпускам.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ОтзывЗаявленийОПредоставленииСведенийОТрудовойДеятельности.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ОтказВВозмещенииВыплатРодителямДетейИнвалидов.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ОтражениеЗарплатыВБухучете.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_1.Сотрудники.АдресРегистрации",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_1.Сотрудники.АдресФактический",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_1.Сотрудники.Телефоны",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_1.Сотрудники.Фамилия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_1.Сотрудники.Имя",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_1.Сотрудники.Отчество",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_1.Сотрудники.ДатаРождения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_1.Сотрудники.МестоРождения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_1.Сотрудники.СерияДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_1.Сотрудники.НомерДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_1.Сотрудники.ДатаВыдачи",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_1.Сотрудники.КемВыдан",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_1.Сотрудники.АдресРегистрацииПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_1.Сотрудники.АдресФактическийПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_1.Сотрудники.МестоРожденияПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_2.Сотрудники.СтраховойНомерПФРВСвидетельстве",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_2.Сотрудники.ФамилияВСвидетельстве",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_2.Сотрудники.ИмяВСвидетельстве",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_2.Сотрудники.ОтчествоВСвидетельстве",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_2.Сотрудники.Фамилия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_2.Сотрудники.Имя",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_2.Сотрудники.Отчество",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_2.Сотрудники.ДатаРождения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_2.Сотрудники.МестоРождения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_2.Сотрудники.АдресРегистрации",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_2.Сотрудники.АдресФактический",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_2.Сотрудники.Телефоны",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_2.Сотрудники.СерияДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_2.Сотрудники.НомерДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_2.Сотрудники.ДатаВыдачи",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_2.Сотрудники.КемВыдан",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_2.Сотрудники.МестоРожденияПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_2.Сотрудники.АдресРегистрацииПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_2.Сотрудники.АдресФактическийПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_3.Сотрудники.СтраховойНомерПФРВСвидетельстве",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_3.Сотрудники.ФамилияВСвидетельстве",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_3.Сотрудники.ИмяВСвидетельстве",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_3.Сотрудники.ОтчествоВСвидетельстве",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_3.Сотрудники.ДатаРожденияВСвидетельстве",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_3.Сотрудники.МестоРожденияВСвидетельстве",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_3.Сотрудники.Фамилия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_3.Сотрудники.Имя",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_3.Сотрудники.Отчество",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_3.Сотрудники.ДатаРождения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_3.Сотрудники.МестоРождения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_3.Сотрудники.АдресРегистрации",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_3.Сотрудники.АдресФактический",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_3.Сотрудники.Телефоны",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_3.Сотрудники.СерияДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_3.Сотрудники.НомерДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_3.Сотрудники.ДатаВыдачи",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_3.Сотрудники.КемВыдан",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_3.Сотрудники.МестоРожденияВСвидетельствеПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_3.Сотрудники.МестоРожденияПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_3.Сотрудники.АдресРегистрацииПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовАДВ_3.Сотрудники.АдресФактическийПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовДСВ_1.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовСЗВ_6_1.Сотрудники.АдресДляИнформирования",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовСЗВ_6_1.Сотрудники.СтраховойНомерПФР",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовСЗВ_6_1.Сотрудники.Фамилия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовСЗВ_6_1.Сотрудники.Имя",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовСЗВ_6_1.Сотрудники.Отчество",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовСЗВ_6_1.Сотрудники.АдресДляИнформированияПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовСЗВ_6_3.Сотрудники.СтраховойНомерПФР",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовСЗВ_6_3.Сотрудники.Фамилия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовСЗВ_6_3.Сотрудники.Имя",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовСЗВ_6_3.Сотрудники.Отчество",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовСЗВ_6_4.Сотрудники.СтраховойНомерПФР",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовСЗВ_6_4.Сотрудники.Фамилия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовСЗВ_6_4.Сотрудники.Имя",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовСЗВ_6_4.Сотрудники.Отчество",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовСЗВ_К.Сотрудники.СтраховойНомерПФР",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовСЗВ_К.Сотрудники.Фамилия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовСЗВ_К.Сотрудники.Имя",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовСЗВ_К.Сотрудники.Отчество",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовСПВ_1.Сотрудники.СтраховойНомерПФР",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовСПВ_1.Сотрудники.Фамилия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовСПВ_1.Сотрудники.Имя",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовСПВ_1.Сотрудники.Отчество",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ПачкаДокументовСПВ_2.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПачкаРазделов6РасчетаРСВ_1.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПервоначальнаяПостановкаНаВоинскийУчет.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПерерасчетНДФЛ.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПерерасчетСтраховыхВзносов.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПодтверждениеЗачисленияЗарплаты.Сотрудники.НомерЛицевогоСчета",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПодтверждениеОткрытияЛицевыхСчетовСотрудников.Сотрудники.НомерЛицевогоСчета",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.Премия.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПриказОБронированииРаботников.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПриказОПрекращенииБронирования.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.РегистрацияТрудовойДеятельности.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.РеестрДСВ_3.Сотрудники.Фамилия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.РеестрДСВ_3.Сотрудники.Имя",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.РеестрДСВ_3.Сотрудники.Отчество",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.РеестрДСВ_3.Сотрудники.СтраховойНомерПФР",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.РеестрСЗВ_6_2.Сотрудники.АдресДляИнформирования",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.РеестрСЗВ_6_2.Сотрудники.СтраховойНомерПФР",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.РеестрСЗВ_6_2.Сотрудники.Фамилия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.РеестрСЗВ_6_2.Сотрудники.Имя",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.РеестрСЗВ_6_2.Сотрудники.Отчество",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.РеестрСЗВ_6_2.Сотрудники.АдресДляИнформированияПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.РезервыПоОплатеТруда.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляИсчисленияДоплатыКПенсииСЗВ_ДСО.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОЗаработкеСтажеЗастрахованныхЛицСЗВ_ИСХ.Сотрудники.СтраховойНомерПФР",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОЗаработкеСтажеЗастрахованныхЛицСЗВ_ИСХ.Сотрудники.Фамилия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.СведенияОЗаработкеСтажеЗастрахованныхЛицСЗВ_ИСХ.Сотрудники.Имя",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОЗаработкеСтажеЗастрахованныхЛицСЗВ_ИСХ.Сотрудники.Отчество",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.СведенияОЗастрахованныхЛицахСЗВ_М.Сотрудники.Фамилия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.СведенияОЗастрахованныхЛицахСЗВ_М.Сотрудники.Имя",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОЗастрахованныхЛицахСЗВ_М.Сотрудники.Отчество",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.СведенияОЗастрахованныхЛицахСЗВ_М.Сотрудники.ИНН",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "INN"
+    },
+    {
+      "source_path": "Документ.СведенияОЗастрахованныхЛицахСЗВ_М.Сотрудники.СтраховойНомерПФР",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОПодлежащихВоинскомуУчетуГражданах.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОСтраховомСтажеЗастрахованныхЛицСЗВ_СТАЖ.Сотрудники.СтраховойНомерПФР",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОСтраховомСтажеЗастрахованныхЛицСЗВ_СТАЖ.Сотрудники.Фамилия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.СведенияОСтраховомСтажеЗастрахованныхЛицСЗВ_СТАЖ.Сотрудники.Имя",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОСтраховомСтажеЗастрахованныхЛицСЗВ_СТАЖ.Сотрудники.Отчество",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.СведенияОСтраховомСтажеЗастрахованныхЛицСЗВ_СТАЖ.Сотрудники.ДатаРождения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.СведенияОСтраховомСтажеЗастрахованныхЛицСЗВ_СТАЖ.Сотрудники.ИНН",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "INN"
+    },
+    {
+      "source_path": "Документ.СведенияОТрудовойДеятельностиРаботниковСЗВ_ТД.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СогласиеНаОбработкуПерсональныхДанных.ФИОСубъекта",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СогласиеНаОбработкуПерсональныхДанных.АдресСубъекта",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.СогласиеНаОбработкуПерсональныхДанных.ПаспортныеДанные",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PASSPORT"
+    },
+    {
+      "source_path": "Документ.СогласиеНаОбработкуПерсональныхДанных.СрокДействия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СообщениеОНеСостоящихНаВоинскомУчетеГражданах.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СписаниеДепонированнойЗарплаты.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СправкиНДФЛДляПередачиВНалоговыйОрган.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СправкиПоНДФЛДляРасчетаПоНалогуНаПрибыль.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "ПланВидовХарактеристик.ДополнительныеРеквизитыИСведения.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.БезопасноеХранилищеДанных.Данные",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ВоинскийУчет.ФизическоеЛицо",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.ВоинскийУчет.ВУС",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ВоинскийУчет.НомерКомандыПартии",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ВоинскийУчет.ДатаСнятияСВоинскогоУчета",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "РегистрСведений.ВоинскийУчет.ДатаОформленияОтсрочки",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "РегистрСведений.ВоинскийУчет.СерияУдостоверенияОбОтсрочке",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ВоинскийУчет.НомерУдостоверенияОбОтсрочке",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ВоинскийУчет.ДатаСписка",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "РегистрСведений.ВоинскийУчет.ИсходящийНомерСписка",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ВоинскийУчет.ПринадлежностьККазачеству",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ВоинскийУчет.АдминистративныеВзыскания",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ВоинскийУчет.ДопускКонтрольныхОрганов",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ВоинскийУчет.ПрохождениеВоенныхСборов",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ВоинскийУчет.КонтрактНаПребываниеВРезерве",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ВоинскийУчет.ДополнительныеСведенияКарточки",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ГражданствоФизическихЛиц.ФизическоеЛицо",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.ГражданствоФизическихЛиц.Страна",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "РегистрСведений.ГражданствоФизическихЛиц.ИНН",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "INN"
+    },
+    {
+      "source_path": "РегистрСведений.ДокументыФизическихЛиц.Физлицо",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.ДокументыФизическихЛиц.Серия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ДокументыФизическихЛиц.Номер",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ДокументыФизическихЛиц.ДатаВыдачи",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "РегистрСведений.ДокументыФизическихЛиц.СрокДействия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ДокументыФизическихЛиц.КемВыдан",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ДокументыФизическихЛиц.КодПодразделения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ДокументыФизическихЛиц.Представление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ДокументыФизическихЛиц.ФамилияЛатиницей",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.ДокументыФизическихЛиц.ИмяЛатиницей",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.ДокументыФизическихЛиц.СтранаВыдачи",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "РегистрСведений.ДополнительныеСведения.Значение",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ЛицевыеСчетаСотрудниковПоЗарплатнымПроектам.ФизическоеЛицо",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.ЛицевыеСчетаСотрудниковПоЗарплатнымПроектам.ЗарплатныйПроект",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ЛицевыеСчетаСотрудниковПоЗарплатнымПроектам.Организация",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "РегистрСведений.ЛицевыеСчетаСотрудниковПоЗарплатнымПроектам.НомерЛицевогоСчета",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ЛицевыеСчетаСотрудниковПоЗарплатнымПроектам.БанковскийСчет",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ACC"
+    },
+    {
+      "source_path": "РегистрСведений.ЛицевыеСчетаСотрудниковПоЗарплатнымПроектам.БанковскаяКарта",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "CARD"
+    },
+    {
+      "source_path": "РегистрСведений.ЛицевыеСчетаСотрудниковПоЗарплатнымПроектам.Телефон",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "РегистрСведений.НапоминанияПользователя.Пользователь",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.НапоминанияПользователя.Описание",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ОтложенноеОткрытиеЛицевыхСчетовСотрудников.Организация",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "РегистрСведений.ОтложенноеОткрытиеЛицевыхСчетовСотрудников.ФизическоеЛицо",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.ОтложенноеОткрытиеЛицевыхСчетовСотрудников.Должность",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ОтложенноеОткрытиеЛицевыхСчетовСотрудников.АдресЭлектроннойПочты",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "EMAIL"
+    },
+    {
+      "source_path": "РегистрСведений.ОтложенноеОткрытиеЛицевыхСчетовСотрудников.НомерМобильногоТелефона",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "РегистрСведений.ОтложенноеОткрытиеЛицевыхСчетовСотрудников.НомерМобильногоТелефонаПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "РегистрСведений.ОтложенноеОткрытиеЛицевыхСчетовСотрудников.АдресДляИнформирования",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "РегистрСведений.ОтложенноеОткрытиеЛицевыхСчетовСотрудников.АдресДляИнформированияПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "РегистрСведений.ОтложенноеОткрытиеЛицевыхСчетовСотрудников.АдресМестаРаботы",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "РегистрСведений.ОтложенноеОткрытиеЛицевыхСчетовСотрудников.АдресМестаРаботыПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "РегистрСведений.ОтложенноеОткрытиеЛицевыхСчетовСотрудников.СтраховойНомерПФР",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.СогласияНаОбработкуПерсональныхДанных.Субъект",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.СогласияНаОбработкуПерсональныхДанных.Организация",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "РегистрСведений.СогласияНаОбработкуПерсональныхДанных.СрокДействия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.СпециальностиФизическихЛиц.ФизическоеЛицо",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.СпециальностиФизическихЛиц.Основание",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.СпециальностиФизическихЛиц.Серия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.СпециальностиФизическихЛиц.Номер",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.СпециальностиФизическихЛиц.КемВыдан",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.УдалитьЛицевыеСчетаСотрудниковПоЗарплатнымПроектам.Организация",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "РегистрСведений.УдалитьЛицевыеСчетаСотрудниковПоЗарплатнымПроектам.ФизическоеЛицо",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.УдалитьЛицевыеСчетаСотрудниковПоЗарплатнымПроектам.Банк",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.УдалитьЛицевыеСчетаСотрудниковПоЗарплатнымПроектам.НомерЛицевогоСчета",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.УдалитьЛицевыеСчетаСотрудниковПоЗарплатнымПроектам.ЗарплатныйПроект",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ФИОФизическихЛиц.ФизическоеЛицо",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.ФИОФизическихЛиц.Фамилия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.ФИОФизическихЛиц.Имя",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.ФИОФизическихЛиц.Отчество",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.ФИОФизическихЛиц.Инициалы",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.ФИОФизическихЛиц.ФИОСлужебные",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.Валюты.Наименование",
+      "action": "keep",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Валюты.Код",
+      "action": "keep",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Валюты.НаименованиеПолное",
+      "action": "keep",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Валюты.ОсновнаяВалюта",
+      "action": "keep",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Валюты.ФормулаРасчетаКурса",
+      "action": "keep",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ГруппыДоступа.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ГруппыДоступа.Профиль",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ГруппыДоступа.Пользователь",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ГруппыДоступа.Ответственный",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.ГруппыДоступа.Пользователи.Пользователь",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ГруппыДоступаФизическихЛиц.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ГруппыПользователей.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ГруппыПользователей.Комментарий",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ГруппыПользователей.Состав.Пользователь",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.ГруппыСотрудников.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ГруппыСотрудников.ПодробноеОписание",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.Должности.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Должности.НаименованиеКраткое",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Должности.НаименованиеДляЗаписейОТрудовойДеятельности",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Должности.ДополнительныеРеквизиты.Значение",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Должности.ДополнительныеРеквизиты.ТекстоваяСтрока",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ЗарплатныеПроекты.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ЗарплатныеПроекты.Банк",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ЗарплатныеПроекты.НомерДоговора",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ЗарплатныеПроекты.Организация",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "Справочник.ЗарплатныеПроекты.ОтделениеБанка",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ЗарплатныеПроекты.РасчетныйСчет",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ACC"
+    },
+    {
+      "source_path": "Справочник.ЗарплатныеПроекты.ФилиалОтделенияБанка",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Организации.КодОКВЭД2",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ОрганизацииПрисоединенныеФайлы.ПутьКФайлу",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Пользователи.Фотография",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Пользователи.КонтактнаяИнформация.Представление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Пользователи.КонтактнаяИнформация.ЗначенияПолей",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Пользователи.КонтактнаяИнформация.Страна",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Справочник.Пользователи.КонтактнаяИнформация.Регион",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Справочник.Пользователи.КонтактнаяИнформация.Город",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Справочник.Пользователи.КонтактнаяИнформация.АдресЭП",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "EMAIL"
+    },
+    {
+      "source_path": "Справочник.Пользователи.КонтактнаяИнформация.ДоменноеИмяСервера",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Пользователи.КонтактнаяИнформация.НомерТелефона",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "Справочник.Пользователи.КонтактнаяИнформация.НомерТелефонаБезКодов",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "Справочник.Пользователи.КонтактнаяИнформация.Значение",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Работодатели.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "Справочник.Работодатели.НаименованиеПолное",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "Справочник.Работодатели.ИНН",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "INN"
+    },
+    {
+      "source_path": "Справочник.Работодатели.КПП",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "KPP"
+    },
+    {
+      "source_path": "Справочник.Работодатели.НаименованиеТерриториальногоОрганаФСС",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Работодатели.РегистрационныйНомерФСС",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Работодатели.ДополнительныйКодФСС",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Работодатели.КодПодчиненностиФСС",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Работодатели.ДополнительныеРеквизиты.Значение",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Работодатели.ДополнительныеРеквизиты.ТекстоваяСтрока",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.РабочиеМеста.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.РабочиеМеста.ИмяКомпьютера",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.РолиИсполнителей.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.РолиИсполнителей.КраткоеПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.РолиИсполнителей.Комментарий",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.СотрудникиБИА.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.СотрудникиБИА.Должность",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.СотрудникиБИА.Подразделение",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.СотрудникиБИА.ФизическоеЛицо",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.СтруктураПредприятия.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.СтруктураПредприятия.ДополнительныеРеквизиты.Значение",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.СтруктураПредприятия.ДополнительныеРеквизиты.ТекстоваяСтрока",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Файлы.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Файлы.Автор",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.Файлы.Описание",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.Файлы.Редактирует",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.Файлы.Изменил",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Справочник.Файлы.ПутьКФайлу",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛица.ДополнительныеРеквизиты.Значение",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛица.ДополнительныеРеквизиты.ТекстоваяСтрока",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛица.УдалитьСоставСемьи.СтепеньРодства",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": ""
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛица.УдалитьСоставСемьи.Имя",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": ""
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛица.УдалитьСоставСемьи.ДатаРождения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": ""
+    },
+    {
+      "source_path": "Справочник.ФизическиеЛицаПрисоединенныеФайлы.ПутьКФайлу",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.БронированиеГражданПребывающихВЗапасе.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.БухучетЗарплатыСотрудников.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.БухучетНачисленийСотрудников.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ВедомостьНаВыплатуЗарплатыПеречислением.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ВедомостьНаВыплатуЗарплатыРаздатчиком.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ВедомостьПрочихДоходовВБанк.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ВедомостьПрочихДоходовВКассу.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ВедомостьПрочихДоходовПеречислением.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ВозобновлениеТрудовыхДоговоровКонтрактов.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ВыплатаБывшимСотрудникам.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ГрафикОтпусков.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ДанныеДляРасчетаЗарплаты.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ДивидендыФизическимЛицам.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ДоходВНатуральнойФорме.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ИзменениеАванса.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ИзменениеГрафикаРаботыСписком.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ИзменениеМестРаботы.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ИзменениеПлановыхНачислений.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ИндексацияЗаработка.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ИндивидуальныйГрафик.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ИсполнительныйЛист.АдресПолучателя",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.ИсполнительныйЛист.АдресПолучателяПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.КадровыйПереводСписком.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.КомандировкиСотрудников.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.КомпенсацияЗаЗадержкуЗарплаты.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.МатериальнаяПомощь.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.НазначениеПлановогоНачисления.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.НазначениеРабочихМестСотрудникам.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.НаправлениеНаВнешнююАттестацию.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.НачальнаяЗадолженностьПоЗарплате.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.НачальнаяШтатнаяРасстановка.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.НачислениеЗаПервуюПоловинуМесяца.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.НачислениеПоДоговорам.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ОграничениеВзысканий.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ОплатаПоСреднемуЗаработкуСписком.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ОтгулСписком.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ОтменаБронированияГражданПребывающихВЗапасе.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ОтпускаСотрудников.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ОтпускБезСохраненияОплатыСписком.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ОтпускПоУходуЗаРебенком.ДанныеОДетях.ДатаРожденияРебенка",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.ОтпускПоУходуЗаРебенком.ДанныеОДетях.НаименованиеПодтверждающегоДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ОтпускПоУходуЗаРебенком.ДанныеОДетях.ДатаДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.ОтпускПоУходуЗаРебенком.ДанныеОДетях.СерияДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ОтпускПоУходуЗаРебенком.ДанныеОДетях.НомерДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ОтпускПоУходуЗаРебенком.ДанныеОДетях.Фамилия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ОтпускПоУходуЗаРебенком.ДанныеОДетях.Имя",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ОтпускПоУходуЗаРебенком.ДанныеОДетях.Отчество",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ОтпускПоУходуЗаРебенком.ДанныеОДетях.КемВыданДокумент",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПереводНаРаботуСКоронавирусом.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПеремещениеВДругоеПодразделение.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПеремещениеМеждуТерриториями.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПереносЗатратНаПерсоналМеждуСтатьями.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПериодыОплаченныеДоНачалаЭксплуатации.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПостоянноеУдержаниеВПользуТретьихЛиц.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПрекращениеПлановогоНачисления.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПриемНаРаботуСписком.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПризПодарок.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПриказОбАттестацииСотрудников.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ПриостановлениеТрудовыхДоговоровКонтрактов.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПрогулНеявкаСписком.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ПростойСотрудников.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.РаботаВВыходныеИПраздничныеДни.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.РаботаСверхурочно.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.РазовоеНачисление.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.РаспределениеОсновногоЗаработка.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.РегистрацияПереработок.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.РегистрацияПрочихДоходов.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.РезультатыАттестацииСотрудников.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМО.ДанныеНачислений.ИдентификаторЗанятости",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМО.ДанныеНачислений.ИдентификаторЛичногоДела",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМО.ДанныеНачислений.СуммаНачисления",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМО.ДанныеНачислений.КФО",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМО.ДанныеУдержаний.ИдентификаторЗанятости",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМО.ДанныеУдержаний.ИдентификаторЛичногоДела",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМО.ДанныеУдержаний.СуммаУдержания",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМО.ДанныеУдержаний.КФО",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.Работники.Фамилия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.Работники.Имя",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.Работники.Отчество",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.Работники.ДатаРождения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.Работники.СтраховойНомерПФР",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.Работники.ИНН",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "INN"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.Работники.НомерТелефона",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.Работники.НомерТелефонаПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.Работники.АдресЭлектроннойПочты",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "EMAIL"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.Работники.АдресЭлектроннойПочтыПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "EMAIL"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.Работники.АдресПостояннойРегистрацииПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.Работники.АдресПостояннойРегистрации",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.Работники.ДатаРегистрации",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.Работники.АдресМестаПроживанияПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.Работники.АдресМестаПроживания",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.ДокументыУдостоверяющиеЛичность.Серия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.ДокументыУдостоверяющиеЛичность.Номер",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.ДокументыУдостоверяющиеЛичность.ДатаВыдачи",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.ДокументыУдостоверяющиеЛичность.КемВыдан",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.ДокументыУдостоверяющиеЛичность.КодПодразделения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.ЛичноеДело.Фамилия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.ОбщееОбразование.СерияАттестата",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.ОбщееОбразование.НомерАттестата",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.ОбщееОбразование.ДатаВыдачиАттестата",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.ПрофессиональноеОбразование.Начало",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.ПрофессиональноеОбразование.Окончание",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.ПрофессиональноеОбразование.СерияДиплома",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.ПрофессиональноеОбразование.НомерДиплома",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.ПрофессиональноеОбразование.ДатаВыдачиДиплома",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.ПослевузовскоеОбразование.Начало",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.ПослевузовскоеОбразование.Окончание",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.ПослевузовскоеОбразование.СерияДиплома",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.ПослевузовскоеОбразование.НомерДиплома",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.ПослевузовскоеОбразование.ДатаВыдачиДиплома",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.ДополнительноеПрофессиональноеОбразование.Тематика",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.ДополнительноеПрофессиональноеОбразование.СерияДиплома",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.ДополнительноеПрофессиональноеОбразование.НомерДиплома",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.ДополнительноеПрофессиональноеОбразование.ДатаВыдачиДиплома",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.Сертификаты.ДатаПолучения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.Сертификаты.ДействуетПо",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.Сертификаты.Серия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.Сертификаты.Номер",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.Награды.ДатаПриказа",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.Награды.НомерПриказа",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.Квалификация.ДатаПрисвоения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.СведенияДляФРМР.Квалификация.ДатаОкончания",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.СведенияОНезачисленнойЗарплате.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОПриемеПереводеИУвольненииДляВоенкомата.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.Образование.ГодОкончания",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.Образование.Серия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.Образование.Номер",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.Сотрудники.Фамилия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.Сотрудники.Имя",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.Сотрудники.Отчество",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.Сотрудники.ДатаРождения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.Сотрудники.ДокументСерия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.Сотрудники.ДокументНомер",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.Сотрудники.ДокументДатаВыдачи",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.Сотрудники.ДокументКемВыдан",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.Сотрудники.СтраховойНомерПФР",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.Сотрудники.ИНН",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "INN"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.Сотрудники.АдресПоПропискеПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.Сотрудники.АдресПоПрописке",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.Сотрудники.ТелефонПредставление",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.Сотрудники.Телефон",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PHONE"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.Награды.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.Награды.НомерПриказа",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.Награды.ДатаПриказа",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.Сертификаты.ДатаПолучения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.Сертификаты.Серия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.Сертификаты.Номер",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.Переподготовка.ГодПрохождения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.Переподготовка.Серия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.Переподготовка.Номер",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.ПовышениеКвалификации.НаименованиеКурса",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.ПовышениеКвалификации.ГодПрохождения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.ПовышениеКвалификации.Серия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.ПовышениеКвалификации.Номер",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.ПовышениеКвалификации.ДатаПолучения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.ПослевузовскоеОбразование.Начало",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.ПослевузовскоеОбразование.Окончание",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.ПослевузовскоеОбразование.Серия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.ПослевузовскоеОбразование.Номер",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.ПослевузовскоеОбразование.ДатаПолучения",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.УдалитьОбразованиеФизическихЛиц.Серия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.УдалитьОбразованиеФизическихЛиц.Номер",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.УдалитьОбразованиеФизическихЛиц.ДатаВыдачи",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.УдалитьОбразованиеФизическихЛиц.Квалификация",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.УдалитьОбразованиеФизическихЛиц.Начало",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.УдалитьОбразованиеФизическихЛиц.Окончание",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СведенияОРаботникахДляМедРегистра.УдалитьОбразованиеФизическихЛиц.НаименованиеКурса",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СверкаСВоеннымКомиссариатом.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СверкаСДокументамиВоинскогоУчета.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.СогласиеНаУведомлениеОбЭЛН.ФИОСотрудника",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.СогласиеНаУведомлениеОбЭЛН.АдресСотрудника",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "Документ.СогласиеНаУведомлениеОбЭЛН.ПаспортСотрудника",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PASSPORT"
+    },
+    {
+      "source_path": "Документ.ТабельУчетаРабочегоВремени.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.УвольнениеСписком.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.УдержаниеДобровольныхВзносовВНПФ.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.УдержаниеДобровольныхСтраховыхВзносов.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.УдержаниеПрофсоюзныхВзносов.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "Документ.ФормированиеАттестационнойКомиссииСотрудников.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "Документ.ХодатайствоОБронированииГражданПребывающихВЗапасе.КраткийСоставДокумента",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ДанныеДляПодбораСотрудников.Наименование",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.ДанныеДляПодбораСотрудников.Сотрудник",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.ДанныеДляПодбораСотрудников.ФизическоеЛицо",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.ДанныеДляПодбораСотрудников.Организация",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "РегистрСведений.ИзменениеСведенийФизическихЛиц.ФизическоеЛицо",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.ИзменениеСведенийФизическихЛиц.ПрежнееЗначение",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ИзменениеСведенийФизическихЛиц.УстановленноеЗначение",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.НаградыФизическихЛиц.ФизическоеЛицо",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.НаградыФизическихЛиц.НомерПриказа",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.НаградыФизическихЛиц.ДатаПриказа",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "РегистрСведений.НаградыФизическихЛиц.НаименованиеПриказа",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.СертификатыПоСпециальностиФизическихЛиц.ФизическоеЛицо",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.СертификатыПоСпециальностиФизическихЛиц.ДействуетПо",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.СертификатыПоСпециальностиФизическихЛиц.Серия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.СертификатыПоСпециальностиФизическихЛиц.Номер",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.СертификатыПоСпециальностиФизическихЛиц.УдалитьКемВыдан",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.СообщенияФССОбИзмененииСостоянийЭЛН.Организация",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "РегистрСведений.СообщенияФССОбИзмененииСостоянийЭЛН.НомерЛН",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.СообщенияФССОбИзмененииСостоянийЭЛН.СНИЛС",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "SNILS"
+    },
+    {
+      "source_path": "РегистрСведений.СообщенияФССОбИзмененииСостоянийЭЛН.ФизическоеЛицо",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.СообщенияФССОбИзмененииСостоянийЭЛН.Страхователь",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "РегистрСведений.ТрудоваяДеятельностьФизическихЛиц.ФизическоеЛицо",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.ТрудоваяДеятельностьФизическихЛиц.Организация",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "РегистрСведений.ТрудоваяДеятельностьФизическихЛиц.ДатаНачала",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "РегистрСведений.ТрудоваяДеятельностьФизическихЛиц.ДатаОкончания",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "РегистрСведений.ТрудоваяДеятельностьФизическихЛиц.Должность",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ТрудоваяДеятельностьФизическихЛиц.Обязанности",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ТрудоваяДеятельностьФизическихЛиц.СфераДеятельностиКомпании",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.ТрудоваяДеятельностьФизическихЛиц.АдресОрганизации",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "LOC"
+    },
+    {
+      "source_path": "РегистрСведений.УдалитьЛицевыеСчетаСотрудниковПоЗарплатнымПроектам.УдалитьБанк",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.УченыеЗванияФизическихЛиц.ФизическоеЛицо",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.УченыеЗванияФизическихЛиц.ДатаПрисвоенияУченогоЗвания",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "РегистрСведений.УченыеЗванияФизическихЛиц.АттестатСерия",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.УченыеЗванияФизическихЛиц.АттестатНомер",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.УченыеЗванияФизическихЛиц.АттестатВыданОрганизация",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "РегистрСведений.УченыеСтепениФизическихЛиц.ФизическоеЛицо",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.УченыеСтепениФизическихЛиц.ДатаПрисужденияУченойСтепени",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "DATE"
+    },
+    {
+      "source_path": "РегистрСведений.УченыеСтепениФизическихЛиц.ДиссертационныйСовет",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.УченыеСтепениФизическихЛиц.ДипломСерияНомер",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    },
+    {
+      "source_path": "РегистрСведений.УченыеСтепениФизическихЛиц.ДипломВыданОрганизация",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "ORG"
+    },
+    {
+      "source_path": "РегистрСведений.ФИОФизическихЛиц.УдалитьИнициалыИмени",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.ФотографииФизическихЛиц.ФизическоеЛицо",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "PER"
+    },
+    {
+      "source_path": "РегистрСведений.ФотографииФизическихЛиц.Фотография",
+      "action": "anonymize",
+      "match_kind": "exact_source",
+      "use_for_dictionary": false,
+      "token_category": "STR"
+    }
+  ]
+}

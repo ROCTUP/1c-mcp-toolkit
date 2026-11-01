@@ -2,11 +2,11 @@
 
 namespace mcp {
 
-void SSEStream::PushEvent(const std::string& event_data, const std::string& event_type) {
-    if (closed.load() || client_disconnected.load()) return;
-
+bool SSEStream::PushEvent(const std::string& event_data, const std::string& event_type,
+                          std::shared_ptr<ResponseCompletion> terminal) {
     {
         std::lock_guard<std::mutex> lock(queue_mutex);
+        if (closed.load() || client_disconnected.load()) return false;
         // Format as SSE frame — split multi-line data per W3C EventSource spec
         std::string frame = "event: " + event_type + "\n";
         size_t start = 0;
@@ -24,11 +24,17 @@ void SSEStream::PushEvent(const std::string& event_data, const std::string& even
         }
         frame += "\n";
         events.push(std::move(frame));
+        if (terminal) {
+            completion = std::move(terminal);
+            closed.store(true);
+        }
     }
     queue_cv.notify_one();
+    return true;
 }
 
 void SSEStream::Close() {
+    std::lock_guard<std::mutex> lock(queue_mutex);
     closed.store(true);
     queue_cv.notify_all();
 }

@@ -10,7 +10,7 @@
 				</v8:item>
 			</Synonym>
 			<Comment>Шаблон стартового набора explicit rules для execute_query</Comment>
-			<TemplateType>BinaryData</TemplateType>
+			<TemplateType>TextDocument</TemplateType>
 		</Properties>
 	</Template>
 </MetaDataObject>

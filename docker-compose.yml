@@ -13,4 +13,5 @@ services:
       - ANONYMIZATION_NER_ENABLED=false
       - ANONYMIZATION_DICTIONARY_ENABLED=true
       - ANONYMIZATION_TOKENMAP_MAX=10000 # Soft cap on the token map size (per channel)
+      - DEANONYMIZATION_API_ENABLED=false # Restore text through /api/deanonymize
     restart: unless-stopped

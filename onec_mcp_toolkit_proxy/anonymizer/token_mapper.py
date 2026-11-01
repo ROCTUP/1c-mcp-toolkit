@@ -5,7 +5,7 @@ from typing import Dict
 
 
 TOKEN_RE = re.compile(
-    r"\[([A-Z]+)-(\d{5,})\]",
+    r"\[([A-Z]+)-((?:[A-F0-9]{32}-)?\d{5,})\]",
     re.IGNORECASE,
 )  # matches [ORG-00001], [org-00001], [ORG-100000] (6+ digits) etc.
 
@@ -20,13 +20,26 @@ class TokenMapper:
     ``max_size == 0`` disables eviction entirely.
     """
 
-    def __init__(self, max_size: int = 0):
+    def __init__(self, max_size: int = 0, generation: str = ''):
         # OrderedDict preserves insertion / recency order for LRU eviction.
         self._real_to_token: "OrderedDict[str, str]" = OrderedDict()
         self._token_to_real: Dict[str, str] = {}
         self._counters: Dict[str, int] = {}
         self._max_size = max_size
         self._lock = threading.Lock()
+        self.generation = generation
+
+    def validate_tokens(self, value):
+        """Host tokens must belong to this mapping, including when masking is off."""
+        if isinstance(value, str):
+            with self._lock:
+                for match in TOKEN_RE.finditer(value):
+                    if match.group(0).upper() not in self._token_to_real:
+                        raise ValueError('Unknown or stale anonymization token; request fresh data')
+        elif isinstance(value, dict):
+            for item in value.values(): self.validate_tokens(item)
+        elif isinstance(value, (list, tuple)):
+            for item in value: self.validate_tokens(item)
 
     def tokenize(self, value: str, category: str = "STR") -> str:
         """Stable: same value → same token always. Never evicts (see prune)."""
@@ -38,7 +51,8 @@ class TokenMapper:
             category = category.upper()
             count = self._counters.get(category, 0) + 1
             self._counters[category] = count
-            token = f"[{category}-{count:05d}]"
+            prefix = self.generation + '-' if self.generation else ''
+            token = f"[{category}-{prefix}{count:05d}]"
             self._real_to_token[value] = token
             self._token_to_real[token] = value
             return token
@@ -67,19 +81,25 @@ class TokenMapper:
 
     def detokenize(self, text: str) -> str:
         """Replace all known tokens in text with real values."""
+        return self.detokenize_with_unresolved(text)[0]
+
+    def detokenize_with_unresolved(self, text: str) -> tuple[str, list[str]]:
+        """Resolve the input once, collecting missing tokens under the same lock."""
         touched = []
+        unresolved = {}
         with self._lock:
             def _replace(m):
-                normalized = f"[{m.group(1).upper()}-{m.group(2)}]"
+                normalized = m.group(0).upper()
                 real = self._token_to_real.get(normalized)
                 if real is None:
+                    unresolved.setdefault(normalized, m.group(0))
                     return m.group(0)
                 touched.append(normalized)
                 return real
             result = TOKEN_RE.sub(_replace, text)
             for tok in touched:
                 self._real_to_token.move_to_end(self._token_to_real[tok])
-            return result
+            return result, list(unresolved.values())
 
     def detokenize_escape_double(self, text: str) -> str:
         """Replace tokens with real values, escaping \" → \"\" unconditionally.
@@ -90,7 +110,7 @@ class TokenMapper:
         touched = []
         with self._lock:
             def _replace(m):
-                normalized = f"[{m.group(1).upper()}-{m.group(2)}]"
+                normalized = m.group(0).upper()
                 real = self._token_to_real.get(normalized)
                 if real is None:
                     return m.group(0)
@@ -166,7 +186,7 @@ class TokenMapper:
                     candidate = text[i:end + 1]
                     m = TOKEN_RE.fullmatch(candidate)
                     if m:
-                        normalized = f"[{m.group(1).upper()}-{m.group(2)}]"
+                        normalized = m.group(0).upper()
                         real = snapshot.get(normalized)
                         if real is not None:
                             touched.append(normalized)

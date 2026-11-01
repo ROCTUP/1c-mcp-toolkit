@@ -5,6 +5,9 @@
 #include <cwctype>
 #include <algorithm>
 #include <mutex>
+#include <cmath>
+#include <thread>
+#include <chrono>
 
 namespace mcp {
 
@@ -34,6 +37,12 @@ const wchar_t* MCPHttpTransportComponent::method_names_en_[] = {
     L"CloseSSEStream",
     L"GetRequestBody",
     L"GetLocalAddresses",
+    L"GetRequestStates",
+    L"StartQueued",
+    L"WaitNextEvent",
+    L"WaitMilliseconds",
+    L"SendResponseAndWait",
+    L"SendSSEEventAndWait",
 };
 
 const wchar_t* MCPHttpTransportComponent::method_names_ru_[] = {
@@ -44,6 +53,12 @@ const wchar_t* MCPHttpTransportComponent::method_names_ru_[] = {
     L"ЗакрытьSSEПоток",
     L"ПолучитьТелоЗапроса",
     L"ПолучитьЛокальныеАдреса",
+    L"ПолучитьСостоянияЗапросов",
+    L"СтартСОчередью",
+    L"ОжидатьСледующееСобытие",
+    L"ОжидатьМиллисекунды",
+    L"ОтправитьОтветИОжидать",
+    L"ОтправитьSSEСобытиеИОжидать",
 };
 
 // ============================================================================
@@ -53,7 +68,7 @@ const wchar_t* MCPHttpTransportComponent::method_names_ru_[] = {
 MCPHttpTransportComponent::MCPHttpTransportComponent() = default;
 
 MCPHttpTransportComponent::~MCPHttpTransportComponent() {
-    transport_.Stop();
+    Done();
 }
 
 // ============================================================================
@@ -78,6 +93,10 @@ long MCPHttpTransportComponent::GetInfo() {
 }
 
 void MCPHttpTransportComponent::Done() {
+    closing_.store(true);
+    transport_.Stop();
+    std::unique_lock<std::shared_mutex> calls_lock(calls_mutex_);
+    // A Start already in flight when closing was set has now finished.
     transport_.Stop();
     std::lock_guard<std::mutex> lock(addin_mutex_);
     addin_base_ = nullptr;
@@ -239,11 +258,17 @@ const WCHAR_T* MCPHttpTransportComponent::GetMethodName(const long lMethodNum, c
 long MCPHttpTransportComponent::GetNParams(const long lMethodNum) {
     switch (lMethodNum) {
         case eMethodStart:            return 2;  // port, bindAddress
+        case eMethodStartQueued:      return 2;
+        case eMethodWaitNextEvent:    return 1;
+        case eMethodWaitMilliseconds: return 1;
+        case eMethodSendResponseAndWait: return 5;
+        case eMethodSendSSEEventAndWait: return 5;
         case eMethodStop:             return 0;
         case eMethodSendResponse:     return 4;  // requestId, statusCode, headersJson, body
         case eMethodSendSSEEvent:     return 4;  // requestId, eventData, headersJson, eventType
         case eMethodCloseSSEStream:   return 1;  // requestId
         case eMethodGetRequestBody:   return 1;  // requestId
+        case eMethodGetRequestStates: return 1;
         case eMethodGetLocalAddresses: return 0;
         default: return 0;
     }
@@ -254,7 +279,7 @@ bool MCPHttpTransportComponent::GetParamDefValue(const long lMethodNum, const lo
     if (lMethodNum == eMethodSendSSEEvent && lParamNum == 3) {
         return SetWStringToVariant(pvarParamDefValue, L"message");
     }
-    if (lMethodNum == eMethodStart && lParamNum == 1) {
+    if ((lMethodNum == eMethodStart || lMethodNum == eMethodStartQueued) && lParamNum == 1) {
         // Default bind address preserves legacy Start(port) behavior
         return SetWStringToVariant(pvarParamDefValue, L"0.0.0.0");
     }
@@ -272,15 +297,29 @@ bool MCPHttpTransportComponent::CallAsProc(const long lMethodNum, tVariant* paPa
     // Forward to CallAsFunc, ignoring return value
     tVariant retVal;
     tVarInit(&retVal);
-    return CallAsFunc(lMethodNum, &retVal, paParams, lSizeArray);
+    // Keep the allocator alive until the ignored string result is freed.
+    std::shared_lock<std::shared_mutex> lock(calls_mutex_);
+    if (closing_.load()) return false;
+    bool result = CallFunction(lMethodNum, &retVal, paParams, lSizeArray);
+    if (TV_VT(&retVal) == VTYPE_PWSTR && retVal.pwstrVal && mem_manager_)
+        mem_manager_->FreeMemory(reinterpret_cast<void**>(&retVal.pwstrVal));
+    return result;
 }
 
 bool MCPHttpTransportComponent::CallAsFunc(const long lMethodNum, tVariant* pvarRetValue,
                                             tVariant* paParams, const long lSizeArray) {
+    std::shared_lock<std::shared_mutex> lock(calls_mutex_);
+    if (closing_.load()) return false;
+    return CallFunction(lMethodNum, pvarRetValue, paParams, lSizeArray);
+}
+
+bool MCPHttpTransportComponent::CallFunction(const long lMethodNum, tVariant* pvarRetValue,
+                                             tVariant* paParams, const long lSizeArray) {
     if (!pvarRetValue) return false;
 
     switch (lMethodNum) {
-        case eMethodStart: {
+        case eMethodStart:
+        case eMethodStartQueued: {
             if (lSizeArray < 1) return false;
             int port = 0;
             if (TV_VT(&paParams[0]) == VTYPE_I4) port = TV_I4(&paParams[0]);
@@ -301,7 +340,9 @@ bool MCPHttpTransportComponent::CallAsFunc(const long lMethodNum, tVariant* pvar
                 return FireExternalEvent(source, event, data);
             };
 
-            bool result = transport_.Start(port, bind_address, callback);
+            bool result = lMethodNum == eMethodStartQueued
+                ? transport_.StartQueued(port, bind_address)
+                : transport_.Start(port, bind_address, callback);
             TV_VT(pvarRetValue) = VTYPE_BOOL;
             TV_BOOL(pvarRetValue) = result;
             return true;
@@ -312,6 +353,52 @@ bool MCPHttpTransportComponent::CallAsFunc(const long lMethodNum, tVariant* pvar
             TV_VT(pvarRetValue) = VTYPE_BOOL;
             TV_BOOL(pvarRetValue) = result;
             return true;
+        }
+
+        case eMethodWaitMilliseconds:
+        case eMethodWaitNextEvent: {
+            if (lSizeArray != 1 || !paParams) return false;
+            double timeout = -1;
+            if (TV_VT(&paParams[0]) == VTYPE_I4) timeout = TV_I4(&paParams[0]);
+            else if (TV_VT(&paParams[0]) == VTYPE_R8) timeout = TV_R8(&paParams[0]);
+            if (!std::isfinite(timeout) || timeout < 0 || timeout > EventQueue::MaxWaitMs ||
+                std::floor(timeout) != timeout) return false;
+            if (lMethodNum == eMethodWaitMilliseconds) {
+                // Bounded backoff for an outbound proxy consumer; opens no socket.
+                std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(timeout)));
+                TV_VT(pvarRetValue) = VTYPE_BOOL;
+                TV_BOOL(pvarRetValue) = true;
+                return true;
+            }
+            return SetWStringToVariant(pvarRetValue, UTF8ToWString(
+                transport_.WaitNextEvent(static_cast<int>(timeout))));
+        }
+
+        case eMethodSendResponseAndWait:
+        case eMethodSendSSEEventAndWait: {
+            auto rejected = [&] { return SetWStringToVariant(pvarRetValue, L"rejected"); };
+            if (lSizeArray != 5 || !paParams) return rejected();
+            const bool rest = lMethodNum == eMethodSendResponseAndWait;
+            for (int i = 0; i < 4; ++i) {
+                if (rest && i == 1) continue;
+                if (TV_VT(&paParams[i]) != VTYPE_PWSTR) return rejected();
+            }
+            auto number = [](tVariant& value) -> double {
+                if (TV_VT(&value) == VTYPE_I4) return TV_I4(&value);
+                if (TV_VT(&value) == VTYPE_R8) return TV_R8(&value);
+                return -1;
+            };
+            double timeout = number(paParams[4]);
+            if (!std::isfinite(timeout) || timeout < 1 || timeout > 10000 ||
+                std::floor(timeout) != timeout) return rejected();
+            double status = rest ? number(paParams[1]) : 200;
+            if (!std::isfinite(status) || status < 200 || status > 599 ||
+                std::floor(status) != status) return rejected();
+            auto str = [&](int i) { return WStringToUTF8(GetWStringFromVariant(&paParams[i])); };
+            auto result = rest
+                ? transport_.SendResponseAndWait(str(0), static_cast<int>(status), str(2), str(3), static_cast<int>(timeout))
+                : transport_.SendSSEEventAndWait(str(0), str(1), str(2), str(3), static_cast<int>(timeout));
+            return SetWStringToVariant(pvarRetValue, UTF8ToWString(result));
         }
 
         case eMethodSendResponse: {
@@ -366,6 +453,12 @@ bool MCPHttpTransportComponent::CallAsFunc(const long lMethodNum, tVariant* pvar
             std::string body = transport_.GetRequestBody(request_id);
             std::wstring wbody = UTF8ToWString(body);
             return SetWStringToVariant(pvarRetValue, wbody);
+        }
+
+        case eMethodGetRequestStates: {
+            if (lSizeArray < 1) return false;
+            return SetWStringToVariant(pvarRetValue, UTF8ToWString(transport_.GetRequestStates(
+                WStringToUTF8(GetWStringFromVariant(&paParams[0])))));
         }
 
         case eMethodGetLocalAddresses: {

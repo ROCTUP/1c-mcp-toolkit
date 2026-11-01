@@ -98,6 +98,17 @@
 																<Event name="ПриИзменении">ПриИзмененииРежимаПодключения</Event>
 															</Events>
 														</RadioButtonField>
+														<LabelDecoration name="ПромежутокУправленияСервером" id="243">
+															<Width>14</Width>
+															<Visible>false</Visible>
+															<ExtendedTooltip name="ПромежутокУправленияСерверомПодсказка" id="244"/>
+														</LabelDecoration>
+														<Button name="КнопкаУправлениеСервером" id="239">
+															<Type>UsualButton</Type>
+															<Visible>false</Visible>
+															<CommandName>Form.Command.УправлениеСервером</CommandName>
+															<ExtendedTooltip name="ПодсказкаУправлениеСервером" id="240"/>
+														</Button>
 													</ChildItems>
 												</UsualGroup>
 												<UsualGroup name="ГруппаПроксиНастройки" id="44">
@@ -574,6 +585,47 @@
 														</UsualGroup>
 													</ChildItems>
 												</UsualGroup>
+												<CheckBoxField name="ПолеДобавлятьИнформациюОБазе" id="246">
+													<DataPath>ДобавлятьИнформациюОБазе</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>ru</v8:lang>
+															<v8:content>Добавлять в ответы информацию о базе</v8:content>
+														</v8:item>
+													</Title>
+													<ExtendedTooltip name="ПодсказкаДобавлятьИнформациюОБазе" id="247">
+														<Title>
+															<v8:item>
+																<v8:lang>ru</v8:lang>
+																<v8:content>Добавляет в ответ инструмента адрес информационной базы без логина и пароля. Адрес базы не анонимизируется.</v8:content>
+															</v8:item>
+														</Title>
+													</ExtendedTooltip>
+													<Events>
+														<Event name="ПриИзменении">ДобавлятьИнформациюОБазеПриИзменении</Event>
+													</Events>
+												</CheckBoxField>
+												<UsualGroup name="ГруппаПараллельноеВыполнение" id="230">
+													<ShowTitle>false</ShowTitle>
+													<Group>AlwaysHorizontal</Group>
+													<Representation>None</Representation>
+													<ExtendedTooltip name="ГруппаПараллельноеВыполнениеПодсказка" id="231"/>
+													<ChildItems>
+														<CheckBoxField name="ФлагПараллельноеВыполнение" id="232">
+															<DataPath>ПараллельноеВыполнение</DataPath>
+															<Title><v8:item><v8:lang>ru</v8:lang><v8:content>Параллельное выполнение команд</v8:content></v8:item></Title>
+															<ExtendedTooltip name="ФлагПараллельноеВыполнениеПодсказка" id="233">
+																<Title><v8:item><v8:lang>ru</v8:lang><v8:content>До восьми фоновых заданий в клиент-серверной базе. На БСП 2.1 требуется открытие обработки из «Дополнительных отчётов и обработок»; на БСП 2.2 и новее поддерживается также открытие из файла. При выключении активные задания завершаются; последующие команды выполняются последовательно. Файловые адаптеры требуют одного рабочего сервера.</v8:content></v8:item></Title>
+															</ExtendedTooltip>
+															<Events><Event name="ПриИзменении">ПараллельноеВыполнениеПриИзменении</Event></Events>
+														</CheckBoxField>
+														<InputField name="ПолеСтатусПараллельности" id="234">
+															<DataPath>СтатусПараллельности</DataPath><TitleLocation>None</TitleLocation>
+															<ReadOnly>true</ReadOnly>
+															<ExtendedTooltip name="ПолеСтатусПараллельностиПодсказка" id="235"/>
+														</InputField>
+													</ChildItems>
+												</UsualGroup>
 												<UsualGroup name="ГруппаНастройкиПерезапуска" id="163">
 													<Title>
 														<v8:item>
@@ -788,6 +840,14 @@
 															<CommandName>Form.Command.Отключиться</CommandName>
 															<ExtendedTooltip name="КнопкаОтключитьсяРасширеннаяПодсказка" id="10"/>
 														</Button>
+														<CheckBoxField name="ФлагАвтостартПриОткрытии" id="228">
+															<DataPath>АвтостартПриОткрытии</DataPath>
+															<Title><v8:item><v8:lang>ru</v8:lang><v8:content>Автостарт</v8:content></v8:item></Title>
+															<ExtendedTooltip name="ФлагАвтостартПриОткрытииРасширеннаяПодсказка" id="229">
+																<Title><v8:item><v8:lang>ru</v8:lang><v8:content>При открытии обработки запускать встроенный сервер или подключаться к прокси. Используются сохранённые настройки выбранного режима.</v8:content></v8:item></Title>
+															</ExtendedTooltip>
+															<Events><Event name="ПриИзменении">АвтостартПриОткрытииПриИзменении</Event></Events>
+														</CheckBoxField>
 														<UsualGroup name="ГруппаСтатус" id="11">
 															<Group>Horizontal</Group>
 															<Grouping>Horizontal</Grouping>
@@ -807,6 +867,7 @@
 																</Decoration>
 																<InputField name="СтатусПоле" id="15">
 																	<DataPath>Статус</DataPath>
+																	<TitleLocation>None</TitleLocation>
 																	<Title>
 																		<v8:item>
 																			<v8:lang>ru</v8:lang>
@@ -817,6 +878,8 @@
 																	<Width>40</Width>
 																	<ExtendedTooltip name="СтатусПолеРасширеннаяПодсказка" id="16"/>
 																</InputField>
+
+
 															</ChildItems>
 														</UsualGroup>
 													</ChildItems>
@@ -860,7 +923,7 @@
 													<Title>
 														<v8:item>
 															<v8:lang>ru</v8:lang>
-															<v8:content>v1.9.0</v8:content>
+															<v8:content>v1.10.0</v8:content>
 														</v8:item>
 													</Title>
 													<ToolTip>
@@ -952,6 +1015,27 @@
 							</LabelDecoration>
 						</ChildItems>
 					</UsualGroup>
+						<CheckBoxField name="ПолеДеанонимизацияЧерезAPI" id="250">
+							<DataPath>ДеанонимизацияЧерезAPI</DataPath>
+							<TitleLocation>Right</TitleLocation>
+							<Title>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Деанонимизация через API</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="ПодсказкаДеанонимизацияЧерезAPI" id="251">
+								<Title>
+									<v8:item>
+										<v8:lang>ru</v8:lang>
+										<v8:content>Разрешает внешним приложениям заменять токены анонимизации исходными значениями.</v8:content>
+									</v8:item>
+								</Title>
+							</ExtendedTooltip>
+							<Events>
+								<Event name="ПриИзменении">ДеанонимизацияЧерезAPIПриИзменении</Event>
+							</Events>
+						</CheckBoxField>
 					<UsualGroup name="ГруппаМаппинги" id="102">
 							<Title>
 								<v8:item>
@@ -1212,6 +1296,12 @@
 		</Pages>
 	</ChildItems>
 	<Attributes>
+		<Attribute name="ПараллельноеВыполнение" id="236"><Type><v8:Type>xs:boolean</v8:Type></Type></Attribute>
+		<Attribute name="ФайловаяБазаДляПараллельности" id="237"><Type><v8:Type>xs:boolean</v8:Type></Type></Attribute>
+		<Attribute name="СтатусПараллельности" id="238"><Type><v8:Type>xs:string</v8:Type><v8:StringQualifiers><v8:Length>0</v8:Length><v8:AllowedLength>Variable</v8:AllowedLength></v8:StringQualifiers></Type></Attribute>
+		<Attribute name="АвтостартПриОткрытии" id="222">
+			<Type><v8:Type>xs:boolean</v8:Type></Type>
+		</Attribute>
 		<Attribute name="КонтролироватьСервер" id="218">
 			<Type><v8:Type>xs:boolean</v8:Type></Type>
 		</Attribute>
@@ -1535,6 +1625,36 @@
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
+		<Attribute name="ТолькоУправлениеСервером" id="241">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="ИдРегистрацииСервера" id="242">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="ОтпечатокРегистрацииЗапуска" id="245">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="ДобавлятьИнформациюОБазе" id="248">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="ИсточникИнформационнойБазы" id="249">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="ДеанонимизацияЧерезAPI" id="252">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="Подключиться" id="1">
@@ -1612,10 +1732,20 @@
 			</ToolTip>
 			<Action>КомандаОбновитьАдреса</Action>
 		</Command>
-	</Commands>
+		<Command name="УправлениеСервером" id="242">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Управление MCP на сервере 1С...</v8:content>
+				</v8:item>
+			</Title>
+			<Action>УправлениеСервером</Action>
+		</Command>
+</Commands>
 	<Events>
 		<Event name="ПриСозданииНаСервере">ПриСозданииНаСервере</Event>
 		<Event name="ПриОткрытии">ПриОткрытии</Event>
+		<Event name="ПередЗакрытием">ПередЗакрытиемПараллельности</Event>
 		<Event name="ПриЗакрытии">ПриЗакрытии</Event>
 		<Event name="ВнешнееСобытие">ОбработкаВнешнегоСобытия</Event>
 	</Events>

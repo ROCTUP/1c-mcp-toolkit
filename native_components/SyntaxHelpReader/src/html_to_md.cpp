@@ -182,7 +182,7 @@ struct ConvState {
 
     int               heading_level = 0; // 0 = not in heading
 
-    void FlushAnchor(HbkIndex& index,
+    void FlushAnchor(const HbkIndex& index,
                      const std::string& base_html_path,
                      const std::string& source_path) {
         if (!in_anchor) return;
@@ -271,14 +271,15 @@ static void FlushTable(ConvState& st) {
 }
 
 std::string HtmlToMarkdown(const std::string& html,
-                            HbkIndex& index,
+                            const HbkIndex& index,
                             const std::string& base_html_path,
-                            const std::string& source_path) {
+                            const std::string& source_path, const std::atomic_bool* cancel) {
     ConvState st;
     size_t pos = 0;
     HtmlToken tok;
 
     while (NextToken(html, pos, tok)) {
+        CheckSearchCancelled(cancel);
         if (tok.type == HtmlTokenType::Text) {
             if (!st.in_pre) {
                 // Skip text inside <script>/<style> (check stack — we just check blank)

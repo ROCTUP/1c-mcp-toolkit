@@ -23,13 +23,21 @@ std::shared_ptr<PendingRequest> PendingRequestStore::Get(const std::string& id) 
 
 bool PendingRequestStore::Remove(const std::string& id) {
     std::lock_guard<std::mutex> lock(map_mutex_);
-    return requests_.erase(id) > 0;
+    auto it = requests_.find(id);
+    if (it == requests_.end()) return false;
+    {
+        std::lock_guard<std::mutex> state_lock(it->second->state_mutex);
+        if (it->second->completion) it->second->completion->Complete(false);
+    }
+    requests_.erase(it);
+    return true;
 }
 
 void PendingRequestStore::RemoveAll() {
     std::lock_guard<std::mutex> lock(map_mutex_);
     for (auto& [id, req] : requests_) {
         std::lock_guard<std::mutex> state_lock(req->state_mutex);
+        if (req->completion) req->completion->Complete(false);
         req->state = RequestState::COMPLETED;
         if (req->sse_stream) {
             // SSE mode — close stream so content providers unblock and exit

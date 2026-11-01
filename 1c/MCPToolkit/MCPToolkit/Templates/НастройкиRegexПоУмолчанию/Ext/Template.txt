@@ -1,0 +1,131 @@
+﻿{
+  "version": 1,
+  "rules": [
+    {
+      "enabled": true,
+      "pattern": "(?<!\\d)(?:\\+7|8)[\\s\\-]?\\(?\\d{3}\\)?[\\s\\-]?\\d{3}[\\s\\-]?\\d{2}[\\s\\-]?\\d{2}(?!\\d)",
+      "category": "PHONE",
+      "description": "Телефон РФ (с разделителями)"
+    },
+    {
+      "enabled": true,
+      "pattern": "(?<!\\d)(?:\\+7|8)\\d{10}(?!\\d)",
+      "category": "PHONE",
+      "description": "Телефон РФ (компактный)"
+    },
+    {
+      "enabled": true,
+      "pattern": "\\+\\d[\\d\\s\\-\\(\\)]{6,18}\\d",
+      "category": "PHONE",
+      "description": "Телефон международный: +1 555 123-4567"
+    },
+    {
+      "enabled": true,
+      "pattern": "[\\w.+\\-]+@[\\w.\\-]+\\.\\w{2,}",
+      "category": "EMAIL",
+      "description": "Email"
+    },
+    {
+      "enabled": true,
+      "pattern": "(?<!\\d)\\d{3}[-\\s]\\d{3}[-\\s]\\d{3}\\s?\\d{2}(?!\\d)",
+      "category": "SNILS",
+      "description": "СНИЛС"
+    },
+    {
+      "enabled": true,
+      "pattern": "\\b(?!00)\\d{10}\\b|\\b(?!00)\\d{12}\\b",
+      "category": "INN",
+      "description": "ИНН (10 или 12 цифр)"
+    },
+    {
+      "enabled": true,
+      "pattern": "\\b\\d{13}\\b|\\b\\d{15}\\b",
+      "category": "OGRN",
+      "description": "ОГРН / ОГРНИП"
+    },
+    {
+      "enabled": true,
+      "pattern": "\\b04\\d{7}\\b",
+      "category": "BIK",
+      "description": "БИК банка"
+    },
+    {
+      "enabled": true,
+      "pattern": "\\b[34]\\d{19}\\b",
+      "category": "ACC",
+      "description": "Расчётный/корреспондентский счёт (20 цифр, начинается с 3 или 4)"
+    },
+    {
+      "enabled": true,
+      "pattern": "(?i)\\b[A-Z]{2}\\d{2}[A-Z0-9]{11,30}\\b",
+      "category": "IBAN",
+      "description": "IBAN"
+    },
+    {
+      "enabled": true,
+      "pattern": "\\b[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?\\b",
+      "category": "SWIFT",
+      "description": "SWIFT/BIC код банка (только заглавные буквы)"
+    },
+    {
+      "enabled": true,
+      "pattern": "(?<!\\d)\\d{2}\\s?\\d{2}\\s*№\\s*\\d{6}(?!\\d)",
+      "category": "PASSPORT",
+      "description": "Паспорт (с №)"
+    },
+    {
+      "enabled": true,
+      "pattern": "(?<!\\d)\\d{4}\\s+\\d{6}(?!\\d)",
+      "category": "PASSPORT",
+      "description": "Паспорт (серия номер)"
+    },
+    {
+      "enabled": true,
+      "pattern": "\\d{2}\\s\\d{2}\\s\\d{6}",
+      "category": "PASSPORT",
+      "description": "Паспорт (серия с пробелом): 45 10 123456"
+    },
+    {
+      "enabled": true,
+      "pattern": "(?i)(?<!\\w)[^\\W_][^\\r\\n,;]*?[^\\S\\r\\n]+(?:ООО|ОАО|ЗАО|ПАО|НАО|АО|ФГУП|ГУП|МУП|НКО|ИП)\\.?(?!\\w)(?=[^\\S\\r\\n]*(?:\\(|$|,|;|\\r|\\n))",
+      "category": "ORG",
+      "description": "Организация (суффикс): Ромашка ООО"
+    },
+    {
+      "enabled": true,
+      "pattern": "(?i)(?<!\\w)(?:ООО|ОАО|ЗАО|ПАО|НАО|АО|ФГУП|ГУП|МУП|НКО|ИП)(?!\\w)[^\\S\\r\\n]*(?:\"[^\"\\r\\n]+\"|«[^»\\r\\n]+»|[^\\W_][^\"«»\\r\\n,;:]*)",
+      "category": "ORG",
+      "description": "Организация (префикс): ООО Ромашка / ООО «Ромашка»"
+    },
+    {
+      "enabled": true,
+      "pattern": "(?i)(?<!\\w)(?:ООО|ОАО|ЗАО|ПАО|НАО|АО|ФГУП|ГУП|МУП|НКО|ИП)(?!\\w)[^\\S\\r\\n]*(?:\"[^\"\\r\\n]+\"|«[^»\\r\\n]+»|[^\\W_][^\"«»\\r\\n,;:]*)",
+      "category": "ORG",
+      "description": "Организация (префикс без пробела): ЗАО«Ромашка»"
+    },
+    {
+      "enabled": true,
+      "pattern": "(?i)(?<!\\w)[A-Za-z0-9][A-Za-z0-9&.,\\- \\t ]*?[^\\S\\r\\n]+(?:(?:Limited[^\\S\\r\\n]+Liability[^\\S\\r\\n]+Company|Private[^\\S\\r\\n]+Limited[^\\S\\r\\n]+Company|Public[^\\S\\r\\n]+Limited[^\\S\\r\\n]+Company|Incorporated|Corporation|Company|Limited)|(?:LLC|LTD|INC|CORP|CO|GMBH|PLC|LLP|LP))\\.?(?!\\w)",
+      "category": "ORG",
+      "description": "Организация EN (суффикс): Romashka LLC"
+    },
+    {
+      "enabled": true,
+      "pattern": "(?i)(?<!\\w)[A-Za-z0-9][A-Za-z0-9&.,\\- \\t ]*?[^\\S\\r\\n]+(?:(?:Limited[^\\S\\r\\n]+Liability[^\\S\\r\\n]+Company|Private[^\\S\\r\\n]+Limited[^\\S\\r\\n]+Company|Public[^\\S\\r\\n]+Limited[^\\S\\r\\n]+Company|Incorporated|Corporation|Company|Limited)|(?:LLC|LTD|INC|CORP|CO|GMBH|PLC|LLP|LP))\\.?(?!\\w)",
+      "category": "ORG",
+      "description": "Организация EN (полная форма): Romashka Limited Liability Company"
+    },
+    {
+      "enabled": true,
+      "pattern": "[А-ЯЁ][а-яё]+\\s[А-ЯЁ]\\.\\s?[А-ЯЁ]\\.",
+      "category": "FIO",
+      "description": "ФИО с инициалами: Иванов И.И."
+    },
+    {
+      "enabled": false,
+      "pattern": "\\b\\d{9}\\b",
+      "category": "KPP",
+      "description": "КПП (много ложных срабатываний)"
+    }
+  ]
+}

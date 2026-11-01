@@ -4,8 +4,9 @@ Core anonymizer: recursive response anonymization and request de-tokenization.
 from typing import Any, Dict, Optional, Tuple
 
 from .token_mapper import TokenMapper
-from .value_detector import ValueDetector
+from .value_detector import ValueDetector, replace_json_string_values
 from .dictionary_matcher import DictionaryMatcher, DICT_APPLY_KEY_SUBSTRINGS
+from .technical_fragments import technical_spans, map_unprotected, tokenize_content
 from ..config import settings
 from .anonymization_defaults import (
     COUNTERPARTY_TYPE_MARKERS,
@@ -24,8 +25,8 @@ class Anonymizer:
 
     def __init__(self, radical_mode: bool = False,
                  include_errors: bool = True,
-                 tokenmap_max: int = 0):
-        self._mapper = TokenMapper(max_size=tokenmap_max)
+                 tokenmap_max: int = 0, generation: str = ''):
+        self._mapper = TokenMapper(max_size=tokenmap_max, generation=generation)
         self._detector = ValueDetector(radical_mode=radical_mode)
         self._include_errors = include_errors
         self._dict_matcher: Optional[DictionaryMatcher] = None
@@ -118,7 +119,8 @@ class Anonymizer:
                     walked = self._walk(v, parent_key=k, allow_ner=self._allow_ner_for_top_level_key(k, tool_name))
                     if saved and isinstance(walked, dict) and isinstance(walked.get("user"), dict):
                         for field, raw in saved.items():
-                            walked["user"][field] = self._mapper.tokenize(raw, "PER")
+                            walked["user"][field] = map_unprotected(raw, lambda part: tokenize_content(
+                                part, lambda value: self._mapper.tokenize(value, "PER")))
                     out[k] = walked
                 else:
                     out[k] = self._walk(v, parent_key=k, allow_ner=self._allow_ner_for_top_level_key(k, tool_name))
@@ -444,6 +446,28 @@ class Anonymizer:
                 for item in obj
             ]
         if isinstance(obj, str):
+            if technical_spans(obj):
+                # Classify the original value before parsing/splitting so short
+                # or date-prefixed child strings cannot escape its policy.
+                category = self._detector.detect(parent_key, obj, allow_ner=allow_ner, extra_keys=extra_keys)
+                category = category or (forced_name_category if self._has_force_name_key(parent_key, extra_keys) else None) or forced_str_category
+                # Explicit source policies use _force_anonymize_string instead.
+                # Classify before splitting: short fragments must not acquire a
+                # new exemption from an already selected sensitive/radical policy.
+                def process_part(part):
+                    if category:
+                        if self._dict_matcher and (force_dict_apply or self._should_apply_dict(parent_key, extra_keys)):
+                            exclude = (lambda frag: is_error_inline_anonymization_exclusion(frag, "error")) if parent_key == "error" else None
+                            part = self._dict_matcher.replace(part, self._mapper.tokenize, exclude_fragment=exclude)
+                        return map_unprotected(part, lambda fragment: tokenize_content(
+                            fragment, lambda value: self._mapper.tokenize(value, category)))
+                    return self._walk(part, parent_key=parent_key, allow_ner=allow_ner,
+                                      force_dict_apply=force_dict_apply, extra_keys=extra_keys)
+
+                structured = replace_json_string_values(obj, parent_key, lambda value: map_unprotected(value, process_part))
+                if structured is not None:
+                    return structured
+                return map_unprotected(obj, process_part)
             # 1. Dictionary replacement (before all other detection)
             # replace() works outside existing [TOKEN-NNNN] spans
             # passes canonical_term(category) to tokenize_fn for stable tokens

@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <shared_mutex>
 
 namespace mcp {
 
@@ -70,10 +71,17 @@ private:
         eMethodCloseSSEStream,
         eMethodGetRequestBody,
         eMethodGetLocalAddresses,
+        eMethodGetRequestStates,
+        eMethodStartQueued,
+        eMethodWaitNextEvent,
+        eMethodWaitMilliseconds,
+        eMethodSendResponseAndWait,
+        eMethodSendSSEEventAndWait,
         eMethodLast
     };
 
     // Helpers
+    bool CallFunction(long method, tVariant* result, tVariant* args, long count);
     bool SetWStringToVariant(tVariant* var, const std::wstring& str);
     std::wstring GetWStringFromVariant(const tVariant* var);
     std::string WStringToUTF8(const std::wstring& wstr);
@@ -89,6 +97,9 @@ private:
 
     // Protected by addin_mutex_ for thread-safe access from HTTP threads
     std::mutex addin_mutex_;
+    // Done wakes WaitNextEvent, then waits for API calls before clearing the allocator.
+    std::shared_mutex calls_mutex_;
+    std::atomic<bool> closing_{false};
     IAddInDefBase* addin_base_ = nullptr;
     IMemoryManager* mem_manager_ = nullptr;
     HttpTransport transport_;

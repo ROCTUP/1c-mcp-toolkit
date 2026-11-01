@@ -13,7 +13,9 @@ Validates: Requirements 1.4, 2.1, 3.1, 4.1, 5.3, 5.4, 6.2, 6.3, 6.4
 import asyncio
 import json
 import logging
+import math
 import os
+import time
 from contextlib import asynccontextmanager, suppress
 from typing import Any, Optional
 
@@ -36,8 +38,9 @@ from . import __version__
 from .command_queue import command_queue, channel_command_queue
 from .config import settings
 from .mcp_handler import get_mcp_server
-from .channel_registry import channel_registry, ChannelRegistry, DEFAULT_CHANNEL
+from .channel_registry import channel_registry, ChannelRegistry, DEFAULT_CHANNEL, CHANNEL_ID_PATTERN
 from .channel_middleware import ChannelMiddleware
+from .mcp_request_ids import McpRequestIdMiddleware
 from .query_encoding_middleware import QueryEncodingMiddleware
 from .channel_sse_transport import ChannelAwareSseTransport
 from .rest_api import (
@@ -51,11 +54,14 @@ from .rest_api import (
     get_access_rights_handler,
     get_bsl_syntax_help_handler,
     submit_for_deanonymization_handler,
+    deanonymize_handler,
     get_screenshot_handler,
     restart_1c_session_handler,
     close_1c_session_handler,
 )
 from .anonymizer.registry import AnonymizerRegistry
+from .consumer_registry import consumer_registry, ConsumerChanged
+from .host_api import register_host, poll_host, host_states, release_host, host_of
 
 # Configure logging
 logging.basicConfig(
@@ -68,7 +74,7 @@ logger = logging.getLogger(__name__)
 mcp_server = get_mcp_server()
 
 # Create transports
-streamable_app = mcp_server.streamable_http_app()
+streamable_app = McpRequestIdMiddleware(mcp_server.streamable_http_app())
 legacy_sse_transport = ChannelAwareSseTransport("/mcp/message")
 
 
@@ -232,6 +238,7 @@ class CommandResult(BaseModel):
     """Result from 1C processing."""
     id: str
     success: bool
+    base: Optional[str] = None
     data: Optional[Any] = None
     schema: Optional[Any] = None
     error: Optional[str] = None
@@ -268,6 +275,16 @@ class HealthResponse(BaseModel):
     mcp_endpoint: str
 
 
+def record_legacy_activity(request: Request, consumer) -> None:
+    """Legacy routing may normalize invalid channels; contact must not do so."""
+    channels = request.query_params.getlist('channel')
+    if len(channels) > 1:
+        return
+    channel = (channels[0] if channels else '') or DEFAULT_CHANNEL
+    if consumer is not None and CHANNEL_ID_PATTERN.fullmatch(channel) and channel == consumer.channel:
+        consumer_registry.record_activity(consumer)
+
+
 async def poll_command(request: Request) -> Response:
     """
     Long polling endpoint for 1C processing to get commands.
@@ -282,20 +299,67 @@ async def poll_command(request: Request) -> Response:
     # Extract and validate channel
     raw_channel = request.query_params.get("channel", DEFAULT_CHANNEL)
     channel = ChannelRegistry.validate_channel_id(raw_channel)
-    
     timeout_param = request.query_params.get("timeout")
-    poll_timeout = float(timeout_param) if timeout_param else float(settings.poll_timeout)
+    try:
+        poll_timeout = float(timeout_param) if timeout_param else float(settings.poll_timeout)
+        if not math.isfinite(poll_timeout) or poll_timeout < 0:
+            raise ValueError()
+    except ValueError:
+        return JSONResponse({'error': 'Invalid poll timeout'}, status_code=400)
+    try:
+        consumer = consumer_registry.bind(channel, 'legacy')
+    except ConsumerChanged as exc:
+        return JSONResponse({'error': str(exc)}, status_code=409)
+    
+    record_legacy_activity(request, consumer)
     
     logger.debug(f"1C poll request on channel '{channel}', timeout={poll_timeout}s")
     
-    command = await channel_command_queue.get_next_command(channel, timeout=poll_timeout)
+    try:
+        command = await channel_command_queue.get_next_command(channel, timeout=poll_timeout, consumer=consumer)
+    except ConsumerChanged as exc:
+        return JSONResponse({'error': str(exc)}, status_code=409)
     
     if command is None:
         logger.debug(f"No command available on channel '{channel}', returning empty response")
         return Response(content=b"", status_code=204)
     
     logger.info(f"Returning command to 1C on channel '{channel}': id={command.id}, tool={command.tool}")
-    return JSONResponse(content=command.to_dict())
+    payload = command.to_dict()
+    if request.query_params.get("request_state_version") == "1":
+        state = channel_command_queue.command_states(channel, [command.id])[0]
+        payload.update(request_state_version=1, remaining_ms=state["remaining_ms"])
+    return JSONResponse(content=payload)
+
+
+async def command_states(request: Request) -> JSONResponse:
+    """Observe only IDs in the specified channel, without polling another command."""
+    channel = ChannelRegistry.validate_channel_id(request.query_params.get("channel", DEFAULT_CHANNEL))
+    raw_ids = request.query_params.get("ids", "")
+    ids = raw_ids.split(",") if raw_ids else []
+    if len(ids) > 16 or any(not item or len(item) > 36 for item in ids):
+        return JSONResponse({"error": "At most 16 command IDs are allowed"}, status_code=400)
+    consumer = consumer_registry.consumers.get(channel)
+    if consumer is not None and consumer.mode == 'legacy':
+        record_legacy_activity(request, consumer)
+    return JSONResponse({"version": 1, "items": channel_command_queue.command_states(channel, ids)})
+
+
+async def channel_status(request: Request) -> JSONResponse:
+    """Observe exactly the query channel; monitoring never records 1C activity."""
+    channels = request.query_params.getlist('channel')
+    headers = {'Cache-Control': 'no-store'}
+    if len(channels) > 1:
+        return JSONResponse({'error': 'Specify channel once'}, status_code=400, headers=headers)
+    channel = (channels[0] if channels else '') or DEFAULT_CHANNEL
+    if not CHANNEL_ID_PATTERN.fullmatch(channel):
+        return JSONResponse({'error': 'Invalid channel'}, status_code=400, headers=headers)
+    now = time.monotonic()
+    return JSONResponse({
+        'version': 1, 'channel': channel,
+        **consumer_registry.activity_status(channel, now),
+        **channel_command_queue.channel_status(channel, now),
+    }, headers=headers)
 
 
 async def receive_result(request: Request) -> JSONResponse:
@@ -347,6 +411,15 @@ async def receive_result(request: Request) -> JSONResponse:
         )
     
     logger.info(f"Received result from 1C on channel '{channel}': id={result.id}, success={result.success}")
+    command = channel_command_queue.get_command(result.id)
+    if command is not None and command.consumer is not None and command.consumer.mode == 'server_host':
+        try:
+            if host_of(request) is not command.consumer:
+                raise ConsumerChanged('Result owner mismatch')
+        except (ConsumerChanged, ValueError):
+            return JSONResponse({'error': 'Result owner mismatch'}, status_code=409)
+    elif request.headers.get('X-MCP-Host-Lease'):
+        return JSONResponse({'error': 'Command no longer belongs to this host'}, status_code=409)
     
     if result.error:
         logger.warning(f"Command {result.id} failed: {result.error}")
@@ -357,6 +430,9 @@ async def receive_result(request: Request) -> JSONResponse:
         "data": result.data,
         "error": result.error
     }
+    # Absence means opt-out/old consumer; explicit null means unknown source.
+    if "base" in result.model_fields_set:
+        result_data["base"] = result.base
     if result.success and result.schema is not None:
         result_data["schema"] = result.schema
 
@@ -401,7 +477,20 @@ async def receive_result(request: Request) -> JSONResponse:
                          f"Command {result.id} not found or already completed"
             }
         )
-    
+
+    # A legacy result is routed by ID. Only a matching query channel may mark
+    # contact, and only for the current owner; do not change result routing.
+    if command is not None and channel_command_queue._command_index.get(result.id) == channel:
+        consumer = command.consumer
+        if consumer is None:
+            consumer = consumer_registry.consumers.get(channel)
+            if consumer is not None and consumer.mode != 'legacy':
+                consumer = None
+        if consumer is not None and consumer.mode == 'server_host':
+            consumer_registry.record_activity(consumer)
+        else:
+            record_legacy_activity(request, consumer)
+
     logger.debug(f"Result stored for command {result.id}")
     return JSONResponse(content={"status": "ok"})
 
@@ -462,22 +551,24 @@ async def anonymization_mappings(request: Request) -> JSONResponse:
     raw_channel = request.query_params.get("channel", DEFAULT_CHANNEL)
     channel = ChannelRegistry.validate_channel_id(raw_channel)
 
+    owner = consumer_registry.consumers.get(channel)
+    host_meta = ({'generation': owner.generation, 'finalization_owner': 'proxy'}
+                 if owner and not owner.retired and owner.mode == 'server_host' else {})
     if not settings.anonymization_enabled:
         return JSONResponse(content={
-            "enabled": False, "mappings": [], "stats": {}, "count": 0
+            "enabled": False, "mappings": [], "stats": {}, "count": 0, **host_meta
         })
-
     anon = AnonymizerRegistry.get_if_exists(channel)
     if anon is None:
         return JSONResponse(content={
-            "enabled": True, "mappings": [], "stats": {}, "count": 0
+            "enabled": True, "mappings": [], "stats": {}, "count": 0, **host_meta
         })
 
     mappings = anon.mapper.get_mappings()
     stats = anon.mapper.get_stats()
 
     return JSONResponse(content={
-        "enabled": True, "mappings": mappings, "stats": stats, "count": len(mappings),
+        "enabled": True, "mappings": mappings, "stats": stats, "count": len(mappings), **host_meta,
     })
 
 
@@ -511,11 +602,18 @@ async def mcp_debug(request: Request) -> JSONResponse:
 routes = [
     Route("/mcp", McpUnifiedApp(), methods=["GET", "POST", "DELETE"]),
     Route("/mcp/message", LegacySseMessageApp(), methods=["POST"]),
+    Route("/1c/host/register", register_host, methods=["POST"]),
+    Route("/1c/host/poll", poll_host, methods=["GET"]),
+    Route("/1c/host/status", host_states, methods=["GET"]),
+    Route("/1c/host/release", release_host, methods=["POST"]),
     Route("/1c/poll", poll_command, methods=["GET"]),
+    Route("/1c/commands/status", command_states, methods=["GET"]),
+    Route("/1c/status", channel_status, methods=["GET"]),
     Route("/1c/result", receive_result, methods=["POST"]),
     Route("/1c/anonymization_mappings", anonymization_mappings, methods=["GET"]),
     Route("/health", health_check, methods=["GET"]),
     # REST API routes
+    Route("/api/deanonymize", deanonymize_handler, methods=["GET", "POST"]),
     Route("/api/execute_query", execute_query_handler, methods=["POST"]),
     Route("/api/execute_code", execute_code_handler, methods=["POST"]),
     Route("/api/get_metadata", get_metadata_handler, methods=["GET", "POST"]),

@@ -73,6 +73,14 @@ class ChannelMiddleware:
         
         # Wrapper to intercept response headers
         async def send_wrapper(message):
+            if (message["type"] == "http.response.start"
+                    and scope.get("method") == "DELETE"
+                    and scope.get("path", "").rstrip("/") == "/mcp"
+                    and request_session_id
+                    and 200 <= message["status"] < 300):
+                # The transport has accepted termination. Do not retain the
+                # channel binding, even if sending the response disconnects.
+                channel_registry.unregister(request_session_id)
             if message["type"] == "http.response.start" and is_new_session:
                 # Register ONLY for new sessions
                 headers = dict(message.get("headers", []))

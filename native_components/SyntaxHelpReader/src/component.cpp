@@ -19,6 +19,8 @@ const wchar_t* SyntaxHelpReaderComponent::method_names_en_[] = {
     L"Search",
     L"GetTopic",
     L"Version",
+    L"GetCapabilities", L"StartSearchExecutor", L"SubmitSearch", L"GetSearchStates",
+    L"ReadSearchResult", L"AcknowledgeSearch", L"CancelSearch", L"BeginShutdown", L"GetShutdownState",
 };
 
 const wchar_t* SyntaxHelpReaderComponent::method_names_ru_[] = {
@@ -26,6 +28,8 @@ const wchar_t* SyntaxHelpReaderComponent::method_names_ru_[] = {
     L"Поиск",
     L"ПолучитьТему",
     L"Версия",
+    L"Возможности", L"ЗапуститьИсполнительПоиска", L"ОтправитьПоиск", L"СостоянияПоисков",
+    L"ПрочитатьРезультатПоиска", L"ПодтвердитьРезультатПоиска", L"ОтменитьПоиск", L"НачатьОстановку", L"СостояниеОстановки",
 };
 
 // ============================================================================
@@ -43,8 +47,31 @@ bool SyntaxHelpReaderComponent::setMemManager(void* mem) {
 }
 
 void SyntaxHelpReaderComponent::Done() {
+    std::lock_guard<std::mutex> lock(api_mutex_);
+    executor_.reset(); // joins workers before releasing the index/platform interfaces
+    index_.reset();
     addin_base_  = nullptr;
     mem_manager_ = nullptr;
+}
+
+SyntaxHelpReaderComponent::~SyntaxHelpReaderComponent() { Done(); }
+
+namespace {
+std::string Quote(const std::string& s) {
+    std::string out = "\"";
+    const char* hex = "0123456789abcdef";
+    for (unsigned char c : s) {
+        if (c == '"' || c == '\\') { out += '\\'; out += c; }
+        else if (c < 32) { out += "\\u00"; out += hex[c >> 4]; out += hex[c & 15]; }
+        else out += c;
+    }
+    return out + "\"";
+}
+std::string Envelope(const SearchExecutor::Result& r) {
+    return "{\"version\":1,\"id\":" + Quote(r.id) + ",\"state\":" + Quote(r.state)
+        + ",\"error\":" + Quote(r.error) + ",\"result\":" + Quote(r.body)
+        + ",\"started_at\":" + std::to_string(r.started_at) + "}";
+}
 }
 
 // ============================================================================
@@ -93,15 +120,16 @@ long SyntaxHelpReaderComponent::GetNParams(const long lMethodNum) {
         case eMethodSearch:     return 2;
         case eMethodGetTopic:   return 1;
         case eMethodVersion:    return 0;
+        case eMethodSubmitSearch: return 3;
+        case eMethodReadSearchResult:
+        case eMethodAcknowledgeSearch:
+        case eMethodCancelSearch: return 1;
         default:                return 0;
     }
 }
 
 bool SyntaxHelpReaderComponent::HasRetVal(const long lMethodNum) {
-    return lMethodNum == eMethodInitialize ||
-           lMethodNum == eMethodSearch     ||
-           lMethodNum == eMethodGetTopic   ||
-           lMethodNum == eMethodVersion;
+    return lMethodNum >= 0 && lMethodNum < eMethodLast;
 }
 
 bool SyntaxHelpReaderComponent::CallAsFunc(const long lMethodNum,
@@ -109,13 +137,21 @@ bool SyntaxHelpReaderComponent::CallAsFunc(const long lMethodNum,
                                             tVariant* paParams,
                                             const long lSizeArray) {
     if (!pvarRetValue) return false;
+    std::lock_guard<std::mutex> lock(api_mutex_);
+    try {
 
     switch (lMethodNum) {
 
         case eMethodInitialize: {
             if (lSizeArray < 1) return false;
             std::string dir = GetStringFromVariant(&paParams[0]);
-            int result = index_.Initialize(dir);
+            if (executor_ && !executor_->Empty()) return SetIntToVariant(pvarRetValue, -2);
+            auto candidate = std::make_shared<HbkIndex>();
+            int result = candidate->Initialize(dir);
+            if (result > 0) {
+                executor_.reset();
+                index_ = std::move(candidate);
+            }
             return SetIntToVariant(pvarRetValue, result);
         }
 
@@ -124,23 +160,85 @@ bool SyntaxHelpReaderComponent::CallAsFunc(const long lMethodNum,
             std::string keywords_json = GetStringFromVariant(&paParams[0]);
             bool match_all = GetBoolFromVariant(&paParams[1]);
             auto keywords = ParseJsonStringArray(keywords_json);
-            std::string json = index_.Search(keywords, match_all);
+            if (!index_ || (executor_ && !executor_->Empty())) return false;
+            std::string json = index_->Search(keywords, match_all);
             return SetStringToVariant(pvarRetValue, json);
         }
 
         case eMethodGetTopic: {
             if (lSizeArray < 1) return false;
             std::string breadcrumb = GetStringFromVariant(&paParams[0]);
-            std::string json = index_.GetTopic(breadcrumb);
+            if (!index_ || (executor_ && !executor_->Empty())) return false;
+            std::string json = index_->GetTopic(breadcrumb);
             return SetStringToVariant(pvarRetValue, json);
         }
 
         case eMethodVersion: {
-            return SetStringToVariant(pvarRetValue, "1.0.0");
+            return SetStringToVariant(pvarRetValue, "1.1.0");
+        }
+
+        case eMethodGetCapabilities:
+            return SetStringToVariant(pvarRetValue, "{\"version\":1,\"max_workers\":8,\"max_requests\":10,\"max_result_bytes\":67108864}");
+        case eMethodStartSearchExecutor: {
+            if (!index_) return SetStringToVariant(pvarRetValue, "{\"version\":1,\"success\":false,\"error\":\"index_not_ready\"}");
+            if (!executor_) {
+                auto index = index_;
+                executor_ = std::make_unique<SearchExecutor>([index](const auto& words, bool all, const auto* cancel) {
+                    return index->Search(words, all, cancel);
+                });
+            }
+            return SetStringToVariant(pvarRetValue, executor_->Start()
+                ? "{\"version\":1,\"success\":true}" : "{\"version\":1,\"success\":false,\"error\":\"executor_busy\"}");
+        }
+        case eMethodSubmitSearch: {
+            if (lSizeArray != 3) return false;
+            const auto id = GetStringFromVariant(&paParams[0]);
+            const auto words = ParseStrictStringArray(GetStringFromVariant(&paParams[1]));
+            const auto error = executor_ ? executor_->Submit(id, words, GetBoolFromVariant(&paParams[2])) : "executor_not_running";
+            return SetStringToVariant(pvarRetValue, "{\"version\":1,\"id\":" + Quote(id)
+                + ",\"accepted\":" + (error.empty() ? "true" : "false") + ",\"error\":" + Quote(error) + "}");
+        }
+        case eMethodGetSearchStates: {
+            std::string out = "{\"version\":1,\"items\":[";
+            bool first = true;
+            if (executor_) for (const auto& r : executor_->States()) {
+                if (!first) out += ',';
+                first = false;
+                out += Envelope(r);
+            }
+            return SetStringToVariant(pvarRetValue, out + "]}");
+        }
+        case eMethodReadSearchResult:
+        case eMethodAcknowledgeSearch:
+        case eMethodCancelSearch: {
+            if (lSizeArray != 1) return false;
+            auto id = GetStringFromVariant(&paParams[0]);
+            if (lMethodNum == eMethodReadSearchResult)
+                return SetStringToVariant(pvarRetValue, Envelope(executor_ ? executor_->Read(id)
+                    : SearchExecutor::Result{id, "unknown", "", "unknown_id"}));
+            bool ok = true;
+            if (executor_) {
+                if (lMethodNum == eMethodCancelSearch) executor_->Cancel(id);
+                else ok = executor_->Acknowledge(id);
+            }
+            return SetStringToVariant(pvarRetValue, "{\"version\":1,\"id\":" + Quote(id)
+                + ",\"success\":" + (ok ? "true" : "false") + "}");
+        }
+        case eMethodBeginShutdown:
+            if (executor_) executor_->BeginShutdown();
+            return SetStringToVariant(pvarRetValue, "{\"version\":1,\"success\":true}");
+        case eMethodGetShutdownState: {
+            bool done = !executor_ || executor_->ShutdownComplete();
+            return SetStringToVariant(pvarRetValue, std::string("{\"version\":1,\"complete\":") + (done ? "true}" : "false}"));
         }
 
         default:
             return false;
+    }
+    } catch (...) {
+        if (lMethodNum >= eMethodGetCapabilities)
+            return SetStringToVariant(pvarRetValue, "{\"version\":1,\"success\":false,\"accepted\":false,\"error\":\"invalid_request_or_native_failure\"}");
+        return false;
     }
 }
 
@@ -368,6 +466,50 @@ std::vector<std::string> SyntaxHelpReaderComponent::ParseJsonStringArray(
             ++pos;
         }
     }
+    return result;
+}
+
+std::vector<std::string> SyntaxHelpReaderComponent::ParseStrictStringArray(const std::string& json) {
+    std::vector<std::string> result;
+    size_t pos = 0;
+    // Validate string escapes before using the legacy decoder. Native callers may
+    // bypass BSL validation; malformed arrays must never become partial searches.
+    bool inside = false;
+    for (size_t i = 0; i < json.size(); ++i) {
+        const unsigned char c = json[i];
+        if (c == '"') { inside = !inside; continue; }
+        if (!inside) continue;
+        if (c < 32) throw std::runtime_error("invalid_json_control");
+        if (c != '\\') continue;
+        if (++i == json.size()) throw std::runtime_error("invalid_json_escape");
+        const char escape = json[i];
+        if (escape == 'u') {
+            for (int n = 0; n < 4; ++n) {
+                if (++i == json.size()) throw std::runtime_error("invalid_json_unicode");
+                const char digit = json[i];
+                if (!((digit >= '0' && digit <= '9') || (digit >= 'a' && digit <= 'f') || (digit >= 'A' && digit <= 'F')))
+                    throw std::runtime_error("invalid_json_unicode");
+            }
+        } else if (escape != '"' && escape != '\\' && escape != '/' && escape != 'n'
+                   && escape != 'r' && escape != 't' && escape != 'b' && escape != 'f') {
+            throw std::runtime_error("invalid_json_escape");
+        }
+    }
+    if (inside) throw std::runtime_error("unterminated_json_string");
+    if (!SkipWs(json, pos) || json[pos++] != '[') throw std::runtime_error("invalid_json_array");
+    SkipWs(json, pos);
+    if (pos < json.size() && json[pos] != ']') {
+        for (;;) {
+            std::string value;
+            if (!ParseJsonStr(json, pos, value)) throw std::runtime_error("invalid_json_string");
+            result.push_back(std::move(value));
+            SkipWs(json, pos);
+            if (pos < json.size() && json[pos] == ',') { ++pos; SkipWs(json, pos); continue; }
+            break;
+        }
+    }
+    if (pos >= json.size() || json[pos++] != ']') throw std::runtime_error("invalid_json_array");
+    if (SkipWs(json, pos)) throw std::runtime_error("trailing_json");
     return result;
 }
 

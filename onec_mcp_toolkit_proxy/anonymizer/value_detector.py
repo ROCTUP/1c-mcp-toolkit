@@ -14,6 +14,7 @@ from typing import Dict, Optional, Sequence
 
 from ..config import settings
 from .token_mapper import TOKEN_RE as _TOKEN_RE
+from .technical_fragments import is_technical_value, map_unprotected, protected_spans, technical_spans
 from .anonymization_defaults import (
     KNOWN_SAFE_VALUES,
     SKIP_KEYS,
@@ -27,6 +28,31 @@ from .anonymization_defaults import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def replace_json_string_values(value, parent_key, transform):
+    """Preserve keys when a contact-information field contains serialized JSON."""
+    if "значени" not in (parent_key or "").lower():
+        return None
+    stripped = value.strip()
+    if not (stripped.startswith(("{", "[")) and stripped.endswith(("}", "]"))):
+        return None
+    try:
+        parsed = json.loads(stripped)
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(parsed, (dict, list)):
+        return None
+
+    def visit(obj):
+        if isinstance(obj, dict):
+            return {key: visit(item) for key, item in obj.items()}
+        if isinstance(obj, list):
+            return [visit(item) for item in obj]
+        return transform(obj) if isinstance(obj, str) else obj
+
+    dumped = json.dumps(visit(parsed), ensure_ascii=False, indent=4)
+    return dumped.replace("\n", "\r\n") if "\r\n" in value else dumped
 
 _CARD_CANDIDATE_RE = re.compile(r"(?<!\d)(?:\d[ -]?){12,18}\d(?!\d)")
 
@@ -70,16 +96,7 @@ def _sub_outside_tokens(text: str, pattern: re.Pattern, repl) -> str:
     """
     if not text:
         return text
-    parts: list[str] = []
-    last = 0
-    for m in _TOKEN_RE.finditer(text):
-        if m.start() > last:
-            parts.append(pattern.sub(repl, text[last:m.start()]))
-        parts.append(m.group(0))
-        last = m.end()
-    if last < len(text):
-        parts.append(pattern.sub(repl, text[last:]))
-    return "".join(parts)
+    return map_unprotected(text, lambda part: pattern.sub(repl, part))
 
 def _spans_intersect(a_start: int, a_end: int, b_start: int, b_end: int) -> bool:
     return not (a_end <= b_start or a_start >= b_end)
@@ -87,8 +104,8 @@ def _spans_intersect(a_start: int, a_end: int, b_start: int, b_end: int) -> bool
 
 def _overlaps_any_token(text: str, start: int, end: int) -> bool:
     """Return True if [start:end) overlaps an existing token span."""
-    for m in _TOKEN_RE.finditer(text):
-        if _spans_intersect(start, end, m.start(), m.end()):
+    for first, last in protected_spans(text):
+        if _spans_intersect(start, end, first, last):
             return True
     return False
 
@@ -215,6 +232,28 @@ def _detect_by_key_candidates(keys: Sequence[str]) -> Optional[str]:
 # Regex patterns (Level 1)
 # ---------------------------------------------------------------------------
 
+
+# Shared ORG grammar: legal-form boundaries and horizontal whitespace only.
+_ORG_H = r"[^\S\r\n]"
+_ORG_RU = r"(?:ООО|ОАО|ЗАО|ПАО|НАО|АО|ФГУП|ГУП|МУП|НКО|ИП)"
+_ORG_EN = r"(?:LLC|LTD|INC|CORP|CO|GMBH|PLC|LLP|LP)"
+_ORG_RU_FULL = (r"(?:Общество\s+с\s+ограниченной\s+ответственностью|Открытое\s+акционерное\s+общество|"
+                r"Закрытое\s+акционерное\s+общество|Публичное\s+акционерное\s+общество|"
+                r"Непубличное\s+акционерное\s+общество|Акционерное\s+общество|Индивидуальный\s+предприниматель|"
+                r"Федеральное\s+государственное\s+унитарное\s+предприятие|Государственное\s+унитарное\s+предприятие|"
+                r"Муниципальное\s+унитарное\s+предприятие|Некоммерческая\s+организация)").replace(r"\s", _ORG_H)
+_ORG_EN_FULL = (r"(?:Limited\s+Liability\s+Company|Private\s+Limited\s+Company|Public\s+Limited\s+Company|"
+                r"Incorporated|Corporation|Company|Limited)").replace(r"\s", _ORG_H)
+_ORG_NAME = r'(?:"[^"\r\n]+"|«[^»\r\n]+»|[^\W_][^"«»\r\n,;:]*)'
+_ORG_PATTERNS = [
+    rf'(?<!\w)[^\W_][^\r\n,;]*?{_ORG_H}+{_ORG_RU}\.?(?!\w)(?={_ORG_H}*(?:\(|$|,|;|\r|\n))',
+    rf'(?<!\w){_ORG_RU}(?!\w){_ORG_H}*{_ORG_NAME}',
+    rf'(?<!\w){_ORG_RU_FULL}(?!\w){_ORG_H}*{_ORG_NAME}',
+    rf'(?<!\w)["«][^"»\r\n]+["»]{_ORG_H}*{_ORG_RU}\.?(?!\w)',
+    rf'(?<!\w)[A-Za-z0-9][A-Za-z0-9&.,\- \t\u00a0]*?{_ORG_H}+(?:{_ORG_EN_FULL}|{_ORG_EN})\.?(?!\w)',
+    rf'(?<!\w)(?:{_ORG_EN_FULL}|{_ORG_EN})\.?(?!\w){_ORG_H}+{_ORG_NAME}',
+]
+
 # Full-match patterns (for standalone values like table cells)
 PATTERNS = [
     # Phone: international format (+X... with 7-15 digits)
@@ -241,66 +280,11 @@ PATTERNS = [
     ("PER",      re.compile(r"^[А-ЯЁ][а-яё]+\s[А-ЯЁ][а-яё]+\s[А-ЯЁ][а-яё]+$")),
     # FIO with initials: Иванов И.И. or Иванов И. И.
     ("PER",      re.compile(r"^[А-ЯЁ][а-яё]+\s[А-ЯЁ]\.\s?[А-ЯЁ]\.$")),
-    # Organization with legal form prefix
-    ("ORG",      re.compile(
-        r'^(ООО|ОАО|ЗАО|ПАО|АО|ИП|НАО|ГУП|МУП|НКО|ФГУП)\s+', re.I)),
-    # Organization with legal form prefix but no space before quotes: ЗАО"Клауст"
-    ("ORG",      re.compile(
-        r'^(ООО|ОАО|ЗАО|ПАО|АО|ИП|НАО|ГУП|МУП|НКО|ФГУП)\s*["\u00ab«].+',
-        re.I)),
-    # Organization with full legal form (Russian) prefix: Общество с ограниченной ответственностью "..."
-    ("ORG",      re.compile(
-        r'^(Общество\s+с\s+ограниченной\s+ответственностью'
-        r'|Открытое\s+акционерное\s+общество'
-        r'|Закрытое\s+акционерное\s+общество'
-        r'|Публичное\s+акционерное\s+общество'
-        r'|Непубличное\s+акционерное\s+общество'
-        r'|Акционерное\s+общество'
-        r'|Индивидуальный\s+предприниматель'
-        r'|Федеральное\s+государственное\s+унитарное\s+предприятие'
-        r'|Государственное\s+унитарное\s+предприятие'
-        r'|Муниципальное\s+унитарное\s+предприятие'
-        r'|Некоммерческая\s+организация)\s*["\u00ab«]?.+',
-        re.I)),
-    # Organization with legal form suffix: Клауст ЗАО
-    ("ORG",      re.compile(
-        r'^.+\s+(ООО|ОАО|ЗАО|ПАО|АО|ИП|НАО|ГУП|МУП|НКО|ФГУП)\.?\s*$',
-        re.I)),
-    # Organization with quoted name and suffix without space: "Клауст"ЗАО
-    ("ORG",      re.compile(
-        r'^["\u00ab«].+["\u00bb»]\s*(ООО|ОАО|ЗАО|ПАО|АО|ИП|НАО|ГУП|МУП|НКО|ФГУП)\.?\s*$',
-        re.I)),
-    # Organization with short legal form (English) prefix: LLC Klaust
-    ("ORG",      re.compile(
-        r'^(LLC|LTD|INC|CORP|CO|GMBH|PLC|LLP|LP)\.?\s+.+',
-        re.I)),
-    # Organization with short legal form (English) suffix: Klaust LLC
-    ("ORG",      re.compile(
-        r'^.+\s+(LLC|LTD|INC|CORP|CO|GMBH|PLC|LLP|LP)\.?\s*$',
-        re.I)),
-    # Organization with full legal form (English) prefix: Limited Liability Company Klaust
-    ("ORG",      re.compile(
-        r'^(Limited\s+Liability\s+Company'
-        r'|Private\s+Limited\s+Company'
-        r'|Public\s+Limited\s+Company'
-        r'|Incorporated'
-        r'|Corporation'
-        r'|Company'
-        r'|Limited)\s+.+',
-        re.I)),
-    # Organization with full legal form (English) suffix: Klaust Limited Liability Company
-    ("ORG",      re.compile(
-        r'^.+\s+(Limited\s+Liability\s+Company'
-        r'|Private\s+Limited\s+Company'
-        r'|Public\s+Limited\s+Company'
-        r'|Incorporated'
-        r'|Corporation'
-        r'|Company'
-        r'|Limited)\s*$',
-        re.I)),
     # Passport: DD MM NNNNNN
     ("PASSPORT", re.compile(r"^\d{2}\s\d{2}\s\d{6}$")),
 ]
+
+PATTERNS.extend(("ORG", re.compile(r"^(?:" + pattern + r")$", re.I)) for pattern in _ORG_PATTERNS)
 
 # Search patterns without anchors — find PII fragments inside longer strings
 # Used via re.sub to replace fragments, not the whole value
@@ -336,29 +320,6 @@ SEARCH_PATTERNS = [
     ("PER",      re.compile(r"[А-ЯЁ][а-яё]+\s[А-ЯЁ][а-яё]+\s[А-ЯЁ][а-яё]+")),
     # FIO with initials
     ("PER",      re.compile(r"[А-ЯЁ][а-яё]+\s[А-ЯЁ]\.\s?[А-ЯЁ]\.")),
-    # Organization with legal form
-    # Suffix form first to avoid partial matches like 'ЗАО (777...)' inside 'Клауст ЗАО (ИНН/КПП)'.
-    ("ORG",      re.compile(
-        r'\b[А-ЯЁA-Za-z0-9][^,\n;]{1,80}?\s+(ООО|ОАО|ЗАО|ПАО|АО|ИП|НАО|ГУП|МУП|НКО|ФГУП)\.?\b'
-        r'(?=\s*(?:\(|$|,|;|\n))',
-        re.I)),
-    ("ORG",      re.compile(
-        r'(ООО|ОАО|ЗАО|ПАО|АО|ИП|НАО|ГУП|МУП|НКО|ФГУП)\s+'
-        r'(?=["\u00ab«A-Za-zА-ЯЁ0-9])'
-        r'["\u00ab«]?[^"»\u00bb,;]{2,}["\u00bb»]?', re.I)),
-    # Organization with legal form but no space before quotes: ЗАО"Клауст"
-    ("ORG",      re.compile(
-        r'(ООО|ОАО|ЗАО|ПАО|АО|ИП|НАО|ГУП|МУП|НКО|ФГУП)["\u00ab«]'
-        r'[^"»\u00bb,;]{2,}["\u00bb»]?', re.I)),
-    # Organization with short legal form (English), suffix form: Klaust LLC
-    ("ORG",      re.compile(
-        r'\b[A-Za-z0-9][A-Za-z0-9&.,\-\s]{1,80}\s+(LLC|LTD|INC|CORP|CO|GMBH|PLC|LLP|LP)\.?\b',
-        re.I)),
-    # Organization with full legal form (English), suffix form: Klaust Limited Liability Company
-    ("ORG",      re.compile(
-        r'\b[A-Za-z0-9][A-Za-z0-9&.,\-\s]{1,80}\s+'
-        r'(Limited\s+Liability\s+Company|Private\s+Limited\s+Company|Public\s+Limited\s+Company|Incorporated|Corporation|Company|Limited)\b',
-        re.I)),
     # INN: 10 or 12 digits (word boundaries)
     # INN: 10 or 12 digits (word boundaries). INN can't start with "00" (region code).
     ("INN",      re.compile(r"\b(?!00)\d{10}\b|\b(?!00)\d{12}\b")),
@@ -367,6 +328,8 @@ SEARCH_PATTERNS = [
     # OGRN: 13 or 15 digits
     ("OGRN",     re.compile(r"\b\d{13}\b|\b\d{15}\b")),
 ]
+
+SEARCH_PATTERNS.extend(("ORG", re.compile(pattern, re.I)) for pattern in _ORG_PATTERNS)
 
 
 # ---------------------------------------------------------------------------
@@ -442,13 +405,7 @@ class ValueDetector:
         if re.match(r"^\d{4}-\d{2}-\d{2}", value) and not key_is_sensitive:
             return True
         # 7. UUID
-        if re.match(r"^[0-9a-f]{8}-[0-9a-f]{4}-", value, re.I):
-            return True
-        # 8. Hex GUID (32 chars)
-        if re.match(r"^[0-9a-fA-F]{32}$", value):
-            return True
-        # 9. 1C navigation link
-        if value.startswith("e1cib/"):
+        if is_technical_value(value):
             return True
         # 10. 1C metadata type name
         if re.match(
@@ -556,36 +513,15 @@ class ValueDetector:
         # JSON-aware replacement for fields that store structured JSON as a string
         # (e.g. контактная информация). Only values are anonymized; technical
         # JSON keys must remain unchanged regardless of the active detectors.
-        parent_key_lower = (parent_key or "").lower()
-        if "значени" in parent_key_lower:
-            stripped = (value or "").strip()
-            if stripped.startswith(("{", "[")) and stripped.endswith(("}", "]")):
-                try:
-                    parsed = json.loads(stripped)
-                except json.JSONDecodeError:
-                    parsed = None
+        structured = replace_json_string_values(value, parent_key, lambda item: self.replace_inline_pii(
+            item, tokenize_fn, parent_key="", allow_ner=allow_ner))
+        if structured is not None:
+            return structured
 
-                if isinstance(parsed, (dict, list)):
-                    def _walk_json_values(obj):
-                        if isinstance(obj, dict):
-                            return {k: _walk_json_values(v) for k, v in obj.items()}
-                        if isinstance(obj, list):
-                            return [_walk_json_values(v) for v in obj]
-                        if isinstance(obj, str):
-                            # Process only values; keys are never modified.
-                            return self.replace_inline_pii(
-                                obj,
-                                tokenize_fn,
-                                parent_key="",
-                                allow_ner=allow_ner,
-                            )
-                        return obj
-
-                    updated = _walk_json_values(parsed)
-                    dumped = json.dumps(updated, ensure_ascii=False, indent=4)
-                    if "\r\n" in value:
-                        dumped = dumped.replace("\n", "\r\n")
-                    return dumped
+        # Split after JSON-aware parsing, so JSON keys remain outside this path.
+        if technical_spans(value):
+            return map_unprotected(value, lambda part: self.replace_inline_pii(
+                part, tokenize_fn, parent_key=parent_key, allow_ner=allow_ner))
 
         # 1. Regex search-patterns
         for category, pattern in SEARCH_PATTERNS:

@@ -13,7 +13,9 @@
 #include <vector>
 
 #if defined(_WIN32) || defined(_WINDOWS)
+#ifndef NOMINMAX
 #define NOMINMAX   // Prevent min/max macro conflicts with std::min/std::max
+#endif
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -35,9 +37,27 @@ HttpTransport::~HttpTransport() {
 }
 
 bool HttpTransport::Start(int port, const std::string& bind_address, ExternalEventCallback callback) {
+    std::lock_guard<std::mutex> lock(lifecycle_mutex_);
+    return StartLocked(port, bind_address, std::move(callback), false);
+}
+
+bool HttpTransport::StartQueued(int port, const std::string& bind_address) {
+    std::lock_guard<std::mutex> lock(lifecycle_mutex_);
+    return StartLocked(port, bind_address, {}, true);
+}
+
+std::string HttpTransport::WaitNextEvent(int timeout_ms) {
+    return events_.Wait(std::max(0, std::min(timeout_ms, EventQueue::MaxWaitMs)));
+}
+
+bool HttpTransport::StartLocked(int port, const std::string& bind_address,
+                                ExternalEventCallback callback, bool queued) {
     if (running_.load()) return false;
+    StopLocked(); // also join a listener that ended unexpectedly
 
     event_callback_ = std::move(callback);
+    queued_ = queued;
+    if (queued) events_.Start();
     port_ = port;
     stopped_.store(false);
 
@@ -76,21 +96,28 @@ bool HttpTransport::Start(int port, const std::string& bind_address, ExternalEve
         HandleRequest(req, res, "REQUEST");
     });
 
-    // Catch-all for unmatched routes
+    // Default body for 404 responses; preserve errors returned by request handlers.
     server_->set_error_handler([](const httplib::Request&, httplib::Response& res) {
-        if (res.status == 404) {
+        if (res.status == 404 && res.body.empty()) {
             res.set_content(R"({"error":"Not Found"})", "application/json");
         }
     });
 
-    // Set running BEFORE launching thread to ensure memory visibility
-    running_.store(true);
-
-    // Start server in a separate thread
+    // Bind synchronously: a busy port is a failed start, never a false running state.
     std::string listen_host = bind_address.empty() ? std::string("0.0.0.0") : bind_address;
-    server_thread_ = std::thread([this, listen_host, port]() {
-        server_->listen(listen_host, port);
+    bool bound = false;
+    if (port == 0) {
+        port_ = server_->bind_to_any_port(listen_host);
+        bound = port_.load() > 0;
+    } else {
+        bound = port > 0 && port <= 65535 && server_->bind_to_port(listen_host, port);
+    }
+    if (!bound) { StopLocked(); return false; }
+    running_.store(true);
+    server_thread_ = std::thread([this]() {
+        server_->listen_after_bind();
         running_.store(false);
+        events_.Stop();
     });
 
     // Wait briefly for server to start
@@ -100,15 +127,21 @@ bool HttpTransport::Start(int port, const std::string& bind_address, ExternalEve
     }
 
     // Failed to start
-    Stop();
+    StopLocked();
     return false;
 }
 
 bool HttpTransport::Stop() {
-    // Guard against double-Stop
-    bool expected = false;
-    if (!stopped_.compare_exchange_strong(expected, true)) {
-        return true;  // Already stopped
+    std::lock_guard<std::mutex> lock(lifecycle_mutex_);
+    return StopLocked();
+}
+
+bool HttpTransport::StopLocked() {
+    // Wake the BSL waiter before joining any HTTP thread.
+    events_.Stop();
+    {
+        std::lock_guard<std::mutex> lock(admission_mutex_);
+        stopped_.store(true);
     }
 
     if (server_) {
@@ -125,6 +158,52 @@ bool HttpTransport::Stop() {
     server_.reset();
     running_.store(false);
     return true;
+}
+
+std::shared_ptr<PendingRequest> HttpTransport::Admit(const httplib::Request& req,
+                                                   httplib::Response& res, bool counted) {
+    std::lock_guard<std::mutex> lock(admission_mutex_);
+    if (stopped_.load() || (counted && store_.IsAtCapacity(max_concurrent_.load()))) {
+        SendErrorResponse(res, 503, "Server is busy or stopping");
+        return {};
+    }
+    auto pending = CreatePendingRequest(req);
+    if (counted) store_.IncrementActive();
+    return pending;
+}
+
+bool HttpTransport::Deliver(const std::string& kind, const std::shared_ptr<PendingRequest>& request) {
+    size_t budget_offset;
+    auto data = BuildEventJson(request, &budget_offset);
+    if (!queued_) return event_callback_ && event_callback_(SOURCE_NAME, kind, data);
+    EventQueue::Event event{kind, std::move(data), request->id, request->deadline, {}, budget_offset};
+    std::weak_ptr<PendingRequest> weak = request;
+    event.live = [weak] {
+        auto req = weak.lock();
+        if (!req) return false;
+        std::lock_guard<std::mutex> lock(req->state_mutex);
+        if (req->state != RequestState::PENDING) return false;
+        return !ExpirePendingLocked(*req);
+    };
+    return events_.Push(std::move(event));
+}
+
+bool HttpTransport::ExpirePendingLocked(PendingRequest& req) {
+    if (req.state != RequestState::PENDING || EventQueue::Clock::now() < req.deadline) return false;
+    req.state = RequestState::COMPLETED;
+    req.response_status = 504;
+    req.response_headers_json = R"({"Content-Type":"application/json"})";
+    req.response_body = R"({"error":"Gateway Timeout"})";
+    req.cv.notify_all();
+    return true;
+}
+
+void HttpTransport::NotifyClosed(const std::string& id) {
+    if (queued_) {
+        events_.CloseStream(id); // admission reserved this slot, even if data is full
+    } else if (event_callback_) {
+        event_callback_(SOURCE_NAME, "SSE_CLOSED", "{\"id\":\"" + JsonEscape(id) + "\"}");
+    }
 }
 
 // ============================================================================
@@ -211,26 +290,19 @@ std::string HttpTransport::GetLocalAddresses() {
 // ============================================================================
 
 void HttpTransport::HandleMCPPost(const httplib::Request& req, httplib::Response& res) {
-    // Check concurrent request limit (MCP_POST counts toward limit)
-    if (store_.IsAtCapacity(max_concurrent_.load())) {
-        SendErrorResponse(res, 503, "Server is busy");
+    auto pending = Admit(req, res, true);
+    if (!pending) return;
+    if (!Deliver("MCP_POST", pending)) {
+        store_.DecrementActive();
+        store_.Remove(pending->id);
+        SendErrorResponse(res, 503, "Event delivery unavailable");
         return;
     }
 
-    store_.IncrementActive();
-
-    auto pending = CreatePendingRequest(req);
-    std::string event_json = BuildEventJson(pending);
-
-    // Fire ExternalEvent to 1C
-    if (event_callback_) {
-        event_callback_(SOURCE_NAME, "MCP_POST", event_json);
-    }
-
     // Wait for 1C decision (blocks this httplib thread)
-    bool sse_mode = WaitForResponse(pending, res);
+    bool deferred_cleanup = WaitForResponse(pending, res);
 
-    if (!sse_mode) {
+    if (!deferred_cleanup) {
         // Normal response or timeout — clean up immediately
         store_.DecrementActive();
         store_.Remove(pending->id);
@@ -240,24 +312,26 @@ void HttpTransport::HandleMCPPost(const httplib::Request& req, httplib::Response
 
 void HttpTransport::HandleMCPGet(const httplib::Request& req, httplib::Response& res) {
     // SSE_CONNECT: does NOT count toward active_count (per plan)
-    auto pending = CreatePendingRequest(req);
-    std::string event_json = BuildEventJson(pending);
+    auto pending = Admit(req, res, false);
+    if (!pending) return;
 
     // Detect legacy SSE: if none of the Streamable HTTP headers are present → legacy
     bool is_legacy = !req.has_header("mcp-session-id") &&
                      !req.has_header("mcp-protocol-version") &&
                      !req.has_header("last-event-id");
 
-    // Fire ExternalEvent to 1C
-    if (event_callback_) {
-        event_callback_(SOURCE_NAME, is_legacy ? "SSE_LEGACY_CONNECT" : "SSE_CONNECT", event_json);
+    if (!Deliver(is_legacy ? "SSE_LEGACY_CONNECT" : "SSE_CONNECT", pending)) {
+        store_.Remove(pending->id);
+        SendErrorResponse(res, 503, "Event delivery unavailable");
+        return;
     }
 
     // Wait for 1C decision, then potentially enter SSE keepalive
     bool sse_mode = WaitForSSEDecision(pending, res);
 
     if (!sse_mode) {
-        // 1C sent error response (400, 404, 406, 409, etc.) — clean up
+        // A rejected handshake will never produce a stream-close callback.
+        if (queued_) events_.ReleaseStream(pending->id);
         store_.Remove(pending->id);
     }
     // SSE mode: cleanup (Remove + SSE_CLOSED) happens in content provider's close callback
@@ -283,37 +357,35 @@ void HttpTransport::HandleLegacySSEMessage(const httplib::Request& req, httplib:
     }
 
     // Build event JSON and fire to 1C (fire-and-forget, no store_ entry)
+    const auto deadline = EventQueue::Clock::now() + std::chrono::seconds(request_timeout_sec_.load());
     std::string id = GenerateUUID();
-    std::string event_json = BuildLegacyMessageEventJson(req, id);
-    if (event_callback_) {
-        event_callback_(SOURCE_NAME, "SSE_LEGACY_MESSAGE", event_json);
+    size_t budget_offset;
+    std::string event_json = BuildLegacyMessageEventJson(req, id, &budget_offset);
+    const bool accepted = !stopped_.load() && (queued_
+        ? events_.Push({"SSE_LEGACY_MESSAGE", std::move(event_json), id, deadline, {}, budget_offset})
+        : event_callback_ && event_callback_(SOURCE_NAME, "SSE_LEGACY_MESSAGE", event_json));
+    if (!accepted) {
+        SendErrorResponse(res, 503, "Event delivery unavailable");
+        return;
     }
-
     res.status = 202;
 }
 
 void HttpTransport::HandleRequest(const httplib::Request& req, httplib::Response& res,
                                    const std::string& event_type) {
-    // Check concurrent request limit
-    if (store_.IsAtCapacity(max_concurrent_.load())) {
-        SendErrorResponse(res, 503, "Server is busy");
+    auto pending = Admit(req, res, true);
+    if (!pending) return;
+    if (!Deliver(event_type, pending)) {
+        store_.DecrementActive();
+        store_.Remove(pending->id);
+        SendErrorResponse(res, 503, "Event delivery unavailable");
         return;
     }
 
-    store_.IncrementActive();
-
-    auto pending = CreatePendingRequest(req);
-    std::string event_json = BuildEventJson(pending);
-
-    if (event_callback_) {
-        event_callback_(SOURCE_NAME, event_type, event_json);
+    if (!WaitForResponse(pending, res)) {
+        store_.DecrementActive();
+        store_.Remove(pending->id);
     }
-
-    // Regular requests always get normal response (not SSE)
-    WaitForResponse(pending, res);
-
-    store_.DecrementActive();
-    store_.Remove(pending->id);
 }
 
 // ============================================================================
@@ -323,8 +395,7 @@ void HttpTransport::HandleRequest(const httplib::Request& req, httplib::Response
 bool HttpTransport::WaitForResponse(std::shared_ptr<PendingRequest> req, httplib::Response& res) {
     std::unique_lock<std::mutex> lock(req->state_mutex);
 
-    int timeout = request_timeout_sec_.load();
-    bool signaled = req->cv.wait_for(lock, std::chrono::seconds(timeout), [&req]() {
+    bool signaled = req->cv.wait_until(lock, req->deadline, [&req]() {
         return req->state != RequestState::PENDING;
     });
 
@@ -355,6 +426,35 @@ bool HttpTransport::WaitForResponse(std::shared_ptr<PendingRequest> req, httplib
         // Normal response via SendResponse (no SSE was ever set up)
         ApplyHeaders(res, req->response_headers_json);
         res.status = req->response_status;
+        if (req->completion) {
+            auto completion = req->completion;
+            auto body = std::make_shared<std::string>(req->response_body);
+            auto written = std::make_shared<size_t>(0);
+            auto content_type = res.get_header_value("Content-Type");
+            if (content_type.empty()) content_type = "application/json";
+            res.headers.erase("Content-Length");
+            res.headers.erase("Transfer-Encoding");
+            res.set_content_provider(body->size(), content_type,
+                [body, written, completion](size_t offset, size_t length, httplib::DataSink& sink) {
+                    {
+                        std::lock_guard<std::mutex> lock(completion->mutex);
+                        if (completion->result == "failed") return false;
+                    }
+                    if (offset != *written || offset > body->size()) return false;
+                    // Bound each blocking socket write; a slow peer must not trap Stop
+                    // in one multi-megabyte send after the caller's wait has expired.
+                    const auto count = (std::min)({length, body->size() - offset, size_t(16384)});
+                    if (!count || !sink.write(body->data() + offset, count)) return false;
+                    *written += count;
+                    return true;
+                },
+                [this, req, completion, body, written](bool success) {
+                    completion->Complete(success && *written == body->size());
+                    store_.DecrementActive();
+                    store_.Remove(req->id);
+                });
+            return true;
+        }
         res.body = req->response_body;
         return false;
     }
@@ -389,12 +489,16 @@ bool HttpTransport::WaitForResponse(std::shared_ptr<PendingRequest> req, httplib
 // ============================================================================
 
 bool HttpTransport::WaitForSSEDecision(std::shared_ptr<PendingRequest> req, httplib::Response& res) {
-    // Wait indefinitely for 1C decision (no RequestTimeout for GET /mcp SSE)
+    // Preserve the old callback handshake; queued admission keeps its original deadline.
+    // After the handshake, an established SSE stream has no request timeout.
     std::unique_lock<std::mutex> lock(req->state_mutex);
 
-    req->cv.wait(lock, [&req]() {
-        return req->state != RequestState::PENDING;
-    });
+    auto decided = [&req]() { return req->state != RequestState::PENDING; };
+    if (queued_) {
+        if (!req->cv.wait_until(lock, req->deadline, decided)) ExpirePendingLocked(*req);
+    } else {
+        req->cv.wait(lock, decided);
+    }
 
     if (req->state == RequestState::COMPLETED) {
         if (req->sse_stream) {
@@ -407,11 +511,8 @@ bool HttpTransport::WaitForSSEDecision(std::shared_ptr<PendingRequest> req, http
             res.status = 200;
 
             SetupSSEContentProvider(res, stream, [this, req_id]() {
-                if (event_callback_) {
-                    std::string close_json = "{\"id\":\"" + JsonEscape(req_id) + "\"}";
-                    event_callback_(SOURCE_NAME, "SSE_CLOSED", close_json);
-                }
                 store_.Remove(req_id);
+                NotifyClosed(req_id);
             });
             return true;  // SSE mode — caller must NOT clean up
         }
@@ -439,12 +540,8 @@ bool HttpTransport::WaitForSSEDecision(std::shared_ptr<PendingRequest> req, http
         // Cleanup runs when the stream actually ends:
         // client disconnect, CloseSSEStream from 1C, or Stop()
         SetupSSEContentProvider(res, stream, [this, req_id]() {
-            // Fire SSE_CLOSED to 1C — stream has really closed now
-            if (event_callback_) {
-                std::string close_json = "{\"id\":\"" + JsonEscape(req_id) + "\"}";
-                event_callback_(SOURCE_NAME, "SSE_CLOSED", close_json);
-            }
             store_.Remove(req_id);
+            NotifyClosed(req_id);
         });
         return true;  // SSE mode — caller must NOT clean up
     }
@@ -467,9 +564,24 @@ void HttpTransport::SetupSSEContentProvider(httplib::Response& res,
                 auto result = stream->WaitForEvent(event, 30);
 
                 if (result == SSEStream::WaitResult::EVENT) {
-                    if (!sink.write(event.data(), event.size())) {
-                        stream->client_disconnected.store(true);
-                        return false;  // Client disconnected
+                    size_t offset = 0;
+                    while (offset < event.size()) {
+                        // A terminal send can attach while an earlier event is being written.
+                        std::shared_ptr<ResponseCompletion> completion;
+                        {
+                            std::lock_guard<std::mutex> lock(stream->queue_mutex);
+                            completion = stream->completion;
+                        }
+                        if (completion) {
+                            std::lock_guard<std::mutex> lock(completion->mutex);
+                            if (completion->result == "failed") return false;
+                        }
+                        const auto count = (std::min)(size_t(16384), event.size() - offset);
+                        if (!sink.write(event.data() + offset, count)) {
+                            stream->client_disconnected.store(true);
+                            return false;
+                        }
+                        offset += count;
                     }
                 } else if (result == SSEStream::WaitResult::TIMEOUT) {
                     // Send keepalive ping
@@ -481,14 +593,20 @@ void HttpTransport::SetupSSEContentProvider(httplib::Response& res,
                 } else {
                     // CLOSED — stream ended (CloseSSEStream, Stop, or drain complete)
                     sink.done();
-                    return false;
+                    stream->drained.store(true);
+                    return true;
                 }
             }
         },
-        [stream, cb = std::move(close_callback)](bool) {
+        [stream, cb = std::move(close_callback)](bool success) {
             // This runs when the stream ACTUALLY ends (after content provider exits)
             stream->client_disconnected.store(true);
             stream->Close();
+            {
+                std::lock_guard<std::mutex> lock(stream->queue_mutex);
+                if (stream->completion)
+                    stream->completion->Complete(success && stream->drained.load());
+            }
             if (cb) cb();
         }
     );
@@ -507,6 +625,7 @@ bool HttpTransport::SendResponse(const std::string& request_id, int status_code,
 
     // Can only send response from PENDING state
     if (req->state != RequestState::PENDING) return false;
+    if (queued_ && ExpirePendingLocked(*req)) return false;
 
     req->state = RequestState::COMPLETED;
     req->response_status = status_code;
@@ -526,6 +645,7 @@ bool HttpTransport::SendSSEEvent(const std::string& request_id, const std::strin
     if (req->state == RequestState::COMPLETED) return false;
 
     if (req->state == RequestState::PENDING) {
+        if (queued_ && ExpirePendingLocked(*req)) return false;
         // First call: transition to SSE_ACTIVE
         auto stream = std::make_shared<SSEStream>();
         stream->initial_headers_json = headers_json;
@@ -545,12 +665,65 @@ bool HttpTransport::SendSSEEvent(const std::string& request_id, const std::strin
     if (req->state == RequestState::SSE_ACTIVE) {
         // Subsequent calls: just push event (headers_json ignored)
         if (req->sse_stream && !event_data.empty()) {
-            req->sse_stream->PushEvent(event_data, event_type);
+            return req->sse_stream->PushEvent(event_data, event_type);
         }
         return true;
     }
 
     return false;
+}
+
+std::string HttpTransport::SendResponseAndWait(const std::string& request_id, int status_code,
+        const std::string& headers_json, const std::string& body, int timeout_ms) {
+    if (timeout_ms < 1 || timeout_ms > 10000 || body.empty() ||
+        status_code < 200 || status_code > 599 || status_code == 204 || status_code == 304)
+        return "rejected";
+    auto req = store_.Get(request_id);
+    if (!req) return "rejected";
+    auto completion = std::make_shared<ResponseCompletion>();
+    {
+        std::lock_guard<std::mutex> lock(req->state_mutex);
+        // GET handshakes and HEAD cannot carry this terminal REST body.
+        if (req->method == "HEAD" ||
+            (req->method == "GET" && (req->path == "/mcp" || req->path == "/mcp/")) ||
+            req->state != RequestState::PENDING || req->completion ||
+            stopped_.load() || (queued_ && ExpirePendingLocked(*req))) return "rejected";
+        req->completion = completion;
+        req->response_status = status_code;
+        req->response_headers_json = headers_json;
+        req->response_body = body;
+        req->state = RequestState::COMPLETED;
+        req->cv.notify_all();
+    }
+    return completion->Wait(timeout_ms);
+}
+
+std::string HttpTransport::SendSSEEventAndWait(const std::string& request_id,
+        const std::string& event_data, const std::string& headers_json,
+        const std::string& event_type, int timeout_ms) {
+    if (timeout_ms < 1 || timeout_ms > 10000 || event_data.empty() ||
+        event_type.find_first_of("\r\n") != std::string::npos) return "rejected";
+    auto req = store_.Get(request_id);
+    if (!req) return "rejected";
+    auto completion = std::make_shared<ResponseCompletion>();
+    {
+        std::lock_guard<std::mutex> lock(req->state_mutex);
+        if (req->state == RequestState::COMPLETED || req->completion || stopped_.load() ||
+            (queued_ && ExpirePendingLocked(*req))) return "rejected";
+        auto stream = req->sse_stream;
+        if (!stream) {
+            stream = std::make_shared<SSEStream>();
+            stream->initial_headers_json = headers_json;
+            stream->headers_sent = true;
+        }
+        if (!stream->PushEvent(event_data, event_type.empty() ? "message" : event_type, completion))
+            return "rejected";
+        req->sse_stream = stream;
+        req->completion = completion;
+        req->state = RequestState::COMPLETED;
+        req->cv.notify_all();
+    }
+    return completion->Wait(timeout_ms);
 }
 
 bool HttpTransport::CloseSSEStream(const std::string& request_id) {
@@ -581,6 +754,7 @@ std::string HttpTransport::GetRequestBody(const std::string& request_id) {
 std::shared_ptr<PendingRequest> HttpTransport::CreatePendingRequest(const httplib::Request& req) {
     std::string id = GenerateUUID();
     auto pending = store_.Add(id);
+    pending->deadline = pending->created_at + std::chrono::seconds(request_timeout_sec_.load());
 
     pending->method = req.method;
     pending->path = req.path;
@@ -603,13 +777,17 @@ std::shared_ptr<PendingRequest> HttpTransport::CreatePendingRequest(const httpli
     return pending;
 }
 
-std::string HttpTransport::BuildEventJson(const std::shared_ptr<PendingRequest>& req) {
+std::string HttpTransport::BuildEventJson(const std::shared_ptr<PendingRequest>& req, size_t* budget_offset) {
     std::ostringstream ss;
     ss << "{\"id\":\"" << JsonEscape(req->id) << "\""
        << ",\"method\":\"" << JsonEscape(req->method) << "\""
        << ",\"path\":\"" << JsonEscape(req->path) << "\""
        << ",\"query\":" << req->query_json
        << ",\"headers\":" << req->headers_json;
+    ss << ",\"request_state_version\":1,\"remaining_ms\":";
+    if (budget_offset) *budget_offset = static_cast<size_t>(ss.tellp());
+    ss << std::max<int64_t>(0, std::chrono::duration_cast<std::chrono::milliseconds>(
+              req->deadline - std::chrono::steady_clock::now()).count());
 
     if (req->body_truncated) {
         ss << ",\"body\":null,\"bodyTruncated\":true";
@@ -621,17 +799,56 @@ std::string HttpTransport::BuildEventJson(const std::shared_ptr<PendingRequest>&
     return ss.str();
 }
 
-std::string HttpTransport::BuildLegacyMessageEventJson(const httplib::Request& req, const std::string& id) {
+std::string HttpTransport::BuildLegacyMessageEventJson(const httplib::Request& req, const std::string& id,
+                                                     size_t* budget_offset) {
     std::ostringstream ss;
     ss << "{\"id\":\"" << JsonEscape(id) << "\""
        << ",\"method\":\"" << JsonEscape(req.method) << "\""
        << ",\"path\":\"" << JsonEscape(req.path) << "\""
        << ",\"query\":" << QueryToJson(req)
        << ",\"headers\":" << HeadersToJson(req)
+       << ",\"request_state_version\":1,\"remaining_ms\":";
+    if (budget_offset) *budget_offset = static_cast<size_t>(ss.tellp());
+    ss << request_timeout_sec_.load() * 1000LL
        // Full body always included, no truncation for legacy SSE messages
        << ",\"body\":\"" << JsonEscape(req.body) << "\",\"bodyTruncated\":false"
        << "}";
     return ss.str();
+}
+
+std::string HttpTransport::GetRequestStates(const std::string& request_ids) {
+    if (request_ids.size() > 16 * 37) return "{\"version\":1,\"error\":\"Too many request IDs\"}";
+    std::istringstream input(request_ids);
+    std::ostringstream output;
+    output << "{\"version\":1,\"terminal_response_wait_version\":1,\"items\":[";
+    std::string id;
+    bool first = true;
+    int count = 0;
+    while (std::getline(input, id, ',')) {
+        if (++count > 16 || id.empty() || id.size() > 36 ||
+            id.find_first_not_of("0123456789abcdefABCDEF-") != std::string::npos)
+            return "{\"version\":1,\"error\":\"Invalid request IDs\"}";
+        bool active = false;
+        int64_t remaining = 0;
+        auto req = store_.Get(id);
+        if (req) {
+            std::lock_guard<std::mutex> lock(req->state_mutex);
+            if (req->state == RequestState::SSE_ACTIVE) {
+                active = true;
+                remaining = -1; // Stream lifetime; the BSL operation retains its own deadline.
+            } else if (req->state == RequestState::PENDING) {
+                remaining = std::max<int64_t>(0, std::chrono::duration_cast<std::chrono::milliseconds>(
+                    req->deadline - std::chrono::steady_clock::now()).count());
+                active = remaining > 0;
+            }
+        }
+        if (!first) output << ',';
+        first = false;
+        output << "{\"id\":\"" << id << "\",\"active\":" << (active ? "true" : "false")
+               << ",\"remaining_ms\":" << remaining << '}';
+    }
+    output << "]}";
+    return output.str();
 }
 
 std::string HttpTransport::QueryToJson(const httplib::Request& req) {

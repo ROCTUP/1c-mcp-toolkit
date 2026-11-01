@@ -49,6 +49,9 @@ class Settings:
         ).lower() in ("true", "1", "yes")
 
         # --- Anonymization ---
+        self.deanonymization_api_enabled: bool = os.getenv(
+            "DEANONYMIZATION_API_ENABLED", "false"
+        ).lower() in ("true", "1", "yes")
         self.anonymization_enabled: bool = os.getenv(
             "ANONYMIZATION_ENABLED", "false"
         ).lower() in ("true", "1", "yes")

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <memory>
+#include <atomic>
+#include <stdexcept>
 #include <optional>
 #include <set>
 #include <string>
@@ -9,6 +11,12 @@
 #include <vector>
 
 namespace syntax_help {
+
+inline void CheckSearchCancelled(const std::atomic_bool* cancel) {
+    if (cancel && cancel->load(std::memory_order_relaxed))
+        throw std::runtime_error("search_cancelled");
+}
+
 
 // ---------------------------------------------------------------------------
 // Data structures
@@ -42,20 +50,20 @@ public:
     // Search. If len(keywords)==1 and keyword starts with "topic:" → calls GetTopic(keyword.substr(6)).
     // Otherwise: substring search on normalize(breadcrumb) of all topics.
     // Returns JSON {"candidates":[...], "content":...}
-    std::string Search(const std::vector<std::string>& keywords, bool match_all);
+    std::string Search(const std::vector<std::string>& keywords, bool match_all, const std::atomic_bool* cancel = nullptr) const;
 
     // Exact search by full breadcrumb.
     // Returns JSON {"candidates":[breadcrumb], "content":...} or candidates=[].
-    std::string GetTopic(const std::string& exact_breadcrumb);
+    std::string GetTopic(const std::string& exact_breadcrumb, const std::atomic_bool* cancel = nullptr) const;
 
     // Read HTML from FileStorage ZIP for the given topic.
-    std::string ReadHtml(const IndexedTopic& topic);
+    std::string ReadHtml(const IndexedTopic& topic, const std::atomic_bool* cancel = nullptr) const;
 
     // Resolve a link to a breadcrumb.
     // source_path needed for relative links (filter to same .hbk).
     std::string ResolveLinkToBreadcrumb(const std::string& link,
                                          const std::string& base_html_path,
-                                         const std::string& source_path);
+                                         const std::string& source_path) const;
 
     // TocNode is public so free helper functions in hbk.cpp can access it
     struct TocNode {
@@ -80,17 +88,17 @@ private:
                                  const std::unordered_map<int, const TocNode*>& by_id);
 
     // --- JSON helpers ---
-    std::string JsonEscape(const std::string& s);
+    std::string JsonEscape(const std::string& s) const;
     std::string MakeResultJson(const std::vector<std::string>& candidates,
-                                const std::string* content);
+                                const std::string* content) const;
 
     // --- content merging ---
-    std::string MergeTopicGroupContent(const std::vector<size_t>& indices);
+    std::string MergeTopicGroupContent(const std::vector<size_t>& indices, const std::atomic_bool* cancel = nullptr) const;
 
     // --- container expansion ---
     // Returns union of direct_children_bc from all container topics in indices.
     // Deduplicates by original string. Returns empty vector if no containers found.
-    std::vector<std::string> CollectChildren(const std::vector<size_t>& indices);
+    std::vector<std::string> CollectChildren(const std::vector<size_t>& indices, const std::atomic_bool* cancel = nullptr) const;
 
     // --- normalization ---
     static std::string Normalize(const std::string& utf8);
@@ -128,12 +136,12 @@ private:
     // Returns {match_type, term_length} or {-1, 0} if no match
     std::pair<int, int> ScoreKeywordAgainstTerms(
         const std::string& keyword_norm,
-        const std::vector<std::string>& terms);
+        const std::vector<std::string>& terms) const;
     // Returns {score, matched} where matched=1 if candidate passes filter, 0 otherwise
     std::pair<Score, size_t> ScoreCandidate(
         const IndexedTopic& topic,
         const std::vector<std::string>& keywords_norm,
-        bool match_all);
+        bool match_all) const;
 };
 
 } // namespace syntax_help
