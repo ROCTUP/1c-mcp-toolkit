@@ -650,3 +650,19 @@ TEST(CheckQuery, EmptinessTestIsOneOpenBit) {
     CHECK(HasCode(Check(std::string(kSelectA) + "А.Имя > \"\"", kPolicyABJson), "Q_COMPARE_PROTECTED"));
     CHECK(HasCode(Check(std::string(kSelectA) + "А.Имя ПОДОБНО \"\"", kPolicyABJson), "Q_LIKE_PROTECTED"));
 }
+
+// Запрос.Выполнить() returns the last query that neither creates nor destroys a temporary table: trailing УНИЧТОЖИТЬ
+// statements after the last plain select keep that select's labels.
+TEST(CheckQuery, TrailingDropKeepsTheSelectResult) {
+    const nlohmann::json j = Check("ВЫБРАТЬ А.Ссылка КАК С ПОМЕСТИТЬ ВТ ИЗ Справочник.А КАК А;\n"
+                                   "ВЫБРАТЬ ВТ.С КАК Объект ИЗ ВТ КАК ВТ;\nУНИЧТОЖИТЬ ВТ", kPolicyABJson);
+    CHECK_EQ(j["verdict"].get<std::string>(), std::string("safe"));
+    CHECK_EQ(j["columns"].size(), static_cast<size_t>(1));
+    CHECK_EQ(j["columns"][0]["name"].get<std::string>(), std::string("Объект"));
+    CHECK(HasCode(Check("ВЫБРАТЬ А.Ссылка КАК С ПОМЕСТИТЬ ВТ ИЗ Справочник.А КАК А;\nУНИЧТОЖИТЬ ВТ", kPolicyABJson),
+                  "Q_BATCH_RESULT"));
+    CHECK(HasCode(Check("ВЫБРАТЬ 1 КАК Х;\nВЫБРАТЬ А.Ссылка КАК С ПОМЕСТИТЬ ВТ ИЗ Справочник.А КАК А;\nУНИЧТОЖИТЬ ВТ",
+                        kPolicyABJson),
+                  "Q_BATCH_RESULT"));
+    CHECK(HasCode(Check("ВЫБРАТЬ 1 КАК Х;\nВЫБРАТЬ 2 КАК Y;\nУНИЧТОЖИТЬ ВТ", kPolicyABJson), "Q_BATCH_RESULT"));
+}

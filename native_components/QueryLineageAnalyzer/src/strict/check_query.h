@@ -13,8 +13,9 @@
 // (listed in "missing_tables") and the host should retry with them added. Reasons carry fixed codes and
 // positions only; the only client text in the output is the canonical text, column names and table names.
 // "incomplete" is never safe: retry with the missing tables, the retry's verdict decides.
-// The BSL caller must execute the canonical text with Запрос.Выполнить() (not ВыполнитьПакет): only the last
-// statement's result is labelled, so a non-final select without ПОМЕСТИТЬ, or a final УНИЧТОЖИТЬ, is Q_BATCH_RESULT.
+// The BSL caller must execute the canonical text with Запрос.Выполнить() (not ВыполнитьПакет): only the result
+// statement is labelled (the last select without ПОМЕСТИТЬ, trailing УНИЧТОЖИТЬ statements allowed after it), so any
+// other select without ПОМЕСТИТЬ, or a result statement that is УНИЧТОЖИТЬ, is Q_BATCH_RESULT.
 // A malformed policy is Q_POLICY_INVALID / confirm; so is a "params" name outside the alphabet of a parameter after
 // '&' (IsIdentifierName), since the host could bind it to another parameter after trimming or folding. Never throws: an internal failure is Q_INTERNAL / confirm.
 // Token literals: a string literal whose whole value is a token of the policy's "tokens" table (the format of

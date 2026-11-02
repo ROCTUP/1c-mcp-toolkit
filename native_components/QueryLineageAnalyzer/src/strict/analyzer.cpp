@@ -59,10 +59,8 @@ public:
     }
 
     void Run(const Batch& batch) {
-        for (size_t i = 0; i < batch.statements.size(); ++i) {
-            const bool last = i + 1 == batch.statements.size();
-            RunStatement(batch.statements[i], last);
-        }
+        const size_t result = ResultStatementIndex(batch);
+        for (size_t i = 0; i < batch.statements.size(); ++i) RunStatement(batch.statements[i], i == result);
     }
 
 private:
@@ -624,6 +622,16 @@ private:
 };
 
 }  // namespace
+
+size_t ResultStatementIndex(const Batch& batch) {
+    const size_t n = batch.statements.size();
+    if (n == 0) return 0;
+    size_t i = n - 1;
+    while (i > 0 && batch.statements[i].kind == Statement::K::Drop) --i;
+    const Statement& st = batch.statements[i];
+    const bool plain_select = st.kind != Statement::K::Drop && st.select && st.select->into.empty();
+    return plain_select ? i : n - 1;
+}
 
 AnalysisResult AnalyzeQuery(const Batch& batch, const FieldPolicy& policy) {
     AnalysisResult result;

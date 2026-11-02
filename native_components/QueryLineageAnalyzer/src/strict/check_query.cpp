@@ -61,25 +61,27 @@ std::string Reject(const std::string& code, const Pos* pos) {
 // Names the platform will give the columns of the last statement; the analyzer's own names are the fallback.
 std::vector<std::string> FinalColumnNames(const Batch& batch, const AnalysisResult& analysis) {
     std::vector<std::vector<std::string>> per_statement;
-    if (StatementResultNames(batch, per_statement) && !per_statement.empty() &&
-        per_statement.back().size() == analysis.columns.size()) {
-        return per_statement.back();
+    const size_t result = ResultStatementIndex(batch);
+    if (StatementResultNames(batch, per_statement) && result < per_statement.size() &&
+        per_statement[result].size() == analysis.columns.size()) {
+        return per_statement[result];
     }
     std::vector<std::string> names;
     for (const ColumnLabel& column : analysis.columns) names.push_back(column.name);
     return names;
 }
 
-// The result of a batch is the last statement's; any other select without ПОМЕСТИТЬ (or a final УНИЧТОЖИТЬ)
+// The result of a batch is the statement ResultStatementIndex names (trailing УНИЧТОЖИТЬ statements after the last
+// plain select are allowed); any other select without ПОМЕСТИТЬ, or a batch whose result statement is УНИЧТОЖИТЬ,
 // would return a result the labels do not describe.
 bool HasUnlabelledResult(const Batch& batch) {
     const size_t count = batch.statements.size();
+    const size_t result = ResultStatementIndex(batch);
     for (size_t i = 0; i < count; ++i) {
         const Statement& st = batch.statements[i];
-        const bool is_last = i + 1 == count;
-        if (st.kind == Statement::K::Drop) {
-            if (is_last) return true;
-        } else if (!is_last && (!st.select || st.select->into.empty())) {
+        if (i == result) {
+            if (st.kind == Statement::K::Drop) return true;
+        } else if (st.kind != Statement::K::Drop && (!st.select || st.select->into.empty())) {
             return true;
         }
     }

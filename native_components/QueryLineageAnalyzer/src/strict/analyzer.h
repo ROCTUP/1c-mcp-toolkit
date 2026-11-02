@@ -77,4 +77,10 @@ struct AnalysisResult {
 
 AnalysisResult AnalyzeQuery(const Batch& batch, const FieldPolicy& policy);
 
+// The statement whose result Запрос.Выполнить() returns: the last select without ПОМЕСТИТЬ when only УНИЧТОЖИТЬ
+// statements follow it (the platform returns the last query that neither creates nor destroys a temporary table;
+// were it the trailing УНИЧТОЖИТЬ instead, the result is Неопределено and carries nothing); otherwise the last
+// statement. 0 for an empty batch.
+size_t ResultStatementIndex(const Batch& batch);
+
 }  // namespace lineage::strict
