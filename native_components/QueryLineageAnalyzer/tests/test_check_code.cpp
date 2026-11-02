@@ -457,7 +457,8 @@ TEST(CheckCode, UnfollowedParameterBindingVariants) {
 // collection or an argument) has no known columns: the whole result is unknown.
 TEST(CheckCode, LostQueryTextOrObjectMakesResultUnknown) {
     const std::pair<const char*, const char*> cases[] = {
-        {"Т = \"ВЫБРАТЬ А.Имя КАК Х ИЗ Справочник.А КАК А\";\nЗ2.Текст = Т;\n", "C_DYNAMIC_QUERY"},
+        {"Т = Новый Массив;\nТ.Добавить(\"ВЫБРАТЬ А.Имя КАК Х ИЗ Справочник.А КАК А\");\nЗ2.Текст = Т[0];\n",
+         "C_DYNAMIC_QUERY"},
         {"З3 = З2;\nЗ3.УстановитьПараметр(\"Пар\", В.Имя);\n", "C_QUERY_ESCAPES"},
         {"С = Новый Структура(\"З\", З2);\n", "C_QUERY_ESCAPES"},
         {"М = Новый Массив;\nМ.Добавить(З2);\n", "C_QUERY_ESCAPES"},

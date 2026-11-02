@@ -1,5 +1,6 @@
 #include "bsl/bsl_types.h"
 
+#include <algorithm>
 #include <set>
 #include <utility>
 
@@ -110,7 +111,12 @@ struct VType {
     // The cell of a query column without reference targets, moved unchanged: the description labels it like a table
     // cell (bsl_result.cpp Cell), by its column label. It never changes ref_unknown: a presentation read stays Unknown.
     bool cell = false;
+    // The exact string when the value is a client literal or a concatenation of such literals on every path that
+    // reaches here (straight-line folding of query texts, C_DYNAMIC_QUERY); empty otherwise.
+    std::optional<std::string> text;
 };
+
+constexpr size_t kMaxFoldedText = 1024 * 1024;   // a longer folded text is dropped (Т = Т + Т doubles per line)
 
 bool SameColumns(const std::shared_ptr<const ColumnSet>& a, const std::shared_ptr<const ColumnSet>& b) {
     if (a == b) return true;
@@ -120,7 +126,7 @@ bool SameColumns(const std::shared_ptr<const ColumnSet>& a, const std::shared_pt
 bool SameVType(const VType& a, const VType& b) {
     return a.ty == b.ty && a.maybe_unassigned == b.maybe_unassigned && a.site == b.site &&
            SameColumns(a.columns, b.columns) && a.label == b.label && a.objs == b.objs && a.refs == b.refs &&
-           a.ref_unknown == b.ref_unknown && a.cell == b.cell;
+           a.ref_unknown == b.ref_unknown && a.cell == b.cell && a.text == b.text;
 }
 
 VType Typed(Ty ty, Origin label) {
@@ -156,6 +162,7 @@ VType JoinType(const VType& a, const VType& b) {
     if (a.ty == Ty::Query && a.site != b.site) return r;
     r.ty = a.ty;
     r.site = a.site;
+    if (a.text && b.text && *a.text == *b.text) r.text = a.text;   // the same constant on both paths
     if (SameColumns(a.columns, b.columns)) r.columns = a.columns;
     return r;
 }
@@ -310,6 +317,7 @@ private:
     std::set<std::pair<std::string, size_t>> seen_;
     std::map<std::string, std::string> spelling_;   // allowlist key -> first spelling (upper case, ё kept)
     std::set<const Expr*> noted_texts_;
+    std::set<const Expr*> dynamic_texts_;          // text expressions found non-constant on some pass of this walk
     Origin pc_ = Origin::Open;                      // Open: no control dependence on tainted data
     std::vector<Frame*> frames_;
     int in_query_text_ = 0;                         // > 0 while a query text is evaluated (its literals are not values)
@@ -658,6 +666,7 @@ private:
 
     VType EvalString(const Expr& e) {
         VType v = Typed(Ty::String, Origin::Client);
+        v.text = e.text;
         if (in_query_text_ > 0) return v;   // checked as a query text in NoteQueryText
         TokenBinding b;
         switch (ClassifyTokenLiteral(e.text, options_.tokens, &b)) {
@@ -672,6 +681,7 @@ private:
             case TokenUse::Unknown:
                 Add("C_TOKEN_UNKNOWN", e.pos);
                 v.label = Origin::Unknown;
+                v.text.reset();
                 break;
             case TokenUse::None: break;
         }
@@ -914,7 +924,7 @@ private:
         VType v = Typed(rule->result, Origin::Client);
         if (query) {
             v.site = &e;
-            if (e.args.size() == 1) NoteQueryText(&e, *e.args[0]);
+            if (e.args.size() == 1) NoteQueryText(&e, *e.args[0], args[0]);
             if (e.args.size() > 1) LoseSite(&e, true);   // C_BAD_ARGS: no text recorded
             return v;
         }
@@ -945,12 +955,19 @@ private:
         return v;
     }
 
-    void NoteQueryText(const Expr* site, const Expr& text_expr) {
+    // `value`: the evaluated text expression. A literal or a concatenation of literals is folded from the tree; a
+    // variable (or an expression over variables) is accepted only when the walk proved one constant client string
+    // for it on every path (VType::text), so the recorded text is the text the platform will run.
+    void NoteQueryText(const Expr* site, const Expr& text_expr, const VType& value) {
         QueryTextUse use;
         if (!Fold(text_expr, use.text)) {
-            Add("C_DYNAMIC_QUERY", text_expr.pos);
-            LoseSite(site, true);   // the site's other texts do not describe this one
-            return;
+            if (!value.text || IsTainted(value.label) || dynamic_texts_.count(&text_expr)) {
+                Add("C_DYNAMIC_QUERY", text_expr.pos);
+                LoseSite(site, true);   // the site's other texts do not describe this one
+                ForgetText(text_expr);
+                return;
+            }
+            use.text = *value.text;
         }
         TokenBinding b;
         if (ClassifyTokenLiteral(use.text, options_.tokens, &b) != TokenUse::None) Add("C_TOKEN_IN_QUERY", text_expr.pos);
@@ -963,6 +980,17 @@ private:
         use.site = site;
         use.text_expr = &text_expr;
         result_.query_texts.push_back(std::move(use));
+    }
+
+    // A loop body is walked more than once: an earlier pass may have recorded this text expression as constant.
+    // Once it is dynamic on any pass, no recorded text (and so no canonical replacement) may remain for it.
+    void ForgetText(const Expr& text_expr) {
+        dynamic_texts_.insert(&text_expr);
+        noted_texts_.erase(&text_expr);
+        auto& uses = result_.query_texts;
+        uses.erase(std::remove_if(uses.begin(), uses.end(),
+                                  [&](const QueryTextUse& u) { return u.text_expr == &text_expr; }),
+                   uses.end());
     }
 
     VType EvalMethod(const Expr& e) {
@@ -1329,7 +1357,13 @@ private:
         }
         // The left operand decides the operation: a number stays a number (or the call fails), a string concatenates.
         if (a.ty == Ty::Number) return Typed(Ty::Number, label);
-        if (op == "+" && a.ty == Ty::String) return Typed(Ty::String, label);
+        if (op == "+" && a.ty == Ty::String) {
+            VType r = Typed(Ty::String, label);
+            if (a.text && b.text && !IsTainted(label) && a.text->size() + b.text->size() <= kMaxFoldedText) {
+                r.text = *a.text + *b.text;
+            }
+            return r;
+        }
         VType r;
         r.label = label;
         return r;
@@ -1379,7 +1413,7 @@ private:
             if (obj.ty == Ty::Unknown) {
                 Add("C_UNKNOWN_RECEIVER", target.pos);
             } else if (obj.ty == Ty::Query && text) {
-                NoteQueryText(obj.site, value_expr);
+                NoteQueryText(obj.site, value_expr, value);
             } else if (obj.ty == Ty::Structure && StructureHasKey(obj, AllowlistKey(target.text))) {
                 // С.Ключ = Значение writes like С["Ключ"] = Значение (the key must exist, or the platform fails).
                 if (IsTainted(pc_)) {

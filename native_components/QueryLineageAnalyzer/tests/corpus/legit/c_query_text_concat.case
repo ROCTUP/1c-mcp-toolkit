@@ -1,6 +1,5 @@
 // kind: code
 // expect: safe
-// pending: C_DYNAMIC_QUERY: literal-only texts are folded, but this one is assembled in a variable, which is not followed (attack/c_query_text_from_variable pins it).
 Текст = "ВЫБРАТЬ Номенклатура.Ссылка КАК Объект ";
 Текст = Текст + "ИЗ Справочник.Номенклатура КАК Номенклатура";
 З = Новый Запрос(Текст);

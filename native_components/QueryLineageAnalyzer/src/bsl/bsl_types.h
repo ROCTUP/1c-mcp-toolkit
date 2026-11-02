@@ -214,7 +214,7 @@ inline bool IsTainted(Origin o) { return o != Origin::Open && o != Origin::Clien
 //   C_UNKNOWN_TYPE    "Новый" of a type that is not allowlisted
 //   C_UNKNOWN_ITER    "Для Каждого" over a type that is not iterable in the allowlist
 //   C_EVAL            member named Вычислить / Eval
-//   C_DYNAMIC_QUERY   query text that is not a constant-folded literal
+//   C_DYNAMIC_QUERY   query text that is not a literal, a concatenation of literals, or a variable proven to hold one such text on every path
 //   C_DYNAMIC_KEY     structure / map key (index, Свойство) or a type name that is not a literal
 //   C_DYNAMIC_PARAM   query parameter name that is not a literal
 //   C_BAD_PARAM_NAME  query parameter name literal outside the alphabet of a parameter after '&' (empty, a space, a

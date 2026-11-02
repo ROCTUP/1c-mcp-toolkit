@@ -159,8 +159,12 @@ TEST(BslTaint, ShortCircuitOutParameter) {
 
 TEST(BslTaint, QueryTextRules) {
     CHECK(Safe("З = Новый Запрос; З.Текст = \"ВЫБРАТЬ 1\"; Результат = 1;"));
-    CHECK(Denied("Т = \"ВЫБРАТЬ 1\"; З = Новый Запрос; З.Текст = Т + \"\"; Результат = 1;", "C_DYNAMIC_QUERY"));
-    CHECK(Denied("Т = \"ВЫБРАТЬ 1\"; З = Новый Запрос(Т); Результат = 1;", "C_DYNAMIC_QUERY"));
+    // A variable holding one constant client text on every path is folded; two texts, or a loop, are not.
+    CHECK(Safe("Т = \"ВЫБРАТЬ 1\"; З = Новый Запрос; З.Текст = Т + \"\"; Результат = 1;"));
+    CHECK(Safe("Т = \"ВЫБРАТЬ 1\"; З = Новый Запрос(Т); Результат = 1;"));
+    CHECK(Denied("Л = Истина; Если Л Тогда Т = \"ВЫБРАТЬ 1\"; Иначе Т = \"ВЫБРАТЬ 2\"; КонецЕсли; З = Новый Запрос; З.Текст = Т; Результат = 1;", "C_DYNAMIC_QUERY"));
+    CHECK(Denied("Т = \"ВЫБРАТЬ 1\"; Для Сч = 1 По 2 Цикл Т = Т + \" \"; КонецЦикла; З = Новый Запрос(Т); Результат = 1;",
+                 "C_DYNAMIC_QUERY"));
     CHECK(Denied("З = Новый Запрос; З.Параметры = 1; Результат = 1;", "C_UNKNOWN_MEMBER"));
     CHECK(Denied("З = Новый Запрос; Н = \"П\"; З.УстановитьПараметр(Н, 1); Результат = 1;", "C_DYNAMIC_PARAM"));
     CHECK(Denied("З = Новый Запрос; Результат = З.Текст;", "C_UNKNOWN_MEMBER"));
@@ -245,7 +249,7 @@ TEST(BslTaint, MovingProtectedIntoResultIsSafe) {
 }
 
 TEST(BslTaint, DynamicQueryTextNeedsConfirmation) {
-    CHECK(HasCodeReason(CheckCodeForTest(kPolicyAB, "Т = \"ВЫБРАТЬ 1\"; З = Новый Запрос; З.Текст = Т + \"\"; Результат = 1;"),
+    CHECK(HasCodeReason(CheckCodeForTest(kPolicyAB, "Л = Истина; Если Л Тогда Т = \"ВЫБРАТЬ 1\"; Иначе Т = \"ВЫБРАТЬ 2\"; КонецЕсли; З = Новый Запрос; З.Текст = Т + \"\"; Результат = 1;"),
                         "C_DYNAMIC_QUERY"));
 }
 
@@ -845,7 +849,7 @@ TEST(BslTaint, LiteralOnlyQueryTextIsFolded) {
     CHECK(r.verdict == CodeVerdict::Safe);
     CHECK_EQ(r.query_texts.size(), static_cast<size_t>(1));
     CHECK_EQ(r.query_texts[0].text, std::string("ВЫБРАТЬ Б.Сумма КАК Сумма ИЗ Справочник.Б КАК Б"));
-    CHECK(Denied("Т = \"ВЫБРАТЬ 1\"; З = Новый Запрос(\"\" + Т); Результат = 1;", "C_DYNAMIC_QUERY"));
+    CHECK(Denied("Л = Истина; Если Л Тогда Т = \"ВЫБРАТЬ 1\"; Иначе Т = \"ВЫБРАТЬ 2\"; КонецЕсли; З = Новый Запрос(\"\" + Т); Результат = 1;", "C_DYNAMIC_QUERY"));
     CHECK(Denied("З = Новый Запрос(\"ВЫБРАТЬ 1\" + 2); Результат = 1;", "C_DYNAMIC_QUERY"));
     CHECK(HasCodeReason(CheckCodeForTest(kPolicyAB, "З = Новый Запрос(\"ВЫБРАТЬ\" + Символы.ПС + \"1\"); Результат = 1;"),
                         "C_RESERVED"));
@@ -861,7 +865,7 @@ TEST(BslTaint, ChainOnNewQuery) {
     CHECK(Safe("В = Новый Запрос(\"ВЫБРАТЬ Б.Сумма КАК Сумма ИЗ Справочник.Б КАК Б\").Выполнить().Выбрать();\n"
                "Пока В.Следующий() Цикл Результат = В.Сумма; КонецЦикла;"));
     CHECK(Denied("Результат = Новый Запрос(\"ВЫБРАТЬ 1\").Выполнить().Выгрузить()[0][0];", "C_UNKNOWN_INDEX"));
-    CHECK(Denied("Т = \"ВЫБРАТЬ 1\"; Результат = Новый Запрос(Т).Выполнить().Выгрузить();", "C_DYNAMIC_QUERY"));
+    CHECK(Denied("Т = Новый Массив; Т.Добавить(\"ВЫБРАТЬ 1\"); Результат = Новый Запрос(Т[0]).Выполнить().Выгрузить();", "C_DYNAMIC_QUERY"));
     CHECK(Denied("Результат = Новый Запрос(\"ВЫБРАТЬ 1\").Текст;", "C_UNKNOWN_MEMBER"));
     CHECK(Denied("Результат = Новый Запрос(\"ВЫБРАТЬ А.Имя КАК Имя ИЗ Справочник.А КАК А ГДЕ А.Имя = \"\"x\"\"\").Выполнить()"
                  ".Выгрузить();", "Q_EQ_LITERAL"));
@@ -909,4 +913,31 @@ TEST(BslTaint, ArrayFindAndColumnTotal) {
                "Результат = Т.Итог(\"Сумма\");"));
     CHECK(Denied(std::string(kQ) + "Т = З.Выполнить().Выгрузить(); Результат = Т.Итог(\"Имя\");", "C_FUNC_OVER_PROTECTED"));
     CHECK(Denied(std::string(kQ) + "Т = З.Выполнить().Выгрузить(); Результат = Т.Итог(\"Нет\");", "C_UNKNOWN_MEMBER"));
+}
+
+// Straight-line folding: the recorded text is the text the platform runs; a protected or unknown part, a token, or a
+// text over the size limit stays dynamic.
+TEST(BslTaint, StraightLineQueryTextIsFolded) {
+    const auto r = CheckCodeForTest(kPolicyAB,
+        "Т = \"ВЫБРАТЬ Б.Сумма КАК Сумма \";\nТ = Т + \"ИЗ Справочник.Б КАК Б\";\nЗ = Новый Запрос;\nЗ.Текст = Т;\n"
+        "Результат = З.Выполнить().Выгрузить();");
+    CHECK(r.verdict == CodeVerdict::Safe);
+    CHECK_EQ(r.query_texts.size(), static_cast<size_t>(1));
+    CHECK_EQ(r.query_texts[0].text, std::string("ВЫБРАТЬ Б.Сумма КАК Сумма ИЗ Справочник.Б КАК Б"));
+    CHECK(Denied(std::string(kQ) + "В = З.Выполнить().Выгрузить(); Т = \"ВЫБРАТЬ \" + В[0].Имя; З2 = Новый Запрос(Т); Результат = 1;",
+                 "C_DYNAMIC_QUERY"));
+    std::string doubling = "Т = \"x\";\n";
+    for (int i = 0; i < 21; ++i) doubling += "Т = Т + Т;\n";   // 2 MiB: over kMaxFoldedText
+    CHECK(Denied(doubling + "З = Новый Запрос(Т); Результат = 1;", "C_DYNAMIC_QUERY"));
+}
+
+// A loop body is walked more than once: a text constant on the first pass and changed later in the loop is dynamic,
+// and no canonical replacement may keep the first text (it would run the first query on every iteration).
+TEST(BslTaint, QueryTextChangedLaterInLoopIsDynamic) {
+    const auto r = CheckCodeForTest(kPolicyAB,
+        "З = Новый Запрос;\nТ = \"ВЫБРАТЬ 1 КАК А\";\nДля Сч = 1 По 2 Цикл\n    З.Текст = Т;\n"
+        "    В = З.Выполнить().Выгрузить();\n    Т = \"ВЫБРАТЬ 2 КАК А\";\nКонецЦикла;\nРезультат = 1;");
+    CHECK(HasCodeReason(r, "C_DYNAMIC_QUERY"));
+    CHECK(r.query_texts.empty());
+    CHECK(r.query_canonical.empty());
 }
