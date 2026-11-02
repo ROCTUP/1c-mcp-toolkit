@@ -502,6 +502,9 @@ TEST(CheckCode, MixedScriptNamesOfThePolicyPass) {
                           "Результат = З.Выполнить().Выгрузить()[0].К;", policy);
     CHECK_EQ(Verdict(ok), std::string("safe"));
     CHECK_EQ(Verdict(Check("ТомаS3 = 1;\nРезультат = ТомаS3;", policy)), std::string("safe"));
+    CHECK_EQ(Verdict(Check("Результат = ПравоДоступа(\"Чтение\", Метаданные.Справочники.ТомаS3);", policy)),
+             std::string("safe"));
+    CHECK(HasReason(Check("Результат = ПравоДоступа(\"Чтение\", Метаданные.Справочники.TомаS3);", policy), "C_PARSE"));
     CHECK(HasReason(Check("З = Новый Запрос(\"ВЫБРАТЬ КОЛИЧЕСТВО(*) КАК К ИЗ Справочник.TомаS3 КАК Т\");\n"
                           "Результат = 1;", policy), "Q_PARSE_MIXED_SCRIPT"));   // Latin T inside the query text
     CHECK(HasReason(Check("ТомS3 = 1; Результат = ТомS3;", policy), "C_PARSE"));   // not a policy name

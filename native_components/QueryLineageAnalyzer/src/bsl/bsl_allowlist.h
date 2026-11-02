@@ -44,7 +44,11 @@ enum class Ty : uint8_t {
     ValueList,        // created, but no member is allowed on it
     Uuid,
     Ref,              // a reference value (a column that the label step reports as a reference)
-    MetaObject        // result of Ref.Метаданные()
+    MetaObject,       // result of Ref.Метаданные(), a metadata object (Метаданные.Справочники.Файлы)
+    Metadata,         // the global property Метаданные (the configuration's metadata root)
+    MetaCollection,   // a collection of metadata objects (Метаданные.Роли, <объект>.Состав)
+    ManagerRoot,      // Справочники / Документы / Перечисления / ...: VType::refs holds the singular kind
+    Manager           // Справочники.<Имя>: VType::refs holds the table ("Справочник.<Имя>")
 };
 
 enum class Taint : uint8_t { Propagate, Open, Confirm };
@@ -131,6 +135,61 @@ inline constexpr GlobalRule kGlobalRules[] = {
     {"Найти", "Find", Ty::Number, Taint::Open, 2, 2, ArgRule::Any},
     {"КодСимвола", "CharCode", Ty::Number, Taint::Open, 1, 2, ArgRule::Any},
     {"Символ", "Char", Ty::String, Taint::Open, 1, 1, ArgRule::Any},
+    // Dates: pure functions of their arguments (the session date is not stored data).
+    {"ТекущаяДатаСеанса", "CurrentSessionDate", Ty::Date, Taint::Open, 0, 0, ArgRule::Any},
+    {"НачалоДня", "BegOfDay", Ty::Date, Taint::Open, 1, 1, ArgRule::Any},
+    {"КонецДня", "EndOfDay", Ty::Date, Taint::Open, 1, 1, ArgRule::Any},
+    {"НачалоНедели", "BegOfWeek", Ty::Date, Taint::Open, 1, 1, ArgRule::Any},
+    {"КонецНедели", "EndOfWeek", Ty::Date, Taint::Open, 1, 1, ArgRule::Any},
+    {"НачалоМесяца", "BegOfMonth", Ty::Date, Taint::Open, 1, 1, ArgRule::Any},
+    {"КонецМесяца", "EndOfMonth", Ty::Date, Taint::Open, 1, 1, ArgRule::Any},
+    {"НачалоКвартала", "BegOfQuarter", Ty::Date, Taint::Open, 1, 1, ArgRule::Any},
+    {"КонецКвартала", "EndOfQuarter", Ty::Date, Taint::Open, 1, 1, ArgRule::Any},
+    {"НачалоГода", "BegOfYear", Ty::Date, Taint::Open, 1, 1, ArgRule::Any},
+    {"КонецГода", "EndOfYear", Ty::Date, Taint::Open, 1, 1, ArgRule::Any},
+    {"ДобавитьМесяц", "AddMonth", Ty::Date, Taint::Open, 2, 2, ArgRule::Any},
+    {"Год", "Year", Ty::Number, Taint::Open, 1, 1, ArgRule::Any},
+    {"Месяц", "Month", Ty::Number, Taint::Open, 1, 1, ArgRule::Any},
+    {"День", "Day", Ty::Number, Taint::Open, 1, 1, ArgRule::Any},
+    {"Час", "Hour", Ty::Number, Taint::Open, 1, 1, ArgRule::Any},
+    {"Минута", "Minute", Ty::Number, Taint::Open, 1, 1, ArgRule::Any},
+    {"Секунда", "Second", Ty::Number, Taint::Open, 1, 1, ArgRule::Any},
+    {"ДеньНедели", "WeekDay", Ty::Number, Taint::Open, 1, 1, ArgRule::Any},
+    {"ДеньГода", "DayOfYear", Ty::Number, Taint::Open, 1, 1, ArgRule::Any},
+    // Strings: Open, so over protected data they are C_FUNC_OVER_PROTECTED like Найти / Сред.
+    {"СтрНайти", "StrFind", Ty::Number, Taint::Open, 2, 5, ArgRule::Any},
+    {"СтрНачинаетсяС", "StrStartsWith", Ty::Boolean, Taint::Open, 2, 2, ArgRule::Any},
+    {"СтрЗаканчиваетсяНа", "StrEndsWith", Ty::Boolean, Taint::Open, 2, 2, ArgRule::Any},
+    {"СтрЧислоВхождений", "StrOccurrenceCount", Ty::Number, Taint::Open, 2, 2, ArgRule::Any},
+    {"СокрЛ", "TrimL", Ty::String, Taint::Open, 1, 1, ArgRule::Any},
+    {"СокрП", "TrimR", Ty::String, Taint::Open, 1, 1, ArgRule::Any},
+    {"СтрСоединить", "StrConcat", Ty::String, Taint::Open, 1, 2, ArgRule::Any},
+    // Session rights and configuration state: Boolean answers about the configuration, not stored data.
+    {"РольДоступна", "IsInRole", Ty::Boolean, Taint::Open, 1, 1, ArgRule::Any},
+    {"ПравоДоступа", "AccessRight", Ty::Boolean, Taint::Open, 2, 4, ArgRule::Any},
+    {"КонфигурацияБазыДанныхИзмененаДинамически", "DataBaseConfigurationChangedDynamically", Ty::Boolean, Taint::Open,
+     0, 0, ArgRule::Any},
+};
+
+// Global properties read without a call. Managers carry the singular table kind of their tables; registers,
+// constants, data processors, reports and common modules are deliberately absent (writes, R_* names, arbitrary code).
+struct GlobalProperty {
+    const char* ru;
+    const char* en;
+    Ty result;
+    const char* kind;   // ManagerRoot: the table kind of the policy ("Справочник"); otherwise nullptr
+};
+
+inline constexpr GlobalProperty kGlobalProperties[] = {
+    {"Метаданные", "Metadata", Ty::Metadata, nullptr},
+    {"Справочники", "Catalogs", Ty::ManagerRoot, "Справочник"},
+    {"Документы", "Documents", Ty::ManagerRoot, "Документ"},
+    {"Перечисления", "Enums", Ty::ManagerRoot, "Перечисление"},
+    {"ПланыОбмена", "ExchangePlans", Ty::ManagerRoot, "ПланОбмена"},
+    {"ПланыВидовХарактеристик", "ChartsOfCharacteristicTypes", Ty::ManagerRoot, "ПланВидовХарактеристик"},
+    {"ПланыСчетов", "ChartsOfAccounts", Ty::ManagerRoot, "ПланСчетов"},
+    {"БизнесПроцессы", "BusinessProcesses", Ty::ManagerRoot, "БизнесПроцесс"},
+    {"Задачи", "Tasks", Ty::ManagerRoot, "Задача"},
 };
 
 inline constexpr NewRule kNewRules[] = {
@@ -155,6 +214,8 @@ inline constexpr MethodRule kMethodRules[] = {
     {Ty::Selection, "Количество", "Count", Ty::Number, Taint::Open, 0, 0, ArgRule::Any},
 
     {Ty::ValueTable, "Количество", "Count", Ty::Number, Taint::Open, 0, 0, ArgRule::Any},
+    // The sum of one literal column; over a tainted column it is C_FUNC_OVER_PROTECTED.
+    {Ty::ValueTable, "Итог", "Total", Ty::Number, Taint::Open, 1, 1, ArgRule::LiteralString},
     {Ty::ValueTable, "ВыгрузитьКолонку", "UnloadColumn", Ty::Array, Taint::Propagate, 1, 1, ArgRule::LiteralString},
     // Only a literal list of open columns; any other sort is refused by the checker like an unknown method.
     {Ty::ValueTable, "Сортировать", "Sort", Ty::Undefined, Taint::Propagate, 1, 1, ArgRule::LiteralString},
@@ -163,6 +224,8 @@ inline constexpr MethodRule kMethodRules[] = {
     {Ty::Array, "Добавить", "Add", Ty::Undefined, Taint::Propagate, 1, 1, ArgRule::Any},
     {Ty::Array, "Количество", "Count", Ty::Number, Taint::Open, 0, 0, ArgRule::Any},
     {Ty::Array, "Получить", "Get", Ty::Unknown, Taint::Propagate, 1, 1, ArgRule::Any},
+    // A position or Неопределено: depends on the contents and on the sought value (both are inputs).
+    {Ty::Array, "Найти", "Find", Ty::Unknown, Taint::Open, 1, 1, ArgRule::Any},
 
     {Ty::Structure, "Вставить", "Insert", Ty::Undefined, Taint::Propagate, 2, 2, ArgRule::Any},
     {Ty::Structure, "Свойство", "Property", Ty::Boolean, Taint::Propagate, 1, 2, ArgRule::LiteralString},
@@ -176,10 +239,34 @@ inline constexpr MethodRule kMethodRules[] = {
     {Ty::Ref, "Пустая", "IsEmpty", Ty::Boolean, Taint::Open, 0, 0, ArgRule::Any},
     {Ty::Ref, "Метаданные", "Metadata", Ty::MetaObject, Taint::Open, 0, 0, ArgRule::Any},
     {Ty::MetaObject, "ПолноеИмя", "FullName", Ty::String, Taint::Open, 0, 0, ArgRule::Any},
+    // Metadata is configuration structure, not data (decisions §2b): the results are open; a tainted argument (a name
+    // taken from data) is still C_FUNC_OVER_PROTECTED.
+    {Ty::Metadata, "НайтиПоПолномуИмени", "FindByFullName", Ty::MetaObject, Taint::Open, 1, 1, ArgRule::Any},
+    {Ty::MetaCollection, "Найти", "Find", Ty::MetaObject, Taint::Open, 1, 1, ArgRule::Any},
+    {Ty::MetaCollection, "Количество", "Count", Ty::Number, Taint::Open, 0, 0, ArgRule::Any},
+    {Ty::MetaCollection, "Содержит", "Contains", Ty::Boolean, Taint::Open, 1, 1, ArgRule::Any},
+    // A reference by its UUID, or the empty reference: the manager's table is the target. Not НайтиПоНаименованию /
+    // НайтиПоКоду (equality oracles over protected strings), not Выбрать / СоздатьЭлемент / ПолучитьОбъект.
+    {Ty::Manager, "ПолучитьСсылку", "GetRef", Ty::Ref, Taint::Open, 0, 1, ArgRule::Any},
+    {Ty::Manager, "ПустаяСсылка", "EmptyRef", Ty::Ref, Taint::Open, 0, 0, ArgRule::Any},
 };
 
 inline constexpr PropertyRule kPropertyRules[] = {
     {Ty::ValueTable, "Колонки", "Columns", Ty::ColumnCollection},
+    {Ty::Metadata, "Справочники", "Catalogs", Ty::MetaCollection},
+    {Ty::Metadata, "Документы", "Documents", Ty::MetaCollection},
+    {Ty::Metadata, "Перечисления", "Enums", Ty::MetaCollection},
+    {Ty::Metadata, "ПланыОбмена", "ExchangePlans", Ty::MetaCollection},
+    {Ty::Metadata, "ПланыВидовХарактеристик", "ChartsOfCharacteristicTypes", Ty::MetaCollection},
+    {Ty::Metadata, "ПланыСчетов", "ChartsOfAccounts", Ty::MetaCollection},
+    {Ty::Metadata, "РегистрыСведений", "InformationRegisters", Ty::MetaCollection},
+    {Ty::Metadata, "РегистрыНакопления", "AccumulationRegisters", Ty::MetaCollection},
+    {Ty::Metadata, "РегистрыБухгалтерии", "AccountingRegisters", Ty::MetaCollection},
+    {Ty::Metadata, "БизнесПроцессы", "BusinessProcesses", Ty::MetaCollection},
+    {Ty::Metadata, "Задачи", "Tasks", Ty::MetaCollection},
+    {Ty::Metadata, "Роли", "Roles", Ty::MetaCollection},
+    {Ty::Metadata, "ПодпискиНаСобытия", "EventSubscriptions", Ty::MetaCollection},
+    {Ty::Metadata, "Подсистемы", "Subsystems", Ty::MetaCollection},
 };
 
 // ---- Risk classes ----------------------------------------------------------------------------

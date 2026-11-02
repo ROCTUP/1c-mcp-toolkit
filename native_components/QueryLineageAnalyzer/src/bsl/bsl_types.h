@@ -207,7 +207,8 @@ inline bool IsTainted(Origin o) { return o != Origin::Open && o != Origin::Clien
 //   C_UNKNOWN_IDENT   name not assigned on every path and not allowlisted; also an unknown global function
 //   C_COMMON_MODULE   "Имя.Метод(...)" on an unassigned name that is not a context name (a module call)
 //   C_UNKNOWN_RECEIVER  member / method / index / iteration on a value whose type is Unknown
-//   C_UNKNOWN_MEMBER  property or column not allowed on a known type (also assignment to a property)
+//   C_UNKNOWN_MEMBER  property or column not allowed on a known type (also assignment to a property;
+//                    a structure key only if the code put it there)
 //   C_UNKNOWN_METHOD  method not allowed on a known type
 //   C_UNKNOWN_INDEX   index on a type that has none in the allowlist
 //   C_UNKNOWN_TYPE    "Новый" of a type that is not allowlisted

@@ -32,6 +32,7 @@ struct Tables {
     std::map<std::string, const NewRule*> news;
     std::map<std::pair<int, std::string>, const MethodRule*> methods;
     std::map<std::pair<int, std::string>, const PropertyRule*> properties;
+    std::map<std::string, const GlobalProperty*> global_props;
     std::set<std::string> context_names;
     std::set<std::string> query_text, property_method, eval_member;
 
@@ -51,6 +52,10 @@ struct Tables {
         for (const PropertyRule& r : kPropertyRules) {
             properties[{static_cast<int>(r.receiver), AllowlistKey(r.ru)}] = &r;
             properties[{static_cast<int>(r.receiver), AllowlistKey(r.en)}] = &r;
+        }
+        for (const GlobalProperty& p : kGlobalProperties) {
+            global_props[AllowlistKey(p.ru)] = &p;
+            global_props[AllowlistKey(p.en)] = &p;
         }
         for (const char* n : kContextNames) context_names.insert(AllowlistKey(n));
         query_text = {AllowlistKey(kQueryTextRu), AllowlistKey(kQueryTextEn)};
@@ -676,11 +681,22 @@ private:
     VType EvalVar(const Expr& e) {
         const std::string key = VarKey(e.text, e.pos);
         const auto it = env_.find(key);
+        if (it == env_.end()) {
+            const auto g = T().global_props.find(key);
+            if (g != T().global_props.end()) return GlobalPropertyValue(*g->second);
+        }
         if (it == env_.end() || it->second.maybe_unassigned) {
             Add("C_UNKNOWN_IDENT", e.pos);
             return VType();
         }
         return it->second;
+    }
+
+    // Метаданные / Справочники / ...: configuration structure, open. A manager root remembers its table kind.
+    static VType GlobalPropertyValue(const GlobalProperty& p) {
+        VType v = Typed(p.result, Origin::Open);
+        if (p.kind) v.refs.insert(p.kind);
+        return v;
     }
 
     static VType ColumnType(const ColumnInfo& c, const VType& holder) {
@@ -715,6 +731,17 @@ private:
             return VType();
         }
         if (obj.ty == Ty::Ref) return Dereference(obj, e);
+        if (obj.ty == Ty::Structure) {
+            // С.Ключ reads like С["Ключ"], for a key the code provably put there (a literal key of Новый Структура or
+            // Вставить); any other name fails on the platform and is refused here.
+            if (!StructureHasKey(obj, key)) {
+                Add("C_UNKNOWN_MEMBER", e.pos);
+                return VType();
+            }
+            return ElementOf(obj, Origin::Open);
+        }
+        if (obj.ty == Ty::MetaCollection) return Typed(Ty::MetaObject, Origin::Open);   // Метаданные.Роли.<Имя>
+        if (obj.ty == Ty::ManagerRoot || obj.ty == Ty::Manager) return ManagerMember(obj, e.text);
         const auto it = T().properties.find({static_cast<int>(obj.ty), key});
         if (it == T().properties.end()) {
             Add("C_UNKNOWN_MEMBER", e.pos);
@@ -722,6 +749,29 @@ private:
             return VType();
         }
         return Typed(it->second->result, Fresh(ShapeOf(obj)));
+    }
+
+    // Every structure `obj` may be has the literal key `key` (AllowlistKey) somewhere in the code.
+    bool StructureHasKey(const VType& obj, const std::string& key) const {
+        if (obj.objs.empty()) return false;
+        for (const Expr* o : obj.objs) {
+            const ObjectLabels* ol = FindObj(o);
+            if (!ol || ol->kind != Ty::Structure || ol->fields.count(key) == 0) return false;
+        }
+        return true;
+    }
+
+    // Справочники.<Имя> is the manager of the table "Справочник.<Имя>"; <менеджер>.<Имя> is a predefined item or an
+    // enum value: a reference to that table (the platform fails on any other name).
+    static VType ManagerMember(const VType& obj, const std::string& name) {
+        VType v = Typed(obj.ty == Ty::ManagerRoot ? Ty::Manager : Ty::Ref, Origin::Open);
+        if (obj.ty == Ty::ManagerRoot) {
+            for (const std::string& kind : obj.refs) v.refs.insert(kind + "." + name);
+        } else {
+            v.refs = obj.refs;
+            v.ref_unknown = false;
+        }
+        return v;
     }
 
     // Ссылка.Реквизит: the field's policy class over every target; a field the policy does not list is refused.
@@ -918,7 +968,8 @@ private:
     VType EvalMethod(const Expr& e) {
         const Expr& recv_expr = *e.args[0];
         const int nargs = static_cast<int>(e.args.size()) - 1;
-        if (recv_expr.kind == Expr::K::Var && Unassigned(recv_expr)) {
+        if (recv_expr.kind == Expr::K::Var && Unassigned(recv_expr) &&
+            T().global_props.count(AllowlistKey(recv_expr.text)) == 0) {
             // "Имя.Метод(...)" on a name the code never assigned: a module call, or a context object.
             for (int i = 1; i <= nargs; ++i) Eval(*e.args[i]);
             const bool context = T().context_names.count(AllowlistKey(recv_expr.text)) != 0;
@@ -982,6 +1033,7 @@ private:
             case Ty::ValueTable:
                 if (m == AllowlistKey("ВыгрузитьКолонку")) return UnloadColumn(recv, *e.args[1], e);
                 if (m == AllowlistKey("Сортировать")) return SortTable(recv, *e.args[1], e);
+                if (m == AllowlistKey("Итог")) return ColumnTotal(recv, *e.args[1], e);
                 return Typed(rule.result, Fresh(ShapeOf(recv)));
             case Ty::Array:
             case Ty::Structure:
@@ -991,6 +1043,20 @@ private:
                 // A scalar receiver: the method reads the value itself.
                 CheckOp(e.pos, recv.label);
                 return Typed(rule.result, Transform(recv.label));
+            case Ty::Metadata:
+            case Ty::MetaCollection:
+            case Ty::Manager: {
+                // Structure lookups by name / UUID: only the arguments can carry data.
+                std::optional<Origin> input;
+                for (const VType& a : args) JoinInto(input, ReadAsValue(a));
+                if (input) CheckOp(e.pos, *input);
+                VType v = Typed(rule.result, input ? Transform(*input) : Origin::Open);
+                if (rule.receiver == Ty::Manager) {
+                    v.refs = recv.refs;
+                    v.ref_unknown = false;
+                }
+                return v;
+            }
             default: break;
         }
         Add("C_INTERNAL", e.pos);
@@ -1039,6 +1105,23 @@ private:
             it->second.label = JoinOrigin(it->second.label, label);
             it->second.spellings.insert(name_expr.text);
         }
+    }
+
+    // Т.Итог("<колонка>"): a number computed from every value of the column (and the row set).
+    VType ColumnTotal(const VType& table, const Expr& name_expr, const Expr& call) {
+        std::optional<Origin> input = ShapeOf(table);
+        const ColumnInfo* column = nullptr;
+        if (table.columns && IsStringLit(name_expr)) {
+            const auto it = table.columns->columns.find(AllowlistKey(name_expr.text));
+            if (it != table.columns->columns.end()) column = &it->second;
+        }
+        if (!column) {
+            Add("C_UNKNOWN_MEMBER", name_expr.pos);
+            return VType();
+        }
+        JoinInto(input, column->origin);
+        CheckOp(call.pos, *input);
+        return Typed(Ty::Number, Transform(*input));
     }
 
     VType UnloadColumn(const VType& table, const Expr& name_expr, const Expr& call) {
@@ -1155,6 +1238,16 @@ private:
         }
         if (m == AllowlistKey("Свойство")) {
             return Typed(Ty::Boolean, Fresh(ShapeOf(recv)));
+        }
+        if (m == AllowlistKey("Найти")) {
+            // The position depends on every element compared and on the sought value.
+            std::optional<Origin> input = HeldLabel(recv);
+            JoinInto(input, ReadAsValue(args[0]));
+            JoinInto(input, ShapeOf(recv));
+            if (input) CheckOp(e.pos, *input);
+            VType v = Typed(Ty::Unknown, input ? Transform(*input) : Origin::Open);
+            v.ref_unknown = false;   // a number or Неопределено, never a reference
+            return v;
         }
         Add("C_INTERNAL", e.pos);
         return VType();
@@ -1287,6 +1380,12 @@ private:
                 Add("C_UNKNOWN_RECEIVER", target.pos);
             } else if (obj.ty == Ty::Query && text) {
                 NoteQueryText(obj.site, value_expr);
+            } else if (obj.ty == Ty::Structure && StructureHasKey(obj, AllowlistKey(target.text))) {
+                // С.Ключ = Значение writes like С["Ключ"] = Значение (the key must exist, or the platform fails).
+                if (IsTainted(pc_)) {
+                    for (const Expr* o : obj.objs) JoinInto(state_.objects[o].shape, pc_);
+                }
+                Store(obj, value, target.pos, &target.text);
             } else {
                 Add("C_UNKNOWN_MEMBER", target.pos);
                 LoseQuery(obj, false);

@@ -1,6 +1,6 @@
 // kind: code
 // expect: confirm
-// reason: C_UNKNOWN_IDENT
+// reason: C_UNKNOWN_METHOD
 // reason: C_UNKNOWN_RECEIVER
 // risk: R_UNKNOWN_EFFECT
 // risk: R_WRITE
