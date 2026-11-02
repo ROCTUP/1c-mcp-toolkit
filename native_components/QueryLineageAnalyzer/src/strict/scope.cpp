@@ -134,6 +134,7 @@ Origin Combine(Origin inter, Origin fin) {
 FieldLabel Dereference(std::vector<std::string> tables, const std::vector<std::string>& parts, size_t from,
                        Origin inter, const FieldPolicy& policy, const ResolveSink& sink) {
     FieldLabel label;
+    bool targets_lost = false;   // a field whose reference targets the policy does not list (FieldInfo::refs_known)
     for (size_t i = from; i < parts.size(); ++i) {
         const bool last = i + 1 == parts.size();
         bool first_table = true;
@@ -151,6 +152,7 @@ FieldLabel Dereference(std::vector<std::string> tables, const std::vector<std::s
                 table_origin = FromClass(policy.ClassOf(table, parts[i]));
                 if (const FieldInfo* info = policy.Field(table, parts[i])) {
                     for (const std::string& r : info->refs) AddUnique(label.refs, r);
+                    targets_lost = targets_lost || !info->refs_known;
                 }
             } else {
                 const FieldInfo* info = policy.Field(table, parts[i]);
@@ -169,7 +171,7 @@ FieldLabel Dereference(std::vector<std::string> tables, const std::vector<std::s
         if (last) {
             label.origin = tables.empty() || broken ? Origin::Unknown : Combine(inter, origin);
             if (label.origin == Origin::Unknown) label.refs.clear();
-            label.refs_known = label.origin != Origin::Unknown;   // the policy lists the targets of every field
+            label.refs_known = label.origin != Origin::Unknown && !targets_lost;   // the policy lists the targets
             return label;
         }
         if (broken || next.empty()) return FieldLabel();

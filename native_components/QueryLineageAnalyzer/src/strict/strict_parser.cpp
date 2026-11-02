@@ -37,8 +37,11 @@ bool IsMixedScript(const std::string& s) {
 }
 
 // Keywords accepted as a path segment AFTER a dot (Т.Ссылка, Т.Представление, ...); never as the first segment.
+// ИЗМЕНЕНИЯ names the change-registration table of an exchange plan (Справочник.Файлы.Изменения); after a dot it
+// can never start the ДЛЯ ИЗМЕНЕНИЯ clause, which needs ДЛЯ first.
 bool IsAllowedKeywordSegment(Kw kw) {
-    return kw == Kw::Refs || kw == Kw::Presentation || kw == Kw::RefPresentation || kw == Kw::Value;
+    return kw == Kw::Refs || kw == Kw::Presentation || kw == Kw::RefPresentation || kw == Kw::Value ||
+           kw == Kw::Update;
 }
 
 bool IsCountName(const std::string& key) { return key == "КОЛИЧЕСТВО" || key == "COUNT"; }

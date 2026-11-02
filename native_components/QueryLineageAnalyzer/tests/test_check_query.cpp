@@ -585,3 +585,32 @@ TEST(CheckQuery, TempTableNamedConstantsShadowsTheConstantsTable) {
         CHECK(j["missing_tables"].empty());
     }
 }
+
+// Справочник.А.Изменения: the change table of an exchange plan (ИЗМЕНЕНИЯ after a dot is a name, not ДЛЯ ИЗМЕНЕНИЯ).
+TEST(CheckQuery, ExchangePlanChangeTable) {
+    const auto verdict = [](const std::string& q) { return Check(q, kPolicyABJson)["verdict"].get<std::string>(); };
+    CHECK_EQ(verdict("ВЫБРАТЬ КОЛИЧЕСТВО(*) КАК К ИЗ Справочник.А.Изменения КАК Изм"), std::string("safe"));
+    CHECK_EQ(verdict("ВЫБРАТЬ Изм.Ссылка КАК С, Изм.НомерСообщения КАК Н ИЗ Справочник.А.Изменения КАК Изм "
+                     "ГДЕ Изм.Узел ССЫЛКА ПланОбмена.П"),
+             std::string("safe"));
+    CHECK_EQ(verdict("ВЫБРАТЬ КОЛИЧЕСТВО(*) КАК К ИЗ Справочник.А.ИЗМЕНЕНИЯ"), std::string("safe"));
+    // The node's plan is not known: its presentation, and an ordering by it, stay closed.
+    CHECK(HasCode(Check("ВЫБРАТЬ ПРЕДСТАВЛЕНИЕ(Изм.Узел) КАК П ИЗ Справочник.А.Изменения КАК Изм", kPolicyABJson),
+                  "Q_UNKNOWN_COLUMN"));
+    CHECK(HasCode(Check("ВЫБРАТЬ Изм.Ссылка КАК С ИЗ Справочник.А.Изменения КАК Изм УПОРЯДОЧИТЬ ПО Изм.Узел",
+                        kPolicyABJson),
+                  "Q_ORDER_PROTECTED"));
+    // Fields of the base keep their class.
+    CHECK(HasCode(Check("ВЫБРАТЬ Изм.Ссылка КАК С ИЗ Справочник.А.Изменения КАК Изм ГДЕ Изм.Имя = \"x\"", kPolicyABJson),
+                  "Q_EQ_LITERAL"));
+    // A table the policy does not have is still missing, and the host is asked for the base it can build;
+    // ДЛЯ ИЗМЕНЕНИЯ is still the clause.
+    const nlohmann::json missing = Check("ВЫБРАТЬ КОЛИЧЕСТВО(*) КАК К ИЗ Справочник.Нет.Изменения КАК Изм", kPolicyABJson);
+    CHECK_EQ(missing["verdict"].get<std::string>(), std::string("incomplete"));
+    CHECK_EQ(missing["missing_tables"].size(), static_cast<size_t>(1));
+    CHECK_EQ(missing["missing_tables"][0].get<std::string>(), std::string("Справочник.Нет"));   // the host builds the base
+    CHECK(HasCode(Check("ВЫБРАТЬ А.Ссылка КАК С ИЗ Справочник.А КАК А ДЛЯ ИЗМЕНЕНИЯ", kPolicyABJson), "Q_FOR_UPDATE"));
+    const std::string canonical = Check("ВЫБРАТЬ КОЛИЧЕСТВО(*) КАК К ИЗ Справочник.А.Изменения КАК Изм",
+                                        kPolicyABJson)["canonical"].get<std::string>();
+    CHECK(canonical.find("Справочник.А.Изменения") != std::string::npos);
+}

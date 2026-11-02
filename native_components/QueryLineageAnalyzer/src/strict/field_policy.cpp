@@ -83,6 +83,7 @@ void MergeField(FieldMap& fields, const std::string& key, FieldInfo info) {
         return;
     }
     it->second.cls = Stricter(it->second.cls, info.cls);
+    it->second.refs_known = it->second.refs_known && info.refs_known;
     for (auto& ref : info.refs) it->second.refs.push_back(std::move(ref));
 }
 
@@ -125,10 +126,42 @@ public:
             *error = "Q_POLICY_SHAPE";
             return false;
         }
+        AddChangeTables(policy);
         return true;
     }
 
 private:
+    static void AddChangeTables(FieldPolicy* policy) {
+        static const char* const kKinds[] = {"Справочник", "Документ", "ПланВидовХарактеристик", "ПланСчетов",
+                                             "БизнесПроцесс", "Задача", "РегистрСведений", "РегистрНакопления",
+                                             "РегистрБухгалтерии", "Константа"};
+        std::vector<std::string> bases;
+        for (const auto& t : policy->tables_) {
+            const size_t dot = t.first.find('.');
+            if (dot == std::string::npos || t.first.find('.', dot + 1) != std::string::npos) continue;
+            for (const char* kind : kKinds) {
+                if (t.first.compare(0, dot, NormalizeIdentifierKey(kind)) == 0 &&
+                    dot == NormalizeIdentifierKey(kind).size()) {
+                    bases.push_back(t.first);
+                }
+            }
+        }
+        for (const std::string& base : bases) {
+            const std::string key = base + "." + NormalizeIdentifierKey("Изменения");
+            if (policy->tables_.count(key) != 0 || policy->virtuals_.count(key) != 0) continue;
+            FieldPolicy::VirtualData data;
+            data.base = base;
+            FieldInfo node;
+            node.cls = FieldClass::Open;
+            node.refs_known = false;
+            data.extra_fields.emplace(NormalizeIdentifierKey("Узел"), std::move(node));
+            FieldInfo number;
+            number.cls = FieldClass::Open;
+            data.extra_fields.emplace(NormalizeIdentifierKey("НомерСообщения"), std::move(number));
+            policy->virtuals_.emplace(key, std::move(data));
+        }
+    }
+
     static void AddTable(FieldPolicy* policy, const std::string& key, FieldPolicy::TableData data) {
         auto it = policy->tables_.find(key);
         if (it == policy->tables_.end()) {
@@ -280,6 +313,14 @@ const FieldInfo* FieldPolicy::Field(const std::string& table, const std::string&
     if (it == tables_.end()) return nullptr;
     const auto f = it->second.fields.find(name);
     return f == it->second.fields.end() ? nullptr : &f->second;
+}
+
+std::string TableToRequest(const std::string& table) {
+    const size_t first = table.find('.');
+    const size_t last = table.rfind('.');
+    if (first == std::string::npos || first == last || table.find('.', first + 1) != last) return table;
+    if (NormalizeIdentifierKey(table.substr(last + 1)) != NormalizeIdentifierKey("Изменения")) return table;
+    return table.substr(0, last);
 }
 
 FieldClass FieldPolicy::ClassOf(const std::string& table, const std::string& field) const {

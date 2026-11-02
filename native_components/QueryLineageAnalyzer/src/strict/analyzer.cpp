@@ -148,7 +148,7 @@ private:
             // parameter omitted: the binding equals the one BuildVirtualTable makes for an empty parameter list.
             b.known = policy_.HasTable(src.name) || !policy_.ResolveVirtualBase(src.name).empty();
             if (!b.known) {
-                sink_.MissingTable(src.name);
+                sink_.MissingTable(TableToRequest(src.name));
                 sink_.Issue(kResolveUnknownSource, src.pos);
             }
             return;

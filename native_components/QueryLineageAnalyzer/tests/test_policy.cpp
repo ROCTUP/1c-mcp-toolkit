@@ -218,3 +218,31 @@ TEST(Policy, YoCollidingParamNames) {
     CHECK(only.ok);
     CHECK(only.policy.OriginOfParam("Ёж") == ParamOrigin::Missing);
 }
+
+// Exchange-plan change tables (field_policy.h): "<T>.Изменения" over every object / register table T.
+TEST(Policy, ChangeTables) {
+    auto p = FieldPolicy::FromJson(R"({"version":1,"tables":{
+        "Справочник.Ф":{"presentation":"protected","fields":{"Ссылка":{"class":"open","refs":["Справочник.Ф"]},
+            "Наименование":{"class":"protected"}}},
+        "РегистрСведений.Р":{"fields":{"Файл":{"class":"open","refs":["Справочник.Ф"]}}},
+        "Перечисление.В":{"presentation":"open","fields":{}}}})");
+    CHECK(p.ok);
+    CHECK(!p.policy.ResolveVirtualBase("справочник.ф.изменения").empty());
+    CHECK(!p.policy.ResolveVirtualBase("РегистрСведений.Р.Изменения").empty());
+    CHECK(p.policy.ResolveVirtualBase("Перечисление.В.Изменения").empty());   // an enum has no change table
+    CHECK(!p.policy.HasTable("Справочник.Ф.Изменения"));
+    const FieldInfo* node = p.policy.Field("Справочник.Ф.Изменения", "Узел");
+    CHECK(node != nullptr);
+    CHECK(node->cls == FieldClass::Open && !node->refs_known && node->refs.empty());
+    CHECK(p.policy.ClassOf("Справочник.Ф.Изменения", "НомерСообщения") == FieldClass::Open);
+    CHECK(p.policy.ClassOf("Справочник.Ф.Изменения", "Ссылка") == FieldClass::Open);              // from the base
+    CHECK(p.policy.ClassOf("Справочник.Ф.Изменения", "Наименование") == FieldClass::Protected);
+    CHECK(p.policy.PresentationClass("Справочник.Ф.Изменения") == FieldClass::Protected);
+    CHECK(p.policy.Field("Справочник.Ф", "Ссылка")->refs_known);
+    // A host entry of that name wins.
+    auto h = FieldPolicy::FromJson(R"({"version":1,"tables":{"Справочник.Ф":{"fields":{}}},
+        "virtual_tables":{"Справочник.Ф.Изменения":{"base":"Справочник.Ф",
+            "extra_fields":{"Узел":{"class":"protected"}}}}})");
+    CHECK(h.ok);
+    CHECK(h.policy.ClassOf("Справочник.Ф.Изменения", "Узел") == FieldClass::Protected);
+}

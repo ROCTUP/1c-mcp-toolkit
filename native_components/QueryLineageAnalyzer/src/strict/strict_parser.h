@@ -8,7 +8,7 @@
 // whether a plain Table is a metadata table or a temporary table) is validated by the checker.
 // Function names are NOT allowlisted here: any identifier followed by '(' parses as a Call. The allowlist
 // of callable functions lives in the checker. A keyword after '.' is a ParseError (Q_PARSE_KEYWORD_SEGMENT)
-// except ССЫЛКА, ПРЕДСТАВЛЕНИЕ, ПРЕДСТАВЛЕНИЕССЫЛКИ, ЗНАЧЕНИЕ, which are accepted as non-first path
+// except ССЫЛКА, ПРЕДСТАВЛЕНИЕ, ПРЕДСТАВЛЕНИЕССЫЛКИ, ЗНАЧЕНИЕ, ИЗМЕНЕНИЯ, which are accepted as non-first path
 // segments and stored with their source spelling as ordinary Field parts.
 
 namespace lineage::strict {

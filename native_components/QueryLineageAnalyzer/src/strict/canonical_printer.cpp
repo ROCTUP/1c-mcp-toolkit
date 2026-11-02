@@ -44,7 +44,8 @@ bool IsPlainIdent(const std::string& s) { return LexesAs(s, Tk::Identifier) && !
 bool IsAllowedKeywordSegment(const std::string& s) {
     Kw kw = Kw::None;
     if (!LexesAs(s, Tk::Keyword, &kw)) return false;
-    return kw == Kw::Refs || kw == Kw::Presentation || kw == Kw::RefPresentation || kw == Kw::Value;
+    return kw == Kw::Refs || kw == Kw::Presentation || kw == Kw::RefPresentation || kw == Kw::Value ||
+           kw == Kw::Update;
 }
 
 // The keyword В as an alias after КАК (ИЗ Т КАК В, Т.Х КАК В) and as the first segment of a path to a source (В.Поле).

@@ -18,6 +18,12 @@
 // A missing "presentation" of a table means Protected. The field "Представление" always has the class of the
 // table's presentation, whatever the "fields" map says. A tabular section is addressed as "<Table>.<Section>".
 // A virtual table resolves its own "extra_fields" first, then the fields of its base table.
+// Change tables: for every object or register table T of the policy (Справочник, Документ, ПланВидовХарактеристик,
+// ПланСчетов, БизнесПроцесс, Задача, РегистрСведений, РегистрНакопления, РегистрБухгалтерии, Константа) the policy also
+// knows "T.Изменения", the exchange-plan change-registration table, as a virtual table over T with the extra fields
+// Узел (open, a reference to an exchange-plan node whose plan is not known: refs_known false) and НомерСообщения
+// (open). Its other fields are T's (Ссылка, Регистратор, dimensions); a field T has but the change table lacks makes
+// the platform fail the query, it never returns data. A host entry of that name wins.
 
 namespace lineage::strict {
 
@@ -27,6 +33,9 @@ enum class ParamOrigin { Client, TokenProtected, TokenUnknown, Missing };
 struct FieldInfo {
     FieldClass cls = FieldClass::Unknown;
     std::vector<std::string> refs;   // target tables of a reference field (original spelling)
+    // false: a reference whose targets the policy does not list (Узел of a change table); its presentation is not
+    // known, so it is never read as a string or ordered by without confirmation.
+    bool refs_known = true;
 };
 
 class FieldPolicy {
@@ -70,6 +79,10 @@ private:
     std::map<std::string, ParamOrigin> params_;
     std::map<std::string, ParamOrigin> param_folds_;   // collision key (yo folded) -> the origin of its names
 };
+
+// The table the host must add for `table` to resolve: "<T>" for the change table "<T>.Изменения" (the host builds T,
+// the policy derives the change table), `table` itself otherwise.
+std::string TableToRequest(const std::string& table);
 
 struct FieldPolicy::Parsed {
     bool ok = false;
