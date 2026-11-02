@@ -897,6 +897,12 @@ private:
             if (!IsStringLit(*e.args[0])) Add("C_DYNAMIC_KEY", e.args[0]->pos);
             NameLiteral(*e.args[0]);
         }
+        if (rule.taint == Taint::Emptiness && args.size() == 1) {
+            const Origin in = ValueLabel(args[0]);
+            if (in == Origin::ProtectedDirect || !IsTainted(in)) return Typed(rule.result, Origin::Open);
+            CheckOp(e.pos, in);
+            return Typed(rule.result, Transform(in));
+        }
         // Open: the arguments are read as values (a reference as its presentation); Propagate: as they are.
         std::optional<Origin> input;
         for (const VType& a : args) JoinInto(input, rule.taint == Taint::Open ? ReadAsValue(a) : ValueLabel(a));
@@ -1325,6 +1331,16 @@ private:
         return Typed(e.text == "-" ? Ty::Number : Ty::Boolean, Transform(input));
     }
 
+    // `x = ""` / `x <> ""` (either order) over a direct protected read: one bit, filled or not (decisions §2a).
+    // The empty literal must be a value, not part of a query text; the other side must carry exactly the label of a
+    // stored protected string (ProtectedDirect): a derived value (Сред(x, 5)) or an unknown one is not exempt.
+    bool IsEmptinessTest(const Expr& e, const VType& a, const VType& b) const {
+        if (in_query_text_ > 0 || e.args.size() != 2) return false;
+        const auto empty = [](const Expr& x) { return IsStringLit(x) && x.text.empty(); };
+        return (empty(*e.args[1]) && ValueLabel(a) == Origin::ProtectedDirect) ||
+               (empty(*e.args[0]) && ValueLabel(b) == Origin::ProtectedDirect);
+    }
+
     VType EvalBinary(const Expr& e) {
         const VType a = Eval(*e.args[0]);
         const std::string& op = e.text;
@@ -1343,6 +1359,7 @@ private:
         } else {
             b = Eval(*e.args[1]);
         }
+        if ((op == "=" || op == "<>") && IsEmptinessTest(e, a, b)) return Typed(Ty::Boolean, Origin::Open);
         std::optional<Origin> input = ValueLabel(a);
         JoinInto(input, ValueLabel(b));
         if (op == "+" && a.ty != Ty::Number) {

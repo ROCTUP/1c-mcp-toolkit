@@ -515,6 +515,7 @@ private:
             return;
         }
         if (!any) return;
+        if (IsEmptinessTest(e, LabelOf(e.args[0].get()), LabelOf(e.args[1].get()))) return;
         if (e.text == "=") {
             EqRule(LabelOf(e.args[0].get()), LabelOf(e.args[1].get()), e.args[0].get(), e.args[1].get(), ctx, e.pos);
         } else if (IsComparison(e.text)) {

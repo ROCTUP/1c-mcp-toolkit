@@ -221,10 +221,17 @@ private:
         }
     }
 
+    Origin LabelOrUnknown(const ExprP& e) const {
+        const auto it = e ? labels_.expr.find(e.get()) : labels_.expr.end();
+        return it == labels_.expr.end() ? Origin::Unknown : it->second.origin;
+    }
+
     bool SubtreeTainted(const ExprP& e) const {
         if (!e) return false;
         const auto it = labels_.expr.find(e.get());
         if (it != labels_.expr.end() && IsTaintedOrigin(it->second.origin)) return true;
+        // An emptiness test is one open bit (rules.h IsEmptinessTest): its protected operand does not taint the rows.
+        if (e->args.size() == 2 && IsEmptinessTest(*e, LabelOrUnknown(e->args[0]), LabelOrUnknown(e->args[1]))) return false;
         for (const ExprP& a : e->args) {
             if (SubtreeTainted(a)) return true;
         }
@@ -270,6 +277,9 @@ private:
         // Unary, Binary, Case, InList, InSubquery, InHierarchy, Between, Like, IsNullTest, RefsTest, Row. Only ВЫБОР
         // returns one of its operands; the others yield a number, a string or a Boolean.
         std::vector<FieldLabel> operands = LabelOperands(e, scope, depth, aliases);
+        if (operands.size() == 2 && IsEmptinessTest(e, operands[0].origin, operands[1].origin)) {
+            return Plain(Origin::Open, true);   // one bit, filled or not (rules.h IsEmptinessTest)
+        }
         return Plain(DerivedFrom(operands), e.kind != Expr::K::Case || PassesNoReference(operands));
     }
 

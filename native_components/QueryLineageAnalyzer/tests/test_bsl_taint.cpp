@@ -288,7 +288,6 @@ TEST(BslTaint, OperatorsOverProtectedNeedConfirmation) {
     CHECK(Denied(WithTable("Результат = Т[0].Имя + \"x\";"), "C_FUNC_OVER_PROTECTED"));
     CHECK(Denied(WithTable("Итог = 0; Итог = Итог + Т[0].Имя; Результат = Итог;"), "C_FUNC_OVER_PROTECTED"));
     CHECK(Denied(WithTable("Результат = Не Т[0].Имя;"), "C_FUNC_OVER_PROTECTED"));
-    CHECK(Denied(WithTable("Результат = ЗначениеЗаполнено(Т[0].Имя);"), "C_FUNC_OVER_PROTECTED"));
     CHECK(Denied(WithTable("Результат = ТипЗнч(Т[0].Имя);"), "C_FUNC_OVER_PROTECTED"));
     // Comparing open references is fine.
     CHECK(Safe(WithTable("Результат = Т[0].С = Т[0].С;")));
@@ -940,4 +939,18 @@ TEST(BslTaint, QueryTextChangedLaterInLoopIsDynamic) {
     CHECK(HasCodeReason(r, "C_DYNAMIC_QUERY"));
     CHECK(r.query_texts.empty());
     CHECK(r.query_canonical.empty());
+}
+
+// decisions §2a in code: x = "" / x <> "" and ПустаяСтрока over a stored protected string are one open bit.
+TEST(BslTaint, EmptinessTestIsOneOpenBit) {
+    const std::string pre = std::string(kQ) + "Т = З.Выполнить().Выгрузить();\n";
+    CHECK(Safe(pre + "Результат = Т[0].Имя = \"\";"));
+    CHECK(Safe(pre + "Результат = \"\" <> Т[0].Имя;"));
+    CHECK(Safe(pre + "Результат = ПустаяСтрока(Т[0].Имя);"));
+    CHECK(Safe(pre + "Н = 0; Для Каждого Стр Из Т Цикл Если Стр.Имя <> \"\" Тогда Н = Н + 1; КонецЕсли; КонецЦикла; Результат = Н;"));
+    CHECK(Denied(pre + "Результат = Т[0].Имя = \"x\";", "C_FUNC_OVER_PROTECTED"));
+    CHECK(Denied(pre + "Результат = Сред(Т[0].Имя, 5) = \"\";", "C_FUNC_OVER_PROTECTED"));
+    CHECK(Denied(pre + "Результат = ПустаяСтрока(Сред(Т[0].Имя, 5));", "C_FUNC_OVER_PROTECTED"));
+    CHECK(Safe(pre + "Результат = ЗначениеЗаполнено(Т[0].Имя);"));   // decisions §5
+    CHECK(Denied(pre + "Результат = ЗначениеЗаполнено(Сред(Т[0].Имя, 5));", "C_FUNC_OVER_PROTECTED"));
 }

@@ -29,6 +29,20 @@ struct LabelTable {
     std::set<const Expr*> outer_refs;   // field paths of a subquery that do not resolve in its own sources
 };
 
+// An emptiness test (decisions §2a): `<field> = ""` or `<field> <> ""` (either order) where the field path reads a
+// stored protected string directly (label ProtectedDirect). It discloses one bit, filled or not, never the value, so
+// the analyzer labels it Open and the rule engine adds no reason. Anything computed first (ПОДСТРОКА(x, 5, 1) = "",
+// a parameter, a token, a derived value) is not an emptiness test: a substring of a value is a length oracle.
+inline bool IsEmptinessTest(const Expr& e, Origin left, Origin right) {
+    if (e.kind != Expr::K::Binary || (e.text != "=" && e.text != "<>") || e.args.size() != 2) return false;
+    const Expr* a = e.args[0].get();
+    const Expr* b = e.args[1].get();
+    if (!a || !b) return false;
+    const auto empty = [](const Expr& x) { return x.kind == Expr::K::StringLit && x.text.empty(); };
+    const auto direct = [](const Expr& x, Origin o) { return x.kind == Expr::K::Field && o == Origin::ProtectedDirect; };
+    return (empty(*b) && direct(*a, left)) || (empty(*a) && direct(*b, right));
+}
+
 // True when a grouping item is also selected as is (same field path): the group key is then returned as a
 // protected value, and the group counts describe that value only. Any other protected grouping hides the key.
 inline bool GroupItemIsSelected(const Select& s, const Expr& g) {

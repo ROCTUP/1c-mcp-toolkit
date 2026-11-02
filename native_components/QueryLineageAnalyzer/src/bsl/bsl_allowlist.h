@@ -15,7 +15,10 @@
 //   Propagate: the result carries the labels of the receiver and the arguments (values move, nothing is derived);
 //   Open:      the arguments must be open or client data; over protected data the call needs confirmation
 //              (C_FUNC_OVER_PROTECTED); the result is open;
-//   Confirm:   always needs confirmation.
+//   Confirm:   always needs confirmation;
+//   Emptiness: one bit, filled or not (decisions §2a): open over a direct protected read (label ProtectedDirect) and
+//              over open / client data; over anything computed (Сред(x, 5), an unknown value) it is
+//              C_FUNC_OVER_PROTECTED like Open, since a substring's emptiness is a length oracle.
 // Hand-off to the taint pass: a Ref argument to Строка / Формат / Лев / ... reads its presentation from the database; it must be
 // labelled as the target table's presentation class (protected unless the policy says open). The Open rows below apply
 // only to non-reference arguments.
@@ -51,7 +54,7 @@ enum class Ty : uint8_t {
     Manager           // Справочники.<Имя>: VType::refs holds the table ("Справочник.<Имя>")
 };
 
-enum class Taint : uint8_t { Propagate, Open, Confirm };
+enum class Taint : uint8_t { Propagate, Open, Confirm, Emptiness };
 
 // Constraint on the first argument of a method or function.
 enum class ArgRule : uint8_t {
@@ -113,7 +116,7 @@ inline constexpr const char* kEvalMemberEn = "Eval";
 inline constexpr const char* kContextNames[] = {"ЭтотОбъект", "ЭтаФорма", "ThisObject", "ThisForm"};
 
 inline constexpr GlobalRule kGlobalRules[] = {
-    {"ЗначениеЗаполнено", "ValueIsFilled", Ty::Boolean, Taint::Propagate, 1, 1, ArgRule::Any},
+    {"ЗначениеЗаполнено", "ValueIsFilled", Ty::Boolean, Taint::Emptiness, 1, 1, ArgRule::Any},
     {"ТипЗнч", "TypeOf", Ty::TypeValue, Taint::Propagate, 1, 1, ArgRule::Any},
     {"Тип", "Type", Ty::TypeValue, Taint::Propagate, 1, 1, ArgRule::LiteralString},
     {"Строка", "String", Ty::String, Taint::Open, 1, 1, ArgRule::Any},
@@ -135,6 +138,7 @@ inline constexpr GlobalRule kGlobalRules[] = {
     {"Найти", "Find", Ty::Number, Taint::Open, 2, 2, ArgRule::Any},
     {"КодСимвола", "CharCode", Ty::Number, Taint::Open, 1, 2, ArgRule::Any},
     {"Символ", "Char", Ty::String, Taint::Open, 1, 1, ArgRule::Any},
+    {"ПустаяСтрока", "IsBlankString", Ty::Boolean, Taint::Emptiness, 1, 1, ArgRule::Any},
     // Dates: pure functions of their arguments (the session date is not stored data).
     {"ТекущаяДатаСеанса", "CurrentSessionDate", Ty::Date, Taint::Open, 0, 0, ArgRule::Any},
     {"НачалоДня", "BegOfDay", Ty::Date, Taint::Open, 1, 1, ArgRule::Any},

@@ -637,3 +637,16 @@ TEST(CheckQuery, MixedScriptNamesOfThePolicyPass) {
     CHECK_EQ(Check("ВЫБРАТЬ Т.Ссылка КАК С ИЗ Справочник.TомаS3 КАК Т", policy)["verdict"].get<std::string>(),
              std::string("incomplete"));   // Latin T: another table name, never resolved to Справочник.ТомаS3
 }
+
+// decisions §2a: a stored protected string compared with "" discloses one bit and is open; anything computed first
+// is not an emptiness test, and a non-empty literal is still an equality oracle.
+TEST(CheckQuery, EmptinessTestIsOneOpenBit) {
+    const auto verdict = [](const std::string& q) { return Check(q, kPolicyABJson)["verdict"].get<std::string>(); };
+    CHECK_EQ(verdict(std::string(kSelectA) + "А.Имя <> \"\""), std::string("safe"));
+    CHECK_EQ(verdict("ВЫБРАТЬ А.Имя = \"\" КАК Пусто ИЗ Справочник.А КАК А"), std::string("safe"));
+    CHECK_EQ(verdict("ВЫБРАТЬ КОЛИЧЕСТВО(*) КАК К ИЗ Справочник.А КАК А ГДЕ \"\" = А.Имя"), std::string("safe"));
+    CHECK(HasCode(Check(std::string(kSelectA) + "А.Имя = \"x\"", kPolicyABJson), "Q_EQ_LITERAL"));
+    CHECK(HasCode(Check(std::string(kSelectA) + "ПОДСТРОКА(А.Имя, 5, 1) = \"\"", kPolicyABJson), "Q_COMPARE_PROTECTED"));
+    CHECK(HasCode(Check(std::string(kSelectA) + "А.Имя > \"\"", kPolicyABJson), "Q_COMPARE_PROTECTED"));
+    CHECK(HasCode(Check(std::string(kSelectA) + "А.Имя ПОДОБНО \"\"", kPolicyABJson), "Q_LIKE_PROTECTED"));
+}
