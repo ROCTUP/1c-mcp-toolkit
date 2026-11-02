@@ -105,7 +105,7 @@ TEST(BslTaint, EvalAndHandlersAsMembersAreDenied) {
 TEST(BslTaint, StringNamedCallbacksAndGlobalsAreDenied) {
     CHECK(Denied("О = Новый ОписаниеОповещения(\"Имя\", ЭтотОбъект); Результат = 1;", "C_UNKNOWN_TYPE"));
     CHECK(Denied("ПодключитьОбработчикОжидания(\"Имя\", 1); Результат = 1;", "C_UNKNOWN_IDENT"));
-    CHECK(Denied("Результат = Новый HTTPСоединение(\"x\");", "C_PARSE"));
+    CHECK(Denied("Результат = Новый HTTPСоединение(\"x\");", "C_UNKNOWN_TYPE"));   // a platform name: parsed
     CHECK(Denied("Результат = Новый ЧтениеТекста;", "C_UNKNOWN_TYPE"));
     CHECK(Denied("Результат = Справочники.А.НайтиПоКоду(\"1\");", "C_UNKNOWN_IDENT"));
 }

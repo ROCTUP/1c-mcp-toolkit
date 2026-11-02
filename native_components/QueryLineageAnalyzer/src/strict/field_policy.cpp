@@ -5,6 +5,7 @@
 
 #include <nlohmann/json.hpp>
 
+#include "mixed_script.h"
 #include "strict/strict_tokenizer.h"
 #include "utf_utils.h"
 
@@ -321,6 +322,40 @@ std::string TableToRequest(const std::string& table) {
     if (first == std::string::npos || first == last || table.find('.', first + 1) != last) return table;
     if (NormalizeIdentifierKey(table.substr(last + 1)) != NormalizeIdentifierKey("Изменения")) return table;
     return table.substr(0, last);
+}
+
+namespace {
+
+void AddMixedSegments(const std::string& dotted, std::set<std::string>& out) {
+    size_t start = 0;
+    for (;;) {
+        const size_t dot = dotted.find('.', start);
+        const std::string seg = dotted.substr(start, dot == std::string::npos ? std::string::npos : dot - start);
+        if (HasLatinAndCyrillic(seg)) out.insert(NormalizeIdentifierKey(seg));
+        if (dot == std::string::npos) return;
+        start = dot + 1;
+    }
+}
+
+}  // namespace
+
+std::set<std::string> FieldPolicy::MixedScriptNames() const {
+    std::set<std::string> out;
+    for (const auto& t : tables_) {
+        AddMixedSegments(t.first, out);
+        for (const auto& f : t.second.fields) {
+            AddMixedSegments(f.first, out);
+            for (const std::string& r : f.second.refs) AddMixedSegments(r, out);   // a target the policy may not list
+        }
+    }
+    for (const auto& v : virtuals_) {
+        AddMixedSegments(v.first, out);
+        for (const auto& f : v.second.extra_fields) {
+            AddMixedSegments(f.first, out);
+            for (const std::string& r : f.second.refs) AddMixedSegments(r, out);
+        }
+    }
+    return out;
 }
 
 FieldClass FieldPolicy::ClassOf(const std::string& table, const std::string& field) const {

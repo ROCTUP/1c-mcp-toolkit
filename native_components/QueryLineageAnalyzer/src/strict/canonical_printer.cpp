@@ -4,6 +4,7 @@
 #include <utility>
 #include <vector>
 
+#include "mixed_script.h"
 #include "strict/ast_dump.h"
 #include "strict/strict_parser.h"
 #include "strict/strict_tokenizer.h"
@@ -19,17 +20,6 @@ struct Refuse {
 
 using AstExpr = lineage::strict::Expr;
 
-bool IsMixedScript(const std::string& s) {
-    bool latin = false;
-    bool cyrillic = false;
-    for (const char ch : s) {
-        const unsigned char c = static_cast<unsigned char>(ch);
-        if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) latin = true;
-        else if (c == 0xD0 || c == 0xD1) cyrillic = true;
-    }
-    return latin && cyrillic;
-}
-
 // `s` lexes as exactly one token of `kind` spelled exactly as `s` (no surrounding blanks, nothing left over).
 bool LexesAs(const std::string& s, Tk kind, Kw* kw = nullptr) {
     if (s.empty()) return false;
@@ -39,7 +29,7 @@ bool LexesAs(const std::string& s, Tk kind, Kw* kw = nullptr) {
     return true;
 }
 
-bool IsPlainIdent(const std::string& s) { return LexesAs(s, Tk::Identifier) && !IsMixedScript(s); }
+bool IsPlainIdent(const std::string& s) { return LexesAs(s, Tk::Identifier) && !IsRefusedMixedScript(s); }
 
 bool IsAllowedKeywordSegment(const std::string& s) {
     Kw kw = Kw::None;
@@ -284,7 +274,7 @@ private:
                 PrintField(e);
                 return;
             case AstExpr::K::Param:
-                if (!LexesAs("&" + e.text, Tk::Parameter) || IsMixedScript(e.text)) Fail("Q_PRINT_IDENT", "parameter");
+                if (!LexesAs("&" + e.text, Tk::Parameter) || IsRefusedMixedScript(e.text)) Fail("Q_PRINT_IDENT", "parameter");
                 W("&");
                 W(e.text);
                 return;

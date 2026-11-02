@@ -6,6 +6,7 @@
 #include <utility>
 #include <vector>
 
+#include "mixed_script.h"
 #include "utf_utils.h"
 
 namespace lineage::strict {
@@ -17,24 +18,6 @@ using AstExpr = lineage::strict::Expr;
 struct Fail {
     ParseError e;
 };
-
-// An identifier mixing Latin and Cyrillic letters is a homoglyph vector (a Cyrillic "а" inside a Latin name and
-// the like). Digits and '_' are neutral. Non-ASCII letters other than Cyrillic never reach this point: the
-// tokenizer turns them into Tk::Unknown.
-bool IsMixedScript(const std::string& s) {
-    bool latin = false;
-    bool cyrillic = false;
-    for (size_t i = 0; i < s.size(); ++i) {
-        const unsigned char c = static_cast<unsigned char>(s[i]);
-        if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
-            latin = true;
-        } else if (c == 0xD0 || c == 0xD1) {
-            cyrillic = true;
-            ++i;
-        }
-    }
-    return latin && cyrillic;
-}
 
 // Keywords accepted as a path segment AFTER a dot (Т.Ссылка, Т.Представление, ...); never as the first segment.
 // ИЗМЕНЕНИЯ names the change-registration table of an exchange plan (Справочник.Файлы.Изменения); after a dot it
@@ -77,7 +60,7 @@ bool IsValidIdent(const std::string& s) {
     for (size_t i = 0, len = 1; i < s.size(); i += len) {
         if (!IsIdentChar(s, i, len, i == 0)) return false;
     }
-    return s == "ЕСТЬNULL" || !IsMixedScript(s);
+    return !IsRefusedMixedScript(s);
 }
 
 bool IsValidDotted(const std::string& s) {
@@ -259,7 +242,7 @@ private:
     }
     // Called right after the token was consumed with Next(); reports at that token.
     void CheckName(const Token& t) {
-        if (IsMixedScript(t.text)) {
+        if (IsRefusedMixedScript(t.text)) {
             --i_;
             Error("Q_PARSE_MIXED_SCRIPT");
         }

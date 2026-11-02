@@ -1,6 +1,7 @@
 #include "strict/check_query.h"
 
 #include <cstddef>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -11,8 +12,11 @@
 #include "strict/ast_dump.h"
 #include "strict/canonical_printer.h"
 #include "strict/field_policy.h"
+#include "mixed_script.h"
 #include "strict/origin.h"
 #include "strict/strict_parser.h"
+#include "strict/strict_tokenizer.h"
+#include "utf_utils.h"
 
 namespace lineage::strict {
 
@@ -81,6 +85,32 @@ bool HasUnlabelledResult(const Batch& batch) {
     }
     return false;
 }
+
+}  // namespace
+
+bool IsPolicyTableKind(const std::string& name) {
+    static const char* const kKinds[] = {"Справочник", "Документ", "ПланВидовХарактеристик", "ПланСчетов", "ПланОбмена",
+                                         "Перечисление", "РегистрСведений", "РегистрНакопления", "РегистрБухгалтерии",
+                                         "БизнесПроцесс", "Задача", "Константа"};
+    const std::string key = NormalizeIdentifierKey(name);
+    for (const char* k : kKinds) {
+        if (key == NormalizeIdentifierKey(k)) return true;
+    }
+    return false;
+}
+
+std::vector<std::string> QueryTableNames(const std::string& query_utf8) {
+    std::vector<std::string> out;
+    const std::vector<Token> t = Tokenize(query_utf8);
+    for (size_t i = 0; i + 2 < t.size(); ++i) {
+        if (t[i].kind != Tk::Identifier || t[i + 1].kind != Tk::Dot || t[i + 2].kind != Tk::Identifier) continue;
+        if (i > 0 && t[i - 1].kind == Tk::Dot) continue;   // a later segment of a longer path
+        if (IsPolicyTableKind(t[i].text)) out.push_back(t[i].text + "." + t[i + 2].text);
+    }
+    return out;
+}
+
+namespace {
 
 QueryReason MakeQueryReason(const std::string& code, const Pos* pos) {
     QueryReason r;
@@ -179,6 +209,12 @@ QueryCheckResult Analyze(const std::string& query_utf8, const FieldPolicy& polic
     if (!parsed.ok) {
         out.reasons.push_back(
             MakeQueryReason(parsed.error.code.empty() ? "Q_PARSE_ERROR" : parsed.error.code, &parsed.error.pos));
+        if (parsed.error.code == "Q_PARSE_MIXED_SCRIPT") {
+            for (const std::string& t : QueryTableNames(query_utf8)) {
+                if (!policy.HasTable(t)) out.missing_tables.insert(t);
+            }
+            if (!out.missing_tables.empty()) out.verdict = "incomplete";
+        }
         return out;
     }
 
@@ -250,6 +286,8 @@ std::string Check(const std::string& query_utf8, const std::string& policy_json)
     if (!bsl::ParseTokenTable(policy_json, tokens) || !AgreeTokenParams(tokens, policy.policy)) {
         return Reject("Q_POLICY_INVALID", nullptr);
     }
+    const std::set<std::string> mixed = policy.policy.MixedScriptNames();
+    const KnownMixedNamesScope scope(&mixed);
     return ToJson(Analyze(query_utf8, policy.policy, &tokens));
 }
 

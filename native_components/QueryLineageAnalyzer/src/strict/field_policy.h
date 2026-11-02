@@ -1,5 +1,6 @@
 #pragma once
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -51,6 +52,9 @@ public:
     FieldClass PresentationClass(const std::string& table) const;   // Unknown if the table is missing
     ParamOrigin OriginOfParam(const std::string& name) const;       // name without '&'
     std::string ResolveVirtualBase(const std::string& vt) const;    // "" if not virtual
+    // Normalized keys of every name the policy lists (a dot segment of a table or virtual table, a field, an extra
+    // field) that mixes Latin and Cyrillic letters: real configuration names, not look-alikes (mixed_script.h).
+    std::set<std::string> MixedScriptNames() const;
 
     // Replaces every parameter origin (names normalized as in the JSON). Colliding names of different origins (yo /
     // ie variants included), and names outside the parameter alphabet, are false and change nothing, as in the JSON. The code checker uses it: a query built in client code knows only

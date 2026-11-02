@@ -493,3 +493,25 @@ TEST(CheckCode, YoCollidingParamOriginsArePolicyInvalid) {
     const Json same = Check("Результат = 1;", policy.dump());
     CHECK_EQ(Verdict(same), std::string("safe"));
 }
+
+// A configuration name mixing scripts passes when the policy lists it; a look-alike of it does not.
+TEST(CheckCode, MixedScriptNamesOfThePolicyPass) {
+    const std::string policy = R"({"version":1,"tables":{"Справочник.ТомаS3":{"presentation":"protected",
+        "fields":{"Ссылка":{"class":"open","refs":["Справочник.ТомаS3"]},"ПометкаУдаления":{"class":"open"}}}}})";
+    const Json ok = Check("З = Новый Запрос(\"ВЫБРАТЬ КОЛИЧЕСТВО(*) КАК К ИЗ Справочник.ТомаS3 КАК Т\");\n"
+                          "Результат = З.Выполнить().Выгрузить()[0].К;", policy);
+    CHECK_EQ(Verdict(ok), std::string("safe"));
+    CHECK_EQ(Verdict(Check("ТомаS3 = 1;\nРезультат = ТомаS3;", policy)), std::string("safe"));
+    CHECK(HasReason(Check("З = Новый Запрос(\"ВЫБРАТЬ КОЛИЧЕСТВО(*) КАК К ИЗ Справочник.TомаS3 КАК Т\");\n"
+                          "Результат = 1;", policy), "Q_PARSE_MIXED_SCRIPT"));   // Latin T inside the query text
+    CHECK(HasReason(Check("ТомS3 = 1; Результат = ТомS3;", policy), "C_PARSE"));   // not a policy name
+    // Not in the policy yet: the code names its tables (managers, Метаданные collections, query texts) as missing.
+    const Json first = Check("С = Справочники.ТомаS3.ПустаяСсылка();\nРезультат = 1;");
+    CHECK_EQ(Verdict(first), std::string("incomplete"));
+    CHECK_EQ(first["missing_tables"][0].get<std::string>(), std::string("Справочник.ТомаS3"));
+    const Json text = Check("З = Новый Запрос(\"ВЫБРАТЬ Т.ПравилаXML КАК П ИЗ РегистрСведений.Правила КАК Т\");\n"
+                            "В = З.Выполнить().Выбрать(); Результат = В.ПравилаXML;");
+    CHECK_EQ(Verdict(text), std::string("incomplete"));
+    CHECK_EQ(text["missing_tables"][0].get<std::string>(), std::string("РегистрСведений.Правила"));
+    CHECK_EQ(Verdict(Check("Pезультат = 1;")), std::string("confirm"));   // no table to ask for
+}

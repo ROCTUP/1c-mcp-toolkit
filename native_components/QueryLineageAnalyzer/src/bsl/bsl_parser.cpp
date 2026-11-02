@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "bsl/bsl_reserved.h"
+#include "mixed_script.h"
 #include "bsl/bsl_tokenizer.h"
 #include "utf_utils.h"
 
@@ -20,21 +21,6 @@ struct Fail {
 };
 
 bool IsLatin(unsigned char c) { return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'); }
-
-bool IsMixedScript(const std::string& s) {
-    bool latin = false;
-    bool cyrillic = false;
-    for (size_t i = 0; i < s.size(); ++i) {
-        const unsigned char c = static_cast<unsigned char>(s[i]);
-        if (IsLatin(c)) {
-            latin = true;
-        } else if (c == 0xD0 || c == 0xD1) {
-            cyrillic = true;
-            ++i;
-        }
-    }
-    return latin && cyrillic;
-}
 
 // Length of the identifier character at s[i] (1 or 2 bytes), 0 when it is not one. The tokenizer's charset.
 size_t IdentCharLen(const std::string& s, size_t i, bool first) {
@@ -57,7 +43,7 @@ bool IsValidIdent(const std::string& s) {
         if (n == 0) return false;
         i += n;
     }
-    return !IsMixedScript(s);
+    return !IsRefusedMixedScript(s);
 }
 
 bool AllDigits(const std::string& s) {
@@ -81,7 +67,7 @@ bool IsEvalName(const std::string& text) {
 bool IsPlainName(const std::string& s) {
     if (!IsValidIdent(s) || IsEvalName(s)) return false;
     const std::vector<Token> t = Tokenize(s);
-    return t.size() == 2 && t[0].kind == Bt::Identifier && !t[0].mixed_script && t[0].text == s && t[1].kind == Bt::End;
+    return t.size() == 2 && t[0].kind == Bt::Identifier && t[0].text == s && t[1].kind == Bt::End;
 }
 
 bool IsBlockTerminator(Bk kw) {
@@ -191,7 +177,7 @@ private:
         const Token& t = Peek();
         if (t.kind == Bt::Keyword) RejectKeyword(t.kw);
         if (t.kind != Bt::Identifier) Error("C_PARSE", "identifier expected");
-        if (t.mixed_script || !IsValidIdent(t.text)) Error("C_PARSE", "invalid identifier");
+        if (!IsValidIdent(t.text)) Error("C_PARSE", "invalid identifier");
         if (IsEvalName(t.text)) Error("C_EVAL", "dynamic evaluation is not allowed");
         if (!allow_reserved_ && IsReservedName(t.text)) Error("C_RESERVED", "reserved name");
         return Next().text;
@@ -449,7 +435,7 @@ private:
                 const Token& m = Peek();
                 // After a dot every keyword is a plain member name; it never changes statement structure.
                 if (m.kind != Bt::Identifier && m.kind != Bt::Keyword) Error("C_PARSE", "member name expected");
-                if (m.mixed_script || !IsValidIdent(m.text)) Error("C_PARSE", "invalid identifier");
+                if (!IsValidIdent(m.text)) Error("C_PARSE", "invalid identifier");
                 std::string name = Next().text;
                 if (Peek().kind == Bt::LParen) {
                     std::vector<ExprP> args = Args();

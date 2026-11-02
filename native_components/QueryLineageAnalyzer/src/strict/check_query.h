@@ -30,6 +30,13 @@ namespace lineage::strict {
 
 std::string CheckQueryImpl(const std::string& query_utf8, const std::string& policy_json);
 
+// Policy table names a query text refers to: every "<Вид>.<Имя>" token pair whose kind is a table kind of the policy
+// builder (Справочник, Документ, РегистрСведений, ...), as written. A text that fails to parse on a mixed-script name
+// reports the ones the policy lacks as missing (verdict incomplete): such a name is known only once its table is in
+// the policy (mixed_script.h), and the host builds the policy round by round from missing tables.
+std::vector<std::string> QueryTableNames(const std::string& query_utf8);
+bool IsPolicyTableKind(const std::string& name);
+
 // The same check over an already parsed policy, as data (CheckQueryImpl serializes exactly this). The BSL checker
 // uses it for query texts in client code: it needs the reference targets of the columns, which the JSON omits.
 struct QueryReason {

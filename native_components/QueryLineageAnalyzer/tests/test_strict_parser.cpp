@@ -128,6 +128,9 @@ TEST(StrictParser, MixedScriptIdentifiersRejected) {
     CHECK_EQ(Code("ВЫРАЗИТЬ(Х КАК Aб.Ц)"), std::string("Q_PARSE_MIXED_SCRIPT"));
     CHECK_EQ(Code("ЗНАЧЕНИЕ(Перечисление.Bид.Основной)"), std::string("Q_PARSE_MIXED_SCRIPT"));
     CHECK_EQ(Code("Х ССЫЛКА Справочник.Aб"), std::string("Q_PARSE_MIXED_SCRIPT"));
+    CHECK_EQ(Code("Т.ТомаS3"), std::string("Q_PARSE_MIXED_SCRIPT"));   // a configuration name needs the policy scope
+    CHECK_EQ(Code("ЗаписьJSON"), std::string("OK"));                     // platform name (mixed_script.h)
+    CHECK_EQ(Code("ЗаписьJSОN"), std::string("Q_PARSE_MIXED_SCRIPT"));   // Cyrillic О inside JSON: not that name
     CHECK_EQ(Code("Abc_1"), std::string("OK"));
     CHECK_EQ(Code("Абв_1"), std::string("OK"));
 }

@@ -9,7 +9,11 @@
 #include "bsl/bsl_canonical.h"
 #include "bsl/bsl_parser.h"
 #include "bsl/bsl_taint.h"
+#include "bsl/bsl_tokenizer.h"
 #include "bsl/bsl_types.h"
+#include "strict/check_query.h"
+#include "utf_utils.h"
+#include "mixed_script.h"
 #include "strict/field_policy.h"
 
 namespace lineage::bsl {
@@ -73,6 +77,41 @@ Outcome Refuse(const std::string& code, const std::string& reason_code, const Po
     return o;
 }
 
+// Policy tables the code refers to, for a parse failure on a mixed-script name the policy does not list yet (see
+// strict::QueryTableNames): "<Менеджеры>.<Имя>" pairs with the plural mapped to the policy's singular kind, and the
+// table names of every string literal read as a query text.
+std::vector<std::string> CodeTableNames(const std::vector<Token>& tokens) {
+    static const std::pair<const char*, const char*> kPlural[] = {
+        {"Справочники", "Справочник"}, {"Документы", "Документ"}, {"Перечисления", "Перечисление"},
+        {"ПланыОбмена", "ПланОбмена"}, {"ПланыВидовХарактеристик", "ПланВидовХарактеристик"},
+        {"ПланыСчетов", "ПланСчетов"}, {"РегистрыСведений", "РегистрСведений"},
+        {"РегистрыНакопления", "РегистрНакопления"}, {"РегистрыБухгалтерии", "РегистрБухгалтерии"},
+        {"БизнесПроцессы", "БизнесПроцесс"}, {"Задачи", "Задача"}, {"Константы", "Константа"}};
+    std::vector<std::string> out;
+    for (size_t i = 0; i < tokens.size(); ++i) {
+        if (tokens[i].kind == Bt::String) {
+            for (const std::string& t : strict::QueryTableNames(tokens[i].value)) out.push_back(t);
+            continue;
+        }
+        if (i + 2 >= tokens.size() || tokens[i].kind != Bt::Identifier || tokens[i + 1].kind != Bt::Dot ||
+            tokens[i + 2].kind != Bt::Identifier) {
+            continue;
+        }
+        const std::string key = NormalizeIdentifierKey(tokens[i].text);
+        for (const auto& p : kPlural) {
+            if (key == NormalizeIdentifierKey(p.first)) out.push_back(std::string(p.second) + "." + tokens[i + 2].text);
+        }
+    }
+    return out;
+}
+
+bool HasRefusedMixedName(const std::vector<Token>& tokens) {
+    for (const Token& t : tokens) {
+        if (t.kind == Bt::Identifier && t.mixed_script && IsRefusedMixedScript(t.text)) return true;
+    }
+    return false;
+}
+
 bool Failed(const CodeAnalysis& a) {
     for (const CodeReason& r : a.reasons) {
         if (r.code == "C_LIMIT" || r.code == "C_INTERNAL" || r.code == "Q_INTERNAL") return true;
@@ -93,8 +132,21 @@ Outcome Check(const std::string& code, const std::string& policy_json) {
     TokenTable tokens;
     if (!policy.ok || !ParseTokenTable(policy_json, tokens)) return Refuse(code, "C_POLICY_INVALID", Pos{});
 
+    const std::set<std::string> mixed = policy.policy.MixedScriptNames();
+    const KnownMixedNamesScope scope(&mixed);   // also covers the query texts checked inside AnalyzeCode
+
     const ParseResult parsed = ParseBsl(code);   // the Body lives until the end of this function
-    if (!parsed.ok) return Refuse(code, parsed.error.code.empty() ? "C_PARSE" : parsed.error.code, parsed.error.pos);
+    if (!parsed.ok) {
+        Outcome o = Refuse(code, parsed.error.code.empty() ? "C_PARSE" : parsed.error.code, parsed.error.pos);
+        const std::vector<Token> tokens = Tokenize(code);
+        if (parsed.error.code == "C_PARSE" && HasRefusedMixedName(tokens)) {
+            for (const std::string& t : CodeTableNames(tokens)) {
+                if (!policy.policy.HasTable(t)) o.missing_tables.insert(t);
+            }
+            if (!o.missing_tables.empty()) o.verdict = "incomplete";
+        }
+        return o;
+    }
 
     const CodeAnalysis a = AnalyzeCode(parsed.body, policy.policy, tokens);
     Outcome o;

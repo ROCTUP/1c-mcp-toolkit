@@ -149,7 +149,7 @@ TEST(BslCanonical, RefusesUnsafeStringValues) {
 
 TEST(BslCanonical, RefusesInvalidTrees) {
     CHECK_EQ(CodeOfPrint(AssignBody(Mk(Expr::K::Unset))), std::string("C_INTERNAL"));
-    CHECK_EQ(CodeOfPrint(AssignBody(Mk(Expr::K::Var, "HTTPЗапрос"))), std::string("C_INTERNAL"));
+    CHECK_EQ(CodeOfPrint(AssignBody(Mk(Expr::K::Var, "HTTPЗапрoс"))), std::string("C_INTERNAL"));
     CHECK_EQ(CodeOfPrint(AssignBody(Mk(Expr::K::Var, "Если"))), std::string("C_INTERNAL"));
     CHECK_EQ(CodeOfPrint(AssignBody(Mk(Expr::K::Call, "Вычислить", {StrLit("1")}))), std::string("C_INTERNAL"));
     CHECK_EQ(CodeOfPrint(AssignBody(Mk(Expr::K::Binary, "&&", {StrLit("a"), StrLit("b")}))), std::string("C_INTERNAL"));

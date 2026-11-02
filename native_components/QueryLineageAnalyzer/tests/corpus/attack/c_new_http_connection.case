@@ -1,6 +1,6 @@
 // kind: code
 // expect: confirm
-// reason: C_PARSE
+// reason: C_UNKNOWN_TYPE
 // risk: R_CREDENTIALS
 // risk: R_UNKNOWN_EFFECT
 // class: 12

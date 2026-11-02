@@ -6,6 +6,7 @@
 
 #include "bsl/bsl_parser.h"
 #include "bsl/bsl_tokenizer.h"
+#include "mixed_script.h"
 
 namespace lineage::bsl {
 
@@ -16,28 +17,17 @@ struct Refuse {
     const char* detail;
 };
 
-bool IsMixedScript(const std::string& s) {
-    bool latin = false;
-    bool cyrillic = false;
-    for (const char ch : s) {
-        const unsigned char c = static_cast<unsigned char>(ch);
-        if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) latin = true;
-        else if (c == 0xD0 || c == 0xD1) cyrillic = true;
-    }
-    return latin && cyrillic;
-}
-
 // `s` lexes as exactly one token of `kind` spelled exactly as `s` (nothing left over).
 bool LexesAs(const std::string& s, Bt kind) {
     if (s.empty()) return false;
     const std::vector<Token> toks = Tokenize(s);
     return toks.size() == 2 && toks[0].kind == kind && toks[0].text == s && toks[1].kind == Bt::End &&
-           !toks[0].mixed_script;
+           !IsRefusedMixedScript(s);
 }
 
-bool IsPlainIdent(const std::string& s) { return LexesAs(s, Bt::Identifier) && !IsMixedScript(s); }
+bool IsPlainIdent(const std::string& s) { return LexesAs(s, Bt::Identifier); }
 bool IsMemberName(const std::string& s) {
-    return (LexesAs(s, Bt::Identifier) || LexesAs(s, Bt::Keyword)) && !IsMixedScript(s);
+    return LexesAs(s, Bt::Identifier) || LexesAs(s, Bt::Keyword);
 }
 
 // Strict UTF-8 decode of one code point; 0 on any malformation (overlong, surrogate, > U+10FFFF, truncated).

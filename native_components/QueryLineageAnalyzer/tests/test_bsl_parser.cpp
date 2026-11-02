@@ -89,6 +89,10 @@ TEST(BslParser, MixedScriptIdentifiersAreRejected) {
     CHECK(!ParseBsl("А = Б.Иmя;").ok);              // mixed member name
     CHECK(!ParseBsl("Для Кaждый Из А Цикл КонецЦикла;").ok);
     CHECK(ParseBsl("Abc = 1; Абв = Abc;").ok);      // each name is single-script
+    CHECK(ParseBsl("З = Новый ЗаписьJSON; ЗаписатьJSON(З, 1);").ok);   // platform names (mixed_script.h)
+    CHECK(!ParseBsl("З = Новый ЗаписьJSОN;").ok);   // Cyrillic О inside JSON
+    CHECK(!ParseBsl("Pезультат = 1;").ok);          // Latin P
+    CHECK(!ParseBsl("Т = Справочники.ТомаS3;").ok);  // a configuration name needs the policy scope
 }
 
 TEST(BslParser, Statements) {

@@ -614,3 +614,26 @@ TEST(CheckQuery, ExchangePlanChangeTable) {
                                         kPolicyABJson)["canonical"].get<std::string>();
     CHECK(canonical.find("Справочник.А.Изменения") != std::string::npos);
 }
+
+// Names mixing Latin and Cyrillic that the policy lists are real configuration names; any other mix is refused.
+TEST(CheckQuery, MixedScriptNamesOfThePolicyPass) {
+    const std::string policy = R"({"version":1,"tables":{"Справочник.ТомаS3":{"presentation":"protected",
+        "fields":{"Ссылка":{"class":"open","refs":["Справочник.ТомаS3"]},"АдресS3":{"class":"protected"},
+        "ПометкаУдаления":{"class":"open"}}}}})";
+    const auto verdict = [&](const std::string& q) { return Check(q, policy)["verdict"].get<std::string>(); };
+    CHECK_EQ(verdict("ВЫБРАТЬ Т.ПометкаУдаления КАК ПМ ИЗ Справочник.ТомаS3 КАК Т"), std::string("safe"));
+    CHECK_EQ(verdict("ВЫБРАТЬ ТомаS3.Ссылка КАК С ИЗ Справочник.ТомаS3"), std::string("safe"));   // implicit alias
+    CHECK_EQ(verdict("ВЫБРАТЬ Т.АдресS3 КАК А ИЗ Справочник.ТомаS3 КАК Т"), std::string("safe"));  // field name
+    CHECK(HasCode(Check("ВЫБРАТЬ Т.Ссылка КАК С ИЗ Справочник.TомаS3 КАК Т", policy), "Q_PARSE_MIXED_SCRIPT"));  // Latin T
+    CHECK(HasCode(Check("ВЫБРАТЬ Т.Ссылка КАК СS ИЗ Справочник.ТомаS3 КАК Т", policy), "Q_PARSE_MIXED_SCRIPT"));  // alias
+    // Not in the policy yet: the host builds the policy round by round from missing tables, so the parse failure
+    // names the tables of the text; a look-alike of a known table is not asked for again and stays confirm.
+    const nlohmann::json first = Check("ВЫБРАТЬ Т.Ссылка КАК С ИЗ Справочник.ТомаS3 КАК Т", kPolicyABJson);
+    CHECK(HasCode(first, "Q_PARSE_MIXED_SCRIPT"));
+    CHECK_EQ(first["verdict"].get<std::string>(), std::string("incomplete"));
+    CHECK_EQ(first["missing_tables"][0].get<std::string>(), std::string("Справочник.ТомаS3"));
+    const nlohmann::json field = Check("ВЫБРАТЬ А.ИмяS3 КАК И ИЗ Справочник.А КАК А", kPolicyABJson);
+    CHECK_EQ(field["verdict"].get<std::string>(), std::string("confirm"));   // Справочник.А is there: a look-alike
+    CHECK_EQ(Check("ВЫБРАТЬ Т.Ссылка КАК С ИЗ Справочник.TомаS3 КАК Т", policy)["verdict"].get<std::string>(),
+             std::string("incomplete"));   // Latin T: another table name, never resolved to Справочник.ТомаS3
+}
