@@ -1,0 +1,6 @@
+// kind: query
+// expect: confirm
+// reason: Q_PARSE_EXPECTED
+// class: parser
+ВЫБРАТЬ КОЛИЧЕСТВО(*) КАК К
+ИЗ Справочник.Контрагенты КАК И
