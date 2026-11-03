@@ -17,6 +17,7 @@
 					<ExtendedTooltip name="СтраницаПодключениеРасширеннаяПодсказка" id="58"/>
 					<ChildItems>
 						<UsualGroup name="ГруппаПодключениеИЛог" id="224">
+							<VerticalStretch>true</VerticalStretch>
 							<Group>AlwaysHorizontal</Group>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
@@ -295,6 +296,34 @@
 																</Button>
 															</ChildItems>
 														</UsualGroup>
+														<InputField name="ПолеТаймаутЗапроса" id="252">
+															<DataPath>ТаймаутЗапросаСек</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>ru</v8:lang>
+																	<v8:content>Таймаут ожидания ответа, с</v8:content>
+																</v8:item>
+															</Title>
+															<ToolTip>
+																<v8:item>
+																	<v8:lang>ru</v8:lang>
+																	<v8:content>Сколько секунд встроенный сервер ждет ответа от 1С, прежде чем вернуть клиенту 504. Сама команда при этом продолжает выполняться в 1С и досчитывается. Применяется сразу, перезапускать сервер не нужно. Значение по умолчанию — 180 с: столько ждет сама компонента встроенного сервера.</v8:content>
+																</v8:item>
+															</ToolTip>
+															<ToolTipRepresentation>Button</ToolTipRepresentation>
+															<Width>7</Width>
+															<EditFormat>
+																<v8:item>
+																	<v8:lang>ru</v8:lang>
+																	<v8:content>ЧГ=</v8:content>
+																</v8:item>
+															</EditFormat>
+															<ContextMenu name="ПолеТаймаутЗапросаКонтекстноеМеню" id="253"/>
+															<ExtendedTooltip name="ПолеТаймаутЗапросаРасширеннаяПодсказка" id="254"/>
+															<Events>
+																<Event name="OnChange">ПолеТаймаутЗапросаПриИзменении</Event>
+															</Events>
+														</InputField>
 														<RadioButtonField name="ПолеФорматОтветаВстроенный" id="50">
 															<DataPath>ФорматОтветаВстроенный</DataPath>
 															<Title>
@@ -850,21 +879,10 @@
 														</CheckBoxField>
 														<UsualGroup name="ГруппаСтатус" id="11">
 															<Group>Horizontal</Group>
-															<Grouping>Horizontal</Grouping>
 															<Representation>NormalSeparation</Representation>
 															<ShowTitle>false</ShowTitle>
 															<ExtendedTooltip name="ГруппаСтатусРасширеннаяПодсказка" id="12"/>
 															<ChildItems>
-																<Decoration name="ИндикаторПодключения" id="13">
-																	<Type>Label</Type>
-																	<Title>
-																		<v8:item>
-																			<v8:lang>ru</v8:lang>
-																			<v8:content>●</v8:content>
-																		</v8:item>
-																	</Title>
-																	<ExtendedTooltip name="ИндикаторПодключенияРасширеннаяПодсказка" id="14"/>
-																</Decoration>
 																<InputField name="СтатусПоле" id="15">
 																	<DataPath>Статус</DataPath>
 																	<TitleLocation>None</TitleLocation>
@@ -895,6 +913,8 @@
 											<v8:content>Журнал событий</v8:content>
 										</v8:item>
 									</Title>
+									<HorizontalStretch>true</HorizontalStretch>
+									<VerticalStretch>true</VerticalStretch>
 									<Group>Vertical</Group>
 									<Representation>NormalSeparation</Representation>
 									<ExtendedTooltip name="ГруппаЛогРасширеннаяПодсказка" id="18"/>
@@ -905,7 +925,9 @@
 											<ReadOnly>true</ReadOnly>
 											<MultiLine>true</MultiLine>
 											<Height>10</Height>
-											<Width>80</Width>
+											<HorizontalStretch>true</HorizontalStretch>
+											<VerticalStretch>true</VerticalStretch>
+											<AutoMaxWidth>false</AutoMaxWidth>
 											<ExtendedTooltip name="ЛогПолеРасширеннаяПодсказка" id="20"/>
 										</InputField>
 										<UsualGroup name="ГруппаЛогПанель" id="186">
@@ -980,6 +1002,22 @@
 										<Event name="ПриИзменении">ИспользоватьТочнуюАнонимизациюПриИзменении</Event>
 									</Events>
 								</CheckBoxField>
+								<CheckBoxField name="ФлагСтрогийРежимАнонимизации" id="255">
+									<DataPath>СтрогийРежимАнонимизации</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>ru</v8:lang>
+											<v8:content>Строгий режим</v8:content>
+										</v8:item>
+									</Title>
+									<TitleLocation>Right</TitleLocation>
+									<CheckBoxType>Auto</CheckBoxType>
+									<ContextMenu name="ФлагСтрогийРежимАнонимизацииКонтекстноеМеню" id="256"/>
+									<ExtendedTooltip name="ФлагСтрогийРежимАнонимизацииРасширеннаяПодсказка" id="257"/>
+									<Events>
+										<Event name="OnChange">СтрогийРежимАнонимизацииПриИзменении</Event>
+									</Events>
+								</CheckBoxField>
 								<Button name="КнопкаНастроитьТочнуюАнонимизацию" id="92">
 									<Type>UsualButton</Type>
 									<Title>
@@ -1036,6 +1074,176 @@
 								<Event name="ПриИзменении">ДеанонимизацияЧерезAPIПриИзменении</Event>
 							</Events>
 						</CheckBoxField>
+					<UsualGroup name="ГруппаСтруктурныеПоля" id="258">
+						<Title>
+							<v8:item>
+								<v8:lang>ru</v8:lang>
+								<v8:content>Структурные поля (строгий режим)</v8:content>
+							</v8:item>
+						</Title>
+						<Group>Vertical</Group>
+						<ExtendedTooltip name="ГруппаСтруктурныеПоляРасширеннаяПодсказка" id="259"/>
+						<ChildItems>
+							<Table name="СтруктурныеПоляПоле" id="260">
+								<Representation>List</Representation>
+								<ReadOnly>true</ReadOnly>
+								<Height>5</Height>
+								<DataPath>СтруктурныеПоля</DataPath>
+								<Title>
+									<v8:item>
+										<v8:lang>ru</v8:lang>
+										<v8:content>Список полей</v8:content>
+									</v8:item>
+								</Title>
+								<ToolTip>
+									<v8:item>
+										<v8:lang>ru</v8:lang>
+										<v8:content>Строковые поля, в которых хранятся имена метаданных. Открываются для строгого режима только после проверки и подтверждения; подтверждение действует до выключения строгого режима или перезапуска.</v8:content>
+									</v8:item>
+								</ToolTip>
+								<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+								<RowFilter xsi:nil="true"/>
+								<ContextMenu name="СтруктурныеПоляПолеКонтекстноеМеню" id="261"/>
+								<AutoCommandBar name="СтруктурныеПоляПолеКоманднаяПанель" id="262">
+									<Autofill>false</Autofill>
+									<ChildItems>
+										<Button name="КнопкаДобавитьСтруктурноеПоле" id="263">
+											<Type>CommandBarButton</Type>
+											<CommandName>Form.Command.ДобавитьСтруктурноеПоле</CommandName>
+											<ExtendedTooltip name="КнопкаДобавитьСтруктурноеПолеРасширеннаяПодсказка" id="264"/>
+										</Button>
+										<Button name="КнопкаУдалитьСтруктурноеПоле" id="265">
+											<Type>CommandBarButton</Type>
+											<CommandName>Form.Command.УдалитьСтруктурноеПоле</CommandName>
+											<ExtendedTooltip name="КнопкаУдалитьСтруктурноеПолеРасширеннаяПодсказка" id="266"/>
+										</Button>
+										<Button name="КнопкаПроверитьИПрименитьСтруктурныеПоля" id="267">
+											<Type>CommandBarButton</Type>
+											<CommandName>Form.Command.ПроверитьИПрименитьСтруктурныеПоля</CommandName>
+											<ExtendedTooltip name="КнопкаПроверитьИПрименитьСтруктурныеПоляРасширеннаяПодсказка" id="268"/>
+										</Button>
+									</ChildItems>
+								</AutoCommandBar>
+								<ExtendedTooltip name="СтруктурныеПоляПолеРасширеннаяПодсказка" id="269"/>
+								<SearchStringAddition name="СтруктурныеПоляПолеСтрокаПоиска" id="270">
+									<AdditionSource>
+										<Item>СтруктурныеПоляПоле</Item>
+										<Type>SearchStringRepresentation</Type>
+									</AdditionSource>
+									<ContextMenu name="СтруктурныеПоляПолеСтрокаПоискаКонтекстноеМеню" id="271"/>
+									<ExtendedTooltip name="СтруктурныеПоляПолеСтрокаПоискаРасширеннаяПодсказка" id="272"/>
+								</SearchStringAddition>
+								<ViewStatusAddition name="СтруктурныеПоляПолеСостояниеПросмотра" id="273">
+									<AdditionSource>
+										<Item>СтруктурныеПоляПоле</Item>
+										<Type>ViewStatusRepresentation</Type>
+									</AdditionSource>
+									<ContextMenu name="СтруктурныеПоляПолеСостояниеПросмотраКонтекстноеМеню" id="274"/>
+									<ExtendedTooltip name="СтруктурныеПоляПолеСостояниеПросмотраРасширеннаяПодсказка" id="275"/>
+								</ViewStatusAddition>
+								<SearchControlAddition name="СтруктурныеПоляПолеУправлениеПоиском" id="276">
+									<AdditionSource>
+										<Item>СтруктурныеПоляПоле</Item>
+										<Type>SearchControl</Type>
+									</AdditionSource>
+									<ContextMenu name="СтруктурныеПоляПолеУправлениеПоискомКонтекстноеМеню" id="277"/>
+									<ExtendedTooltip name="СтруктурныеПоляПолеУправлениеПоискомРасширеннаяПодсказка" id="278"/>
+								</SearchControlAddition>
+								<ChildItems>
+									<InputField name="СтруктурныеПоляПолеИдПоля" id="279">
+										<DataPath>СтруктурныеПоля.ИдПоля</DataPath>
+										<ReadOnly>true</ReadOnly>
+										<Title>
+											<v8:item>
+												<v8:lang>ru</v8:lang>
+												<v8:content>Поле</v8:content>
+											</v8:item>
+										</Title>
+										<Width>48</Width>
+										<ContextMenu name="СтруктурныеПоляПолеИдПоляКонтекстноеМеню" id="280"/>
+										<ExtendedTooltip name="СтруктурныеПоляПолеИдПоляРасширеннаяПодсказка" id="281"/>
+									</InputField>
+									<CheckBoxField name="СтруктурныеПоляПолеПодтверждено" id="282">
+										<DataPath>СтруктурныеПоля.Подтверждено</DataPath>
+										<ReadOnly>true</ReadOnly>
+										<Title>
+											<v8:item>
+												<v8:lang>ru</v8:lang>
+												<v8:content>Подтверждено</v8:content>
+											</v8:item>
+										</Title>
+										<ContextMenu name="СтруктурныеПоляПолеПодтвержденоКонтекстноеМеню" id="283"/>
+										<ExtendedTooltip name="СтруктурныеПоляПолеПодтвержденоРасширеннаяПодсказка" id="284"/>
+									</CheckBoxField>
+									<InputField name="СтруктурныеПоляПолеПроверка" id="285">
+										<DataPath>СтруктурныеПоля.Проверка</DataPath>
+										<ReadOnly>true</ReadOnly>
+										<Title>
+											<v8:item>
+												<v8:lang>ru</v8:lang>
+												<v8:content>Проверка</v8:content>
+											</v8:item>
+										</Title>
+										<Width>40</Width>
+										<ContextMenu name="СтруктурныеПоляПолеПроверкаКонтекстноеМеню" id="286"/>
+										<ExtendedTooltip name="СтруктурныеПоляПолеПроверкаРасширеннаяПодсказка" id="287"/>
+									</InputField>
+								</ChildItems>
+							</Table>
+						</ChildItems>
+					</UsualGroup>
+					<UsualGroup name="ГруппаСостояниеЗащиты" id="288">
+						<Group>Vertical</Group>
+						<ExtendedTooltip name="ГруппаСостояниеЗащитыРасширеннаяПодсказка" id="289"/>
+						<ChildItems>
+							<UsualGroup name="ГруппаСтрокаСостоянияЗащиты" id="290">
+								<Group>AlwaysHorizontal</Group>
+								<ExtendedTooltip name="ГруппаСтрокаСостоянияЗащитыРасширеннаяПодсказка" id="291"/>
+								<ChildItems>
+									<LabelDecoration name="ДекорацияСостояниеЗащиты" id="292">
+										<Title formatted="false">
+											<v8:item>
+												<v8:lang>ru</v8:lang>
+												<v8:content>Выключен</v8:content>
+											</v8:item>
+										</Title>
+										<ContextMenu name="ДекорацияСостояниеЗащитыКонтекстноеМеню" id="293"/>
+										<ExtendedTooltip name="ДекорацияСостояниеЗащитыРасширеннаяПодсказка" id="294"/>
+									</LabelDecoration>
+									<Button name="КнопкаВосстановитьДоверие" id="295">
+										<Type>UsualButton</Type>
+										<Visible>false</Visible>
+										<CommandName>Form.Command.ВосстановитьДоверие</CommandName>
+										<ExtendedTooltip name="КнопкаВосстановитьДовериеРасширеннаяПодсказка" id="296"/>
+									</Button>
+								</ChildItems>
+							</UsualGroup>
+							<LabelDecoration name="ДекорацияПредупреждениеМаскирования" id="297">
+								<Visible>false</Visible>
+								<AutoMaxWidth>false</AutoMaxWidth>
+								<TextColor>web:FireBrick</TextColor>
+								<Title formatted="false">
+									<v8:item>
+										<v8:lang>ru</v8:lang>
+										<v8:content>Строгий режим выключен: клиент, который выполняет код, может обойти маскирование</v8:content>
+									</v8:item>
+								</Title>
+								<ContextMenu name="ДекорацияПредупреждениеМаскированияКонтекстноеМеню" id="298"/>
+								<ExtendedTooltip name="ДекорацияПредупреждениеМаскированияРасширеннаяПодсказка" id="299"/>
+							</LabelDecoration>
+							<LabelDecoration name="ДекорацияПримечаниеМаскирования" id="300">
+								<AutoMaxWidth>false</AutoMaxWidth>
+								<Title formatted="false">
+									<v8:item>
+										<v8:lang>ru</v8:lang>
+										<v8:content>Маскирование защищает от случайного раскрытия, но не от клиента, который выполняет код</v8:content>
+									</v8:item>
+								</Title>
+								<ContextMenu name="ДекорацияПримечаниеМаскированияКонтекстноеМеню" id="301"/>
+								<ExtendedTooltip name="ДекорацияПримечаниеМаскированияРасширеннаяПодсказка" id="302"/>
+							</LabelDecoration>
+						</ChildItems>
+					</UsualGroup>
 					<UsualGroup name="ГруппаМаппинги" id="102">
 							<Title>
 								<v8:item>
@@ -1283,6 +1491,9 @@
 													<HorizontalStretch>true</HorizontalStretch>
 													<TitleLocation>None</TitleLocation>
 													<ExtendedTooltip name="ПолеТекстДляДеАнонимизацииHTMLРасширеннаяПодсказка" id="123"/>
+													<Events>
+														<Event name="OnClick">ПолеТекстДляДеАнонимизацииHTMLПриНажатии</Event>
+													</Events>
 												</HTMLDocumentField>
 											</ChildItems>
 										</Page>
@@ -1290,6 +1501,143 @@
 								</Pages>
 							</ChildItems>
 						</UsualGroup>
+					</ChildItems>
+				</Page>
+				<Page name="СтраницаШлюзСтрогогоРежима" id="303">
+					<Title>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Шлюз строгого режима</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="СтраницаШлюзСтрогогоРежимаРасширеннаяПодсказка" id="304"/>
+					<ChildItems>
+						<InputField name="ПолеТаймаутШлюза" id="305">
+							<DataPath>ТаймаутШлюзаСек</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Время ожидания подтверждения, с</v8:content>
+								</v8:item>
+							</Title>
+							<ToolTip>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Вызов без решения за это время отклоняется (E_GATE_TIMEOUT). Отсчет идет от поступления вызова; 0 - 300 секунд. Клиент, который ждет дольше 45 секунд, получает E_GATE_PENDING и повторяет вызов.</v8:content>
+								</v8:item>
+							</ToolTip>
+							<Width>10</Width>
+							<ContextMenu name="ПолеТаймаутШлюзаКонтекстноеМеню" id="306"/>
+							<ExtendedTooltip name="ПолеТаймаутШлюзаРасширеннаяПодсказка" id="307"/>
+							<Events>
+								<Event name="OnChange">ПолеТаймаутШлюзаПриИзменении</Event>
+							</Events>
+						</InputField>
+						<Table name="ЖурналШлюзаПоле" id="308">
+							<Representation>List</Representation>
+							<TitleLocation>Top</TitleLocation>
+							<ReadOnly>true</ReadOnly>
+							<Height>12</Height>
+							<DataPath>ЖурналШлюза</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Журнал шлюза (только этот сеанс, в базу не пишется)</v8:content>
+								</v8:item>
+							</Title>
+							<RowFilter xsi:nil="true"/>
+							<ContextMenu name="ЖурналШлюзаПолеКонтекстноеМеню" id="309"/>
+							<AutoCommandBar name="ЖурналШлюзаПолеКоманднаяПанель" id="310">
+								<Autofill>false</Autofill>
+							</AutoCommandBar>
+							<ExtendedTooltip name="ЖурналШлюзаПолеРасширеннаяПодсказка" id="311"/>
+							<SearchStringAddition name="ЖурналШлюзаПолеСтрокаПоиска" id="312">
+								<AdditionSource>
+									<Item>ЖурналШлюзаПоле</Item>
+									<Type>SearchStringRepresentation</Type>
+								</AdditionSource>
+								<ContextMenu name="ЖурналШлюзаПолеСтрокаПоискаКонтекстноеМеню" id="313"/>
+								<ExtendedTooltip name="ЖурналШлюзаПолеСтрокаПоискаРасширеннаяПодсказка" id="314"/>
+							</SearchStringAddition>
+							<ViewStatusAddition name="ЖурналШлюзаПолеСостояниеПросмотра" id="315">
+								<AdditionSource>
+									<Item>ЖурналШлюзаПоле</Item>
+									<Type>ViewStatusRepresentation</Type>
+								</AdditionSource>
+								<ContextMenu name="ЖурналШлюзаПолеСостояниеПросмотраКонтекстноеМеню" id="316"/>
+								<ExtendedTooltip name="ЖурналШлюзаПолеСостояниеПросмотраРасширеннаяПодсказка" id="317"/>
+							</ViewStatusAddition>
+							<SearchControlAddition name="ЖурналШлюзаПолеУправлениеПоиском" id="318">
+								<AdditionSource>
+									<Item>ЖурналШлюзаПоле</Item>
+									<Type>SearchControl</Type>
+								</AdditionSource>
+								<ContextMenu name="ЖурналШлюзаПолеУправлениеПоискомКонтекстноеМеню" id="319"/>
+								<ExtendedTooltip name="ЖурналШлюзаПолеУправлениеПоискомРасширеннаяПодсказка" id="320"/>
+							</SearchControlAddition>
+							<ChildItems>
+								<InputField name="ЖурналШлюзаПолеВремя" id="321">
+									<DataPath>ЖурналШлюза.Время</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>ru</v8:lang>
+											<v8:content>Время</v8:content>
+										</v8:item>
+									</Title>
+									<Width>16</Width>
+									<ContextMenu name="ЖурналШлюзаПолеВремяКонтекстноеМеню" id="322"/>
+									<ExtendedTooltip name="ЖурналШлюзаПолеВремяРасширеннаяПодсказка" id="323"/>
+								</InputField>
+								<InputField name="ЖурналШлюзаПолеИнструмент" id="324">
+									<DataPath>ЖурналШлюза.Инструмент</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>ru</v8:lang>
+											<v8:content>Инструмент</v8:content>
+										</v8:item>
+									</Title>
+									<Width>18</Width>
+									<ContextMenu name="ЖурналШлюзаПолеИнструментКонтекстноеМеню" id="325"/>
+									<ExtendedTooltip name="ЖурналШлюзаПолеИнструментРасширеннаяПодсказка" id="326"/>
+								</InputField>
+								<InputField name="ЖурналШлюзаПолеВердикт" id="327">
+									<DataPath>ЖурналШлюза.Вердикт</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>ru</v8:lang>
+											<v8:content>Вердикт</v8:content>
+										</v8:item>
+									</Title>
+									<Width>10</Width>
+									<ContextMenu name="ЖурналШлюзаПолеВердиктКонтекстноеМеню" id="328"/>
+									<ExtendedTooltip name="ЖурналШлюзаПолеВердиктРасширеннаяПодсказка" id="329"/>
+								</InputField>
+								<InputField name="ЖурналШлюзаПолеРешение" id="330">
+									<DataPath>ЖурналШлюза.Решение</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>ru</v8:lang>
+											<v8:content>Решение</v8:content>
+										</v8:item>
+									</Title>
+									<Width>28</Width>
+									<ContextMenu name="ЖурналШлюзаПолеРешениеКонтекстноеМеню" id="331"/>
+									<ExtendedTooltip name="ЖурналШлюзаПолеРешениеРасширеннаяПодсказка" id="332"/>
+								</InputField>
+								<InputField name="ЖурналШлюзаПолеРиски" id="333">
+									<DataPath>ЖурналШлюза.Риски</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>ru</v8:lang>
+											<v8:content>Причины и риски</v8:content>
+										</v8:item>
+									</Title>
+									<Width>30</Width>
+									<ContextMenu name="ЖурналШлюзаПолеРискиКонтекстноеМеню" id="334"/>
+									<ExtendedTooltip name="ЖурналШлюзаПолеРискиРасширеннаяПодсказка" id="335"/>
+								</InputField>
+							</ChildItems>
+						</Table>
 					</ChildItems>
 				</Page>
 			</ChildItems>
@@ -1655,6 +2003,166 @@
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
+		<Attribute name="ТаймаутЗапросаСек" id="253">
+			<Type>
+				<v8:Type>xs:decimal</v8:Type>
+				<v8:NumberQualifiers>
+					<v8:Digits>5</v8:Digits>
+					<v8:FractionDigits>0</v8:FractionDigits>
+					<v8:AllowedSign>Nonnegative</v8:AllowedSign>
+				</v8:NumberQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="СтрогийРежимАнонимизации" id="254">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Строгий режим анонимизации</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="ЖурналШлюза" id="255">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Журнал шлюза</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>v8:ValueTable</v8:Type>
+			</Type>
+			<Columns>
+				<Column name="Время" id="1">
+					<Title>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Время</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:Type>xs:dateTime</v8:Type>
+						<v8:DateQualifiers>
+							<v8:DateFractions>DateTime</v8:DateFractions>
+						</v8:DateQualifiers>
+					</Type>
+				</Column>
+				<Column name="Инструмент" id="2">
+					<Title>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Инструмент</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="Вердикт" id="3">
+					<Title>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Вердикт</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="Решение" id="4">
+					<Title>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Решение</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="Риски" id="5">
+					<Title>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Риски</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+			</Columns>
+		</Attribute>
+		<Attribute name="ТаймаутШлюзаСек" id="256">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Время ожидания подтверждения, с</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:decimal</v8:Type>
+				<v8:NumberQualifiers>
+					<v8:Digits>5</v8:Digits>
+					<v8:FractionDigits>0</v8:FractionDigits>
+					<v8:AllowedSign>Nonnegative</v8:AllowedSign>
+				</v8:NumberQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="СтруктурныеПоля" id="257">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Структурные поля</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>v8:ValueTable</v8:Type>
+			</Type>
+			<Columns>
+				<Column name="ИдПоля" id="1">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>300</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="Подтверждено" id="2">
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
+				<Column name="Проверка" id="3">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>200</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+			</Columns>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="Подключиться" id="1">
@@ -1740,6 +2248,42 @@
 				</v8:item>
 			</Title>
 			<Action>УправлениеСервером</Action>
+		</Command>
+		<Command name="ВосстановитьДоверие" id="243">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Восстановить доверие...</v8:content>
+				</v8:item>
+			</Title>
+			<Action>ВосстановитьДоверие</Action>
+		</Command>
+		<Command name="ДобавитьСтруктурноеПоле" id="244">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Добавить...</v8:content>
+				</v8:item>
+			</Title>
+			<Action>ДобавитьСтруктурноеПоле</Action>
+		</Command>
+		<Command name="УдалитьСтруктурноеПоле" id="245">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Удалить</v8:content>
+				</v8:item>
+			</Title>
+			<Action>УдалитьСтруктурноеПоле</Action>
+		</Command>
+		<Command name="ПроверитьИПрименитьСтруктурныеПоля" id="246">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Проверить и применить</v8:content>
+				</v8:item>
+			</Title>
+			<Action>ПроверитьИПрименитьСтруктурныеПоля</Action>
 		</Command>
 </Commands>
 	<Events>
