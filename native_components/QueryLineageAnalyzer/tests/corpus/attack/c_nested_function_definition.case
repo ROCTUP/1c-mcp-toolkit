@@ -1,0 +1,9 @@
+// kind: code
+// expect: confirm
+// reason: C_PARSE
+// risk: R_UNKNOWN_EFFECT
+// class: 12
+Процедура Внутри()
+    Результат = 1;
+КонецПроцедуры
+Внутри();

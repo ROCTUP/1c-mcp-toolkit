@@ -1,0 +1,6 @@
+// kind: code
+// expect: confirm
+// reason: C_TAINTED_KEY
+// class: 12
+Результат = Новый Соответствие;
+Результат.Вставить("[str-00001]", 1);

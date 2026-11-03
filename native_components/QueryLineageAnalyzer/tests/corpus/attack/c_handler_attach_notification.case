@@ -1,0 +1,8 @@
+// kind: code
+// expect: confirm
+// reason: C_UNKNOWN_IDENT
+// risk: R_UNKNOWN_EFFECT
+// risk: R_DEFERRED
+// class: 12
+ПодключитьОбработчикОповещения("Обработчик");
+Результат = 1;

@@ -1,0 +1,5 @@
+// kind: query
+// expect: confirm
+// reason: Q_UNKNOWN_COLUMN
+// class: 8
+ВЫБРАТЬ &МСПТокен2 КАК Поле

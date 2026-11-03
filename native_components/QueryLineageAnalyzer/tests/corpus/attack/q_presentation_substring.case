@@ -1,0 +1,6 @@
+// kind: query
+// expect: confirm
+// reason: Q_PRESENTATION
+// reason: Q_FUNC_OVER_PROTECTED
+ВЫБРАТЬ ПОДСТРОКА(ПРЕДСТАВЛЕНИЕ(Реализация.Контрагент), 1, 1) КАК Показатель
+ИЗ Документ.Реализация КАК Реализация

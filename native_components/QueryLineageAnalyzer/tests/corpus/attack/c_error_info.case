@@ -1,0 +1,11 @@
+// kind: code
+// expect: confirm
+// reason: C_UNKNOWN_IDENT
+// reason: C_UNKNOWN_RECEIVER
+// risk: R_UNKNOWN_EFFECT
+// class: 3
+Попытка
+    Показатель = 1 / 0;
+Исключение
+    Результат = ИнформацияОбОшибке().Описание;
+КонецПопытки;

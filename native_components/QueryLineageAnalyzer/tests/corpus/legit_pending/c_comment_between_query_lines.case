@@ -1,0 +1,11 @@
+// kind: code
+// expect: safe
+// pending: C_PARSE: a // comment line between | continuation lines is rejected by the BSL tokenizer.
+З = Новый Запрос;
+З.Текст =
+"ВЫБРАТЬ
+|    Реализация.Ссылка КАК Объект
+//|    , Реализация.Номер КАК Номер
+|ИЗ
+|    Документ.Реализация КАК Реализация";
+Результат = З.Выполнить().Выгрузить();

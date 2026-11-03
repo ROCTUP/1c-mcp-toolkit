@@ -1,0 +1,5 @@
+// kind: query
+// expect: confirm
+// reason: Q_PARSE_UNEXPECTED
+ВЫБРАТЬ В.Ссылка КАК Ссылка
+ИЗ Справочник.Контрагенты В

@@ -1,0 +1,6 @@
+// kind: code
+// expect: confirm
+// reason: C_UNKNOWN_IDENT
+// risk: R_PROTECTION
+// class: 12
+Результат = ЭтотОбъект;

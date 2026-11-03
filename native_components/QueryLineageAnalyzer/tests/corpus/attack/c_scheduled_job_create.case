@@ -1,0 +1,8 @@
+// kind: code
+// expect: confirm
+// reason: C_COMMON_MODULE
+// risk: R_UNKNOWN_EFFECT
+// risk: R_DEFERRED
+// class: 12
+Задание = РегламентныеЗадания.СоздатьРегламентноеЗадание("Имя");
+Результат = 1;

@@ -1,0 +1,7 @@
+// kind: code
+// expect: confirm
+// reason: C_UNKNOWN_IDENT
+// reason: C_TAINTED_KEY
+// class: 12
+Результат = Новый Структура;
+Результат.Вставить(Параметр, 1);

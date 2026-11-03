@@ -1,0 +1,6 @@
+// kind: code
+// expect: confirm
+// reason: C_PARSE
+// class: parser
+И = 1;
+Результат = И;

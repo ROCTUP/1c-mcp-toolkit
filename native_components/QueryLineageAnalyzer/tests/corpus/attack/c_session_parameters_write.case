@@ -1,0 +1,8 @@
+// kind: code
+// expect: confirm
+// reason: C_UNKNOWN_IDENT
+// reason: C_UNKNOWN_RECEIVER
+// risk: R_PROTECTION
+// class: 12
+ПараметрыСеанса.Что = 1;
+Результат = 1;

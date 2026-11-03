@@ -1,0 +1,6 @@
+// kind: code
+// expect: confirm
+// reason: C_UNKNOWN_IDENT
+// risk: R_UNKNOWN_EFFECT
+// class: 12
+Результат = ПолучитьИзВременногоХранилища(Адрес);

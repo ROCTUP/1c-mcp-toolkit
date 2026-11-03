@@ -1,0 +1,9 @@
+// kind: query
+// expect: safe
+// pending: Q_RESOLVE_AMBIGUOUS_NAME: a nested subquery reuses the alias of the outer source.
+ВЫБРАТЬ Реализация.Ссылка КАК Объект
+ИЗ Документ.Реализация КАК Реализация
+ГДЕ Реализация.Контрагент В
+    (ВЫБРАТЬ Реализация.Контрагент
+    ИЗ Документ.Реализация КАК Реализация
+    ГДЕ Реализация.Дата > &П)

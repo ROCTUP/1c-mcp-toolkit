@@ -1,0 +1,5 @@
+// kind: code
+// expect: confirm
+// reason: C_PRINT_STRING
+// class: parser
+Результат = "‮abc";

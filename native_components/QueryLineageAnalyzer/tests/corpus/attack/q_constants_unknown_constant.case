@@ -1,0 +1,5 @@
+// kind: query
+// expect: confirm
+// reason: Q_UNKNOWN_COLUMN
+// class: 12
+ВЫБРАТЬ Константы.НетТакойКонстанты КАК Х ИЗ Константы КАК Константы

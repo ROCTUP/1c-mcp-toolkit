@@ -1,0 +1,6 @@
+// kind: query
+// expect: incomplete
+// reason: Q_INCOMPLETE
+// reason: Q_RESOLVE_UNKNOWN_SOURCE
+ВЫБРАТЬ Х.СуммаОстаток КАК Сумма
+ИЗ РегистрНакопления.Взаиморасчеты.НетТакойТаблицы КАК Х

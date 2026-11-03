@@ -1,0 +1,5 @@
+// kind: query
+// expect: incomplete
+// reason: Q_INCOMPLETE
+ВЫБРАТЬ Склады.Ссылка КАК Объект
+ИЗ Справочник.Склады КАК Склады
