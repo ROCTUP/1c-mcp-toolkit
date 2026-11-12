@@ -638,7 +638,7 @@ TEST(CheckQuery, MixedScriptNamesOfThePolicyPass) {
              std::string("incomplete"));   // Latin T: another table name, never resolved to Справочник.ТомаS3
 }
 
-// decisions §2a: a stored protected string compared with "" discloses one bit and is open; anything computed first
+// A stored protected string compared with "" discloses one bit and is open; anything computed first
 // is not an emptiness test, and a non-empty literal is still an equality oracle.
 TEST(CheckQuery, EmptinessTestIsOneOpenBit) {
     const auto verdict = [](const std::string& q) { return Check(q, kPolicyABJson)["verdict"].get<std::string>(); };

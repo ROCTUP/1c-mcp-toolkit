@@ -29,7 +29,7 @@ struct LabelTable {
     std::set<const Expr*> outer_refs;   // field paths of a subquery that do not resolve in its own sources
 };
 
-// An emptiness test (decisions §2a): `<field> = ""` or `<field> <> ""` (either order) where the field path reads a
+// An emptiness test: `<field> = ""` or `<field> <> ""` (either order) where the field path reads a
 // stored protected string directly (label ProtectedDirect). It discloses one bit, filled or not, never the value, so
 // the analyzer labels it Open and the rule engine adds no reason. Anything computed first (ПОДСТРОКА(x, 5, 1) = "",
 // a parameter, a token, a derived value) is not an emptiness test: a substring of a value is a length oracle.

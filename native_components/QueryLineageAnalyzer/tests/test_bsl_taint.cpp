@@ -886,7 +886,7 @@ TEST(BslTaint, ParamNameOutsideTheParameterAlphabet) {
                "Результат = З.Выполнить().Выгрузить();"));
 }
 
-// Метаданные and the object managers are configuration structure (decisions §2b): open values, no reason; a name
+// Метаданные and the object managers are configuration structure: open values, no reason; a name
 // taken from data is still an operation over protected data.
 TEST(BslTaint, MetadataAndManagers) {
     CHECK(Safe("Результат = Метаданные.Роли.Найти(\"Р\") <> Неопределено;"));
@@ -941,7 +941,7 @@ TEST(BslTaint, QueryTextChangedLaterInLoopIsDynamic) {
     CHECK(r.query_canonical.empty());
 }
 
-// decisions §2a in code: x = "" / x <> "" and ПустаяСтрока over a stored protected string are one open bit.
+// In code: x = "" / x <> "" and ПустаяСтрока over a stored protected string are one open bit.
 TEST(BslTaint, EmptinessTestIsOneOpenBit) {
     const std::string pre = std::string(kQ) + "Т = З.Выполнить().Выгрузить();\n";
     CHECK(Safe(pre + "Результат = Т[0].Имя = \"\";"));
@@ -953,6 +953,6 @@ TEST(BslTaint, EmptinessTestIsOneOpenBit) {
     CHECK(Denied(pre + "Результат = ПустаяСтрока(Сред(Т[0].Имя, 5));", "C_FUNC_OVER_PROTECTED"));
     CHECK(Denied(pre + "Результат = Т[0].Имя > \"\";", "C_FUNC_OVER_PROTECTED"));
     CHECK(Denied(pre + "Результат = Т[0].Имя <> \"x\";", "C_FUNC_OVER_PROTECTED"));
-    CHECK(Safe(pre + "Результат = ЗначениеЗаполнено(Т[0].Имя);"));   // decisions §5
+    CHECK(Safe(pre + "Результат = ЗначениеЗаполнено(Т[0].Имя);"));
     CHECK(Denied(pre + "Результат = ЗначениеЗаполнено(Сред(Т[0].Имя, 5));", "C_FUNC_OVER_PROTECTED"));
 }

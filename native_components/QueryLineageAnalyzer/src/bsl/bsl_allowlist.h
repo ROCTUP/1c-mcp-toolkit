@@ -16,7 +16,7 @@
 //   Open:      the arguments must be open or client data; over protected data the call needs confirmation
 //              (C_FUNC_OVER_PROTECTED); the result is open;
 //   Confirm:   always needs confirmation;
-//   Emptiness: one bit, filled or not (decisions §2a): open over a direct protected read (label ProtectedDirect) and
+//   Emptiness: one bit, filled or not: open over a direct protected read (label ProtectedDirect) and
 //              over open / client data; over anything computed (Сред(x, 5), an unknown value) it is
 //              C_FUNC_OVER_PROTECTED like Open, since a substring's emptiness is a length oracle.
 // Hand-off to the taint pass: a Ref argument to Строка / Формат / Лев / ... reads its presentation from the database; it must be
@@ -243,7 +243,7 @@ inline constexpr MethodRule kMethodRules[] = {
     {Ty::Ref, "Пустая", "IsEmpty", Ty::Boolean, Taint::Open, 0, 0, ArgRule::Any},
     {Ty::Ref, "Метаданные", "Metadata", Ty::MetaObject, Taint::Open, 0, 0, ArgRule::Any},
     {Ty::MetaObject, "ПолноеИмя", "FullName", Ty::String, Taint::Open, 0, 0, ArgRule::Any},
-    // Metadata is configuration structure, not data (decisions §2b): the results are open; a tainted argument (a name
+    // Metadata is configuration structure, not data: the results are open; a tainted argument (a name
     // taken from data) is still C_FUNC_OVER_PROTECTED.
     {Ty::Metadata, "НайтиПоПолномуИмени", "FindByFullName", Ty::MetaObject, Taint::Open, 1, 1, ArgRule::Any},
     {Ty::MetaCollection, "Найти", "Find", Ty::MetaObject, Taint::Open, 1, 1, ArgRule::Any},

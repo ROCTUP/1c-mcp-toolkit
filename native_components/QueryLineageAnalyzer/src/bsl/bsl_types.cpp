@@ -1331,7 +1331,7 @@ private:
         return Typed(e.text == "-" ? Ty::Number : Ty::Boolean, Transform(input));
     }
 
-    // `x = ""` / `x <> ""` (either order) over a direct protected read: one bit, filled or not (decisions §2a).
+    // `x = ""` / `x <> ""` (either order) over a direct protected read: one bit, filled or not.
     // The empty literal must be a value, not part of a query text; the other side must carry exactly the label of a
     // stored protected string (ProtectedDirect): a derived value (Сред(x, 5)) or an unknown one is not exempt.
     bool IsEmptinessTest(const Expr& e, const VType& a, const VType& b) const {
