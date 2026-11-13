@@ -1,0 +1,8 @@
+// kind: code
+// expect: confirm
+// reason: C_COMMON_MODULE
+// risk: R_UNKNOWN_EFFECT
+// risk: R_WRITE
+// risk: R_PROTECTION
+// class: 12
+Результат = ХранилищеОбщихНастроек.Загрузить("Ключ", "Настройка");

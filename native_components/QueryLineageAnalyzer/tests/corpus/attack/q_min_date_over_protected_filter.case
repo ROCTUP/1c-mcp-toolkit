@@ -1,0 +1,8 @@
+// kind: query
+// expect: confirm
+// reason: Q_COMPARE_PROTECTED
+// reason: Q_AGGREGATE_ROWSET
+// class: 2
+ВЫБРАТЬ МИНИМУМ(Реализация.Дата) КАК Дата
+ИЗ Документ.Реализация КАК Реализация
+ГДЕ Реализация.Контрагент.ИНН < "5"

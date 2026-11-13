@@ -1,0 +1,8 @@
+// kind: code
+// expect: confirm
+// reason: C_UNKNOWN_IDENT
+// reason: C_DYNAMIC_PARAM
+// class: 12
+З = Новый Запрос("ВЫБРАТЬ &П КАК Показатель");
+З.УстановитьПараметр(Имя, 1);
+Результат = З.Выполнить().Выгрузить();

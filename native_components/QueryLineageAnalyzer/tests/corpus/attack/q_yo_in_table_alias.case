@@ -1,0 +1,7 @@
+// kind: query
+// expect: confirm
+// reason: Q_EQ_LITERAL
+// class: parser
+ВЫБРАТЬ Ёж.Ссылка КАК Объект
+ИЗ Справочник.Контрагенты КАК Еж
+ГДЕ Еж.ИНН = "1"

@@ -1,0 +1,9 @@
+// kind: code
+// expect: confirm
+// reason: C_UNKNOWN_TYPE
+// reason: C_UNKNOWN_MEMBER
+// risk: R_UNKNOWN_EFFECT
+// class: 12
+З = Новый Запрос("ВЫБРАТЬ 1");
+З.МенеджерВременныхТаблиц = Новый МенеджерВременныхТаблиц;
+Результат = З.Выполнить().Выгрузить();

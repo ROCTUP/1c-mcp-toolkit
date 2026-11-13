@@ -1,0 +1,6 @@
+// kind: code
+// expect: confirm
+// reason: C_UNKNOWN_MEMBER
+// class: 12
+Структ = Новый Структура("А", 1);
+Результат = Структ.Б;

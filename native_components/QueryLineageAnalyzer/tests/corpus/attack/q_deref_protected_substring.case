@@ -1,0 +1,6 @@
+// kind: query
+// expect: confirm
+// reason: Q_FUNC_OVER_PROTECTED
+// reason: Q_MIXED_COLUMN
+ВЫБРАТЬ ПОДСТРОКА(Реализация.Контрагент.ИНН, 1, 1) КАК Показатель
+ИЗ Документ.Реализация КАК Реализация

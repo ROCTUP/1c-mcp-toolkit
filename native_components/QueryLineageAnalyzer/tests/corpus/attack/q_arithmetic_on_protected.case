@@ -1,0 +1,7 @@
+// kind: query
+// expect: confirm
+// reason: Q_FUNC_OVER_PROTECTED
+// reason: Q_MIXED_COLUMN
+// class: 1
+ВЫБРАТЬ Контрагенты.ИНН * 2 КАК Поле
+ИЗ Справочник.Контрагенты КАК Контрагенты

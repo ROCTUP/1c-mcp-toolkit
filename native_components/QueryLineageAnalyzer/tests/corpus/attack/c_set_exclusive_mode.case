@@ -1,0 +1,9 @@
+// kind: code
+// expect: confirm
+// reason: C_UNKNOWN_IDENT
+// risk: R_UNKNOWN_EFFECT
+// risk: R_PROTECTION
+// risk: R_WRITE
+// class: 12
+УстановитьМонопольныйРежим(Истина);
+Результат = 1;

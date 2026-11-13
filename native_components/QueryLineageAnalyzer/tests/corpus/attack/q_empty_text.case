@@ -1,0 +1,4 @@
+// kind: query
+// expect: confirm
+// reason: Q_PARSE_EMPTY
+

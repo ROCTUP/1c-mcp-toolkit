@@ -1,0 +1,12 @@
+// kind: code
+// expect: confirm
+// reason: C_UNKNOWN_IDENT
+// reason: C_UNKNOWN_RECEIVER
+// risk: R_UNKNOWN_EFFECT
+// risk: R_WRITE
+// class: 3
+Попытка
+    ЗаписьЖурналаРегистрации("Событие", УровеньЖурналаРегистрации.Информация);
+Исключение
+КонецПопытки;
+Результат = 1;

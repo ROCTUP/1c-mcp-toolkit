@@ -1,0 +1,6 @@
+// kind: code
+// expect: confirm
+// reason: C_TOKEN_AS_NAME
+// reason: C_FUNC_OVER_PROTECTED
+// class: 12
+Результат = Новый Структура("[str-00001]", 1);

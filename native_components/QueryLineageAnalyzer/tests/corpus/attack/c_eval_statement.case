@@ -1,0 +1,7 @@
+// kind: code
+// expect: confirm
+// reason: C_EVAL
+// risk: R_UNKNOWN_EFFECT
+// risk: R_PROTECTION
+// class: 12
+Выполнить("Результат = 1;");

@@ -1,0 +1,6 @@
+// kind: query
+// expect: confirm
+// reason: Q_COMPARE_PROTECTED
+ВЫБРАТЬ КОЛИЧЕСТВО(*) КАК Строк
+ИЗ Справочник.Контрагенты КАК В
+ГДЕ В.ИНН < "5"

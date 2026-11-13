@@ -1,0 +1,5 @@
+// kind: code
+// expect: confirm
+// reason: C_TOKEN_IN_STRING
+// class: 12
+Результат = "Ключ [str-00001] Значение";

@@ -1,0 +1,10 @@
+// kind: code
+// expect: confirm
+// reason: C_UNKNOWN_IDENT
+// reason: C_UNKNOWN_RECEIVER
+// risk: R_UNKNOWN_EFFECT
+// risk: R_DEFERRED
+// class: 12
+Менеджер = ФоновыеЗадания;
+Менеджер.Выполнить("Модуль.Процедура", Новый Массив);
+Результат = 1;

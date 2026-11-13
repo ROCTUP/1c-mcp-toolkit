@@ -1,0 +1,8 @@
+// kind: query
+// expect: confirm
+// reason: Q_FUNC_OVER_PROTECTED
+// reason: Q_COMPARE_PROTECTED
+// class: 2
+ВЫБРАТЬ Контрагенты.Ссылка КАК Объект
+ИЗ Справочник.Контрагенты КАК Контрагенты
+ГДЕ ПОДСТРОКА(Контрагенты.ИНН, 1, 1) = "1"

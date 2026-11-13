@@ -1,0 +1,7 @@
+// kind: query
+// expect: confirm
+// reason: Q_LIKE_PROTECTED
+// class: 2
+SELECT Контрагенты.Ссылка AS Объект
+FROM Справочник.Контрагенты AS Контрагенты
+WHERE Контрагенты.ИНН LIKE "1%"

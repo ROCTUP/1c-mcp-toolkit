@@ -1,0 +1,6 @@
+// kind: query
+// expect: confirm
+// reason: Q_FUNC_OVER_PROTECTED
+// reason: Q_EQ_LITERAL
+ВЫБРАТЬ ВЫБОР КОГДА Контрагенты.ИНН = "1" ТОГДА 1 ИНАЧЕ 0 КОНЕЦ КАК Показатель
+ИЗ Справочник.Контрагенты КАК Контрагенты

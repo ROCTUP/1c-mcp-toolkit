@@ -43,6 +43,8 @@ private:
     enum Methods {
         eMethodAnalyzeSources = 0,
         eMethodVersion,
+        eMethodCheckQuery,
+        eMethodCheckCode,
         eMethodLast
     };
 

@@ -1,0 +1,7 @@
+// kind: query
+// expect: confirm
+// reason: Q_FUNC_OVER_PROTECTED
+// reason: Q_MIXED_COLUMN
+// class: 1
+ВЫБРАТЬ ПОДСТРОКА(Контрагенты.ИНН, 1, 1) КАК Показатель
+ИЗ Справочник.Контрагенты КАК Контрагенты

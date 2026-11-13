@@ -1,0 +1,10 @@
+// kind: code
+// expect: confirm
+// reason: C_EVAL
+// risk: R_UNKNOWN_EFFECT
+// risk: R_PROTECTION
+// class: 12
+Если Ложь Тогда
+    Выполнить("Результат = 1;");
+КонецЕсли;
+Результат = 1;

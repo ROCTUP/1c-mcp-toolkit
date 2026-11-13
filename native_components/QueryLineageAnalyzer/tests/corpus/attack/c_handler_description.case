@@ -1,0 +1,10 @@
+// kind: code
+// expect: confirm
+// reason: C_UNKNOWN_IDENT
+// reason: C_UNKNOWN_TYPE
+// risk: R_UNKNOWN_EFFECT
+// risk: R_DEFERRED
+// risk: R_PROTECTION
+// class: 12
+Оповещение = Новый ОписаниеОповещения("Обработчик", ЭтотОбъект);
+Результат = 1;

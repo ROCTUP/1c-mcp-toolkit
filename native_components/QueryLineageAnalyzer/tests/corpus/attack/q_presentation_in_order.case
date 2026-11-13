@@ -1,0 +1,8 @@
+// kind: query
+// expect: confirm
+// reason: Q_PRESENTATION
+// reason: Q_ORDER_PROTECTED
+// class: 7
+ВЫБРАТЬ Реализация.Номер КАК Номер
+ИЗ Документ.Реализация КАК Реализация
+УПОРЯДОЧИТЬ ПО ПРЕДСТАВЛЕНИЕ(Реализация.Контрагент)

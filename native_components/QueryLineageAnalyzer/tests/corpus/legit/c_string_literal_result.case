@@ -1,0 +1,4 @@
+// kind: code
+// expect: safe
+// label: $ = client
+Результат = "Готово";

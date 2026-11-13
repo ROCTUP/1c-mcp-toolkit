@@ -1,0 +1,7 @@
+// kind: query
+// expect: safe
+// pending: Q_RESOLVE_AMBIGUOUS_NAME: a source alias equal to a field name of another source in the same query.
+ВЫБРАТЬ Номенклатура.Наименование КАК Наименование, Товары.Сумма КАК Сумма
+ИЗ Документ.Реализация.Товары КАК Товары
+    ЛЕВОЕ СОЕДИНЕНИЕ Справочник.Номенклатура КАК Номенклатура
+    ПО Товары.Номенклатура = Номенклатура.Ссылка
