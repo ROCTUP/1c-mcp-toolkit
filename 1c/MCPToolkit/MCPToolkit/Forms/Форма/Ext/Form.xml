@@ -1087,7 +1087,7 @@
 							<Table name="СтруктурныеПоляПоле" id="260">
 								<Representation>List</Representation>
 								<ReadOnly>true</ReadOnly>
-								<Height>5</Height>
+								<Height>3</Height>
 								<DataPath>СтруктурныеПоля</DataPath>
 								<Title>
 									<v8:item>
@@ -1332,7 +1332,7 @@
 							<DataPath>ТаблицаМаппингов</DataPath>
 							<TitleLocation>None</TitleLocation>
 							<ReadOnly>true</ReadOnly>
-							<Height>12</Height>
+							<Height>5</Height>
 							<Width>80</Width>
 							<RowFilter xsi:nil="true"/>
 							<ContextMenu name="ТаблицаМаппинговПолеКонтекстноеМеню" id="71"/>
@@ -1415,6 +1415,7 @@
 							<Group>Vertical</Group>
 							<Representation>NormalSeparation</Representation>
 							<Behavior>Collapsible</Behavior>
+							<Collapsed>true</Collapsed>
 							<ControlRepresentation>Picture</ControlRepresentation>
 							<HorizontalStretch>true</HorizontalStretch>
 							<ExtendedTooltip name="ГруппаДеАнонимизацияТекстаРасширеннаяПодсказка" id="109"/>
@@ -1447,7 +1448,7 @@
 								</UsualGroup>
 								<Pages name="СтраницыПросмотраТекста" id="116">
 									<PagesRepresentation>TabsOnTop</PagesRepresentation>
-									<Height>9</Height>
+									<Height>5</Height>
 									<HorizontalStretch>true</HorizontalStretch>
 									<ExtendedTooltip name="СтраницыПросмотраТекстаРасширеннаяПодсказка" id="117"/>
 									<ChildItems>
@@ -1464,7 +1465,7 @@
 												<InputField name="ПолеТекстДляДеАнонимизации" id="111">
 													<DataPath>ТекстДляДеАнонимизации</DataPath>
 													<MultiLine>true</MultiLine>
-													<Height>8</Height>
+													<Height>4</Height>
 													<HorizontalStretch>true</HorizontalStretch>
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<TitleLocation>None</TitleLocation>
@@ -1487,7 +1488,7 @@
 											<ChildItems>
 												<HTMLDocumentField name="ПолеТекстДляДеАнонимизацииHTML" id="122">
 													<DataPath>ТекстДляДеАнонимизацииHTML</DataPath>
-													<Height>8</Height>
+													<Height>4</Height>
 													<HorizontalStretch>true</HorizontalStretch>
 													<TitleLocation>None</TitleLocation>
 													<ExtendedTooltip name="ПолеТекстДляДеАнонимизацииHTMLРасширеннаяПодсказка" id="123"/>
